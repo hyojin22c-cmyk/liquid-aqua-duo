@@ -1,3 +1,19 @@
+# Liquid Aqua Duo
+
+A fork of Liquid Aqua ([SongPaul/liquid-aqua-skin](https://github.com/SongPaul/liquid-aqua-skin)) laid out for screens that are not 1280×800, the **iPhone Duo** first. Every feature is the original's; only how the stage meets the screen has changed.
+
+- **On its side** (the Duo opened and turned, 890×626) the stage stays 800 tall and gives up width down to 1100, so it fills the screen at 78% instead of 70% with bands above and below.
+- **On end** (626×890) it is 800 wide and as tall as the screen, one stack: header, readings and dials, profile beside recipe, bean beside last shot, then the graphs.
+- **Inside Decaid on the phone itself** (`localhost`) it is always the full brewing screen, never the phone companion. Decaid runs as an enlarged phone app on the Duo's inner display, so the skin sees 466×678 or 678×466; it fills that, and once iOS enlarges it, it comes out the size it would be on the inner display.
+- **Folding and unfolding** in a browser switches between the phone page outside and the stage inside, waiting for a shot, an open page or a field being typed in to finish first.
+- A 1280×800 tablet gets exactly the original stage.
+
+Install from Decaid's skin manager as a GitHub release of `hyojin22c-cmyk/liquid-aqua-duo`. The skin id is `liquid-aqua-duo`, so it installs beside the original and shares its settings through the gateway store (`liquid-aqua`).
+
+The original README follows.
+
+---
+
 # Liquid Aqua
 
 A bright, liquid-glass WebUI skin for [Decaid](https://github.com/decentespresso/decaid), the Decent Espresso gateway app.

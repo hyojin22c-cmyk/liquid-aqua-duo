@@ -2545,6 +2545,80 @@ body.night .sp-info-cell{background:rgba(255,255,255,.06)}
    follows the theme has no text at night. The pill takes the night face the
    modals wear, and the green and red of a result read on either. */
 body.night .toast{background:#1a1730;border-color:rgba(255,255,255,.1)}
+
+/* ── The stage, shaped to the screen ─────────────────────────────────
+   fitStage() gives the stage the shape of the screen it is on and says which
+   shape it took: .compact when it gave up width, .portrait when it stands on
+   end. A 1280x800 tablet gets neither and the stage it always had. */
+#safeProbe{position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;pointer-events:none;
+  padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
+.stage-wrap{padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
+/* Narrower: the five actions share whatever the name and the sleep key leave,
+   and each gives up its padding before the row gives up a button. */
+body.compact header{gap:10px;padding:0 14px}
+body.compact .brand,body.compact .hdr-group{flex:0 0 auto}
+body.compact .hdr-aux{flex:1 1 auto;min-width:0}
+body.compact .hdr-aux .act-btn{flex:1 1 0;min-width:0;padding:7px 6px}
+body.compact .hdr-aux .act-btn .ab-txt,body.compact .hdr-aux .act-btn .ab-head,
+body.compact .hdr-aux .act-btn .ab-sum{max-width:100%;overflow:hidden;text-overflow:ellipsis}
+body.compact:not(.portrait) .act-btn.sleep{padding:0 14px}
+body.compact:not(.portrait) .act-btn.sleep [data-i18n]{display:none}
+body.compact:not(.portrait) .app{grid-template-columns:minmax(0,1fr) 410px}
+body.compact .live-row{grid-template-columns:160px minmax(0,1fr)}
+body.compact .live{grid-template-columns:minmax(0,1fr) 300px;padding:11px 14px;gap:12px}
+body.compact .live>.gauges{padding-left:12px}
+/* Stood on end -- the iPhone Duo opened, 626x890. The two columns come apart
+   into one stack: the readings across the top, the profile beside the recipe,
+   the bean beside the last shot, and the graphs given the rest of the height,
+   which is where a tall screen has room to spare. */
+body.portrait .app{grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  grid-template-rows:auto auto auto auto minmax(0,2fr) minmax(0,1fr);
+  grid-template-areas:'hd hd' 'lv lv' 'car rec' 'bean last' 'ch ch' 'tc tc'}
+body.portrait .app:has(#camCard:not([hidden])){
+  grid-template-rows:auto auto minmax(0,1.2fr) auto auto minmax(0,2fr) minmax(0,1fr);
+  grid-template-areas:'hd hd' 'lv lv' 'cam cam' 'car rec' 'bean last' 'ch ch' 'tc tc'}
+body.portrait .center,body.portrait .right{display:contents}
+body.portrait header{grid-area:hd;flex-wrap:wrap;row-gap:8px;padding:10px 14px 20px}
+body.portrait .brand{flex:1 1 auto}
+body.portrait .hdr-aux{order:3;flex:1 1 100%}
+body.portrait .live-row{grid-area:lv}
+body.portrait .cam-card{grid-area:cam;min-width:0;min-height:0}
+body.portrait .carousel-card{grid-area:car;min-width:0}
+body.portrait .right .recipe{grid-area:rec;min-width:0}
+body.portrait .bean-info{grid-area:bean;min-width:0}
+body.portrait .lastshot-card{grid-area:last;min-width:0}
+body.portrait .chart-card{grid-area:ch}
+body.portrait .chart-card.temp-card{grid-area:tc}
+/* A full-screen page is not on the stage, so it was drawn at the screen's own
+   size -- 626 wide, where a page laid out for 1280 folds over itself. Where the
+   stage is scaled down, the pages take its scale and the room it was given. */
+/* Not the monitor or the workflow: those two size their type off the screen's
+   height already, and under a scale that height is the real one, so their
+   numbers -- the ones read from across the counter -- would come out a third
+   smaller than they were drawn to be. */
+body.fitpages .editpage:not(#monPage):not(#wfPage){inset:auto;top:env(safe-area-inset-top,0px);left:env(safe-area-inset-left,0px);
+  width:var(--fit-w);height:var(--fit-h);transform:scale(var(--fit));transform-origin:0 0}
+body.fitpages #monPage,body.fitpages #wfPage{padding-top:max(env(safe-area-inset-top,0px),clamp(10px,2.57vh,18px));
+  padding-bottom:max(env(safe-area-inset-bottom,0px),clamp(10px,2.57vh,18px))}
+/* On end the monitor's five readings do not fit across, so the recipe takes
+   a row of its own under the four that are read at a glance. */
+body.portrait .mon-top{grid-template-columns:repeat(4,minmax(0,1fr))}
+body.portrait .mon-top .mon-recipe{grid-column:1/-1}
+body.portrait .mon-body.cam{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,3fr) minmax(0,2fr)}
+/* 800 wide is not room for a graph and a step editor side by side, and the
+   step editor will not go under 460 -- so on end the curve sits beside the
+   list of steps and the step being edited takes the width beneath them. The
+   shot log does the same with the record and the tasting notes. */
+body.portrait #epEditor{grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  grid-template-rows:auto auto minmax(0,1fr) minmax(0,1.7fr) auto}
+body.portrait #epEditor .ep-visual{grid-column:1;grid-row:2/4}
+body.portrait #epEditor .ep-steps-title{grid-column:2;grid-row:2}
+body.portrait #epEditor .ep-grid-wrap{grid-column:2;grid-row:3}
+body.portrait #epEditor .ep-step-editor{grid-column:1/-1;grid-row:4}
+body.portrait #slDetail{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1.25fr) minmax(0,1fr) auto}
+body.portrait #slDetail .sl-view{grid-column:1;grid-row:1}
+body.portrait #slDetail .sl-edit{grid-column:1;grid-row:2}
+body.portrait #slDetail .ep-save-bar{grid-column:1;grid-row:3}
 </style>
 </head>
 <body>
@@ -4629,15 +4703,53 @@ function applyI18n(){ _lang=resolveLang(prefs.lang||'auto'); document.documentEl
   if(typeof syncReviewControls==='function') syncReviewControls();
 }
 
-// ── Fit 1280x800 ────────────────────────────────────────────────────
-function fitStage(){ var a=document.querySelector('.app'); var s=Math.min(window.innerWidth/1280,window.innerHeight/800,1.6);
+// ── Fit the stage ───────────────────────────────────────────────────
+// The stage was a fixed 1280x800 scaled whole onto any screen, so a screen of
+// another shape got it small with the rest left empty: the iPhone Duo opened,
+// 626x890, showed it at half size in a band across the middle. The stage now
+// takes the screen's shape. On its side it stays 800 tall and gives up width,
+// down to 1100; on end it is 800 wide and as tall as the screen makes it. A
+// 1280x800 tablet still gets exactly 1280x800.
+var STAGE_W=1280, STAGE_H=800, STAGE_MIN_W=1100, PORTRAIT_AT=1.15;
+var _stageFit=1;
+// The status bar and the home indicator are not the page's to draw under once
+// it fills the screen, and only CSS can read how much they take.
+function safeInsets(){
+  var p=document.getElementById('safeProbe');
+  if(!p){ p=document.createElement('div'); p.id='safeProbe'; document.body.appendChild(p); }
+  var cs=getComputedStyle(p);
+  return { t:parseFloat(cs.paddingTop)||0, r:parseFloat(cs.paddingRight)||0,
+           b:parseFloat(cs.paddingBottom)||0, l:parseFloat(cs.paddingLeft)||0 }; }
+function stageShape(vw,vh){
+  var r=vh/vw, w=STAGE_W, h=STAGE_H;
+  if(r>=PORTRAIT_AT) return { w:800, h:Math.round(Math.min(1700,Math.max(1000,800*r))), portrait:true };
+  w=Math.round(STAGE_H/r);
+  if(w>STAGE_W) w=STAGE_W;
+  else if(w<STAGE_MIN_W){ w=STAGE_MIN_W; h=Math.round(STAGE_MIN_W*r); }
+  return { w:w, h:h, portrait:false }; }
+function fitStage(){
+  // the phone has a page of its own and the stage is not on it
+  if(document.body.classList.contains('mobile-scan')) return;
+  var a=document.querySelector('.app'), ins=safeInsets();
+  var vw=Math.max(1,window.innerWidth-ins.l-ins.r), vh=Math.max(1,window.innerHeight-ins.t-ins.b);
+  var sh=stageShape(vw,vh), s=Math.min(vw/sh.w,vh/sh.h,1.6);
   // Snap near-1 scales to exactly 1 and drop the transform entirely so text stays pixel-crisp.
   var scaled=!(s>=0.97&&s<=1.04);
+  if(!scaled){ s=1; sh.w=Math.min(sh.w,Math.floor(vw)); sh.h=Math.min(sh.h,Math.floor(vh)); }
+  _stageFit=s;
+  a.style.width=sh.w+'px'; a.style.height=sh.h+'px';
   if(!scaled){ a.style.transform='none'; }
   else { a.style.transform='scale('+s+')'; a.style.transformOrigin='center center'; }
+  var b=document.body, root=document.documentElement;
+  b.classList.toggle('portrait',sh.portrait);
+  b.classList.toggle('compact',sh.portrait||sh.w<STAGE_W);
+  b.classList.toggle('fitpages',s<0.97);
+  root.style.setProperty('--fit',String(s));
+  root.style.setProperty('--fit-w',(vw/s).toFixed(1)+'px');
+  root.style.setProperty('--fit-h',(vh/s).toFixed(1)+'px');
   // A non-integer scale over a backdrop-filter re-snapshots and re-blurs the
   // backdrop every frame, so the glass gives up its blur exactly where it costs.
-  document.body.classList.toggle('scaled',scaled); }
+  b.classList.toggle('scaled',scaled); }
 document.addEventListener('visibilitychange',function(){
   if(!document.hidden&&typeof maybeAutoScanDosing==='function') maybeAutoScanDosing(); });
 var RESUME_AFTER=15000, RESUME_THROTTLE=20000, _hiddenAt=0, _lastResume=0;
@@ -8845,7 +8957,7 @@ function renderAppUpdate(){ var box=document.getElementById('appBox'); if(!box) 
 // are the history. The page in front of the user can be older than what is on
 // disk, so the version it was loaded from is read from the manifest beside it
 // rather than assumed.
-var SKIN_ID='liquid-aqua', SKIN_REPO='SongPaul/liquid-aqua-skin';
+var SKIN_ID='liquid-aqua-duo', SKIN_REPO='hyojin22c-cmyk/liquid-aqua-duo';
 var SKIN_NEWS_TTL=6*3600*1000;
 var skinInfo=null, skinNews=null, skinRunningVer=null, _skinNewsState='', _skinChecking=false;
 function skinRepo(){
@@ -9743,9 +9855,7 @@ function carStageScale(){
   var st=document.getElementById('carouselStage');
   if(st){ var m=/matrix\(([-\d.]+)/.exec(getComputedStyle(st).transform||''); if(m) return parseFloat(m[1])||1; }
   return 1; }
-function appFitScale(){
-  var s=Math.min(window.innerWidth/1280,window.innerHeight/800,1.6);
-  return (s>=0.97&&s<=1.04)?1:s; }
+function appFitScale(){ return _stageFit; }
 function carStepPx(){ return CAR_STEP*carStageScale()*appFitScale(); }
 // How far the strip has been pulled from carIndex, in covers. Fractional while
 // a finger is down, zero the rest of the time.
@@ -19654,10 +19764,49 @@ var phoneTab='', _phoneReady={};
 // A phone that simply opened the gateway address used to get the 1280x800 stage
 // scaled down to nothing. Touch and a short side say phone; a DE1 tablet is
 // touch too, which is why the size is what decides.
+//
+// The window alone is not enough on the iPhone Duo: opened and turned on its
+// side, Safari's bars leave under 600 of the inner screen's 626, and that is
+// not a phone. Between 480 and 600 the screen itself decides.
 function phoneSized(){
   try{ if(!window.matchMedia||!window.matchMedia('(pointer: coarse)').matches) return false; }catch(_){ return false; }
   var w=window.innerWidth||0, h=window.innerHeight||0;
-  return !!w&&!!h&&Math.min(w,h)<600; }
+  if(!w||!h) return false;
+  var m=Math.min(w,h);
+  if(m<480) return true;
+  if(m>=600) return false;
+  var sm=Math.min((window.screen&&screen.width)||0,(window.screen&&screen.height)||0);
+  return !sm||sm<600; }
+// The iPhone Duo is two screens: a 5.4" phone outside and a 7.6" one inside.
+// Closed it gets the phone's page, opened the stage -- but which page it got
+// was decided once, at load, so the fold is followed here. When the screen in
+// use changes kind the page loads again as the other kind, though never under
+// someone's hands: a shot, an open page or a half-typed field waits until done.
+// Only a page the size decided follows the fold; one the address asked for
+// (?phone=1, ?tablet=1, a QR code) stays what it was asked to be.
+var _bootKind=null, _foldT=null;
+// The phone's page is for a phone visiting a gateway somewhere else. Opened on
+// the device Decaid itself runs on, the skin is that machine's own screen,
+// whatever its size -- and Decaid on the iPhone Duo runs as a phone app blown
+// up to the inner screen, so the window it gives the skin is the outer
+// screen's 466x678 even when opened. The stage stood on end at that size, once
+// iOS has enlarged it, comes out the size it would be on the Duo itself.
+function onGatewayDevice(){ return /^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname); }
+function viewKindNow(){ return (phoneSized()&&!viewForcedTablet()&&!onGatewayDevice())?'phone':'stage'; }
+function foldBusy(){
+  var ae=document.activeElement;
+  if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) return true;
+  if(_bootKind==='phone') return phoneTab==='bean'||phoneTab==='cam';
+  if(brewLocked()||auxRunning()) return true;
+  return !!document.querySelector('.editpage.show,.overlay.show'); }
+function foldWatch(){
+  if(!_bootKind) return;
+  clearTimeout(_foldT);
+  _foldT=setTimeout(function check(){
+    if(viewKindNow()===_bootKind) return;
+    if(foldBusy()){ _foldT=setTimeout(check,1500); return; }
+    window.location.reload(); },600); }
+window.addEventListener('resize',foldWatch);
 function viewForcedTablet(){ try{ return localStorage.getItem('aurora_view')==='tablet'; }catch(_){ return false; } }
 function phoneShowTablet(){
   try{ localStorage.setItem('aurora_view','tablet'); }catch(_){}
@@ -20310,7 +20459,7 @@ document.addEventListener('DOMContentLoaded', function(){
   // ?tablet=1 is a person saying they meant the big screen; it is remembered so
   // the choice is not made again on every visit.
   if(/[?&]tablet=1/.test(window.location.search)){ try{ localStorage.setItem('aurora_view','tablet'); }catch(_){} }
-  else if(phoneSized()&&!viewForcedTablet()){ bootPhone('status'); return; }
+  else { _bootKind=viewKindNow(); if(_bootKind==='phone'){ bootPhone('status'); return; } }
   skinStableCheck();
   bindDoseGestures(); thermoInit();
   fitStage(); tickHdrClock(); loadFavs(); loadAiLangs(); loadPrefs(); syncWorkflowBtn(); applyFx(); loadPresets(); loadGrinderBrands(); loadGrinderSpeeds(); loadGrinderFeeds(); loadGrinderBurrs(); loadBaskets(); loadRoastMachines(); hydrateFromStore(); initWebSockets();   applyActionMode(); applyCam(); syncRecipe(); updateShotBtn(); drawChart();

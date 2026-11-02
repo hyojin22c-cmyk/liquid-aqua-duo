@@ -4,8 +4,8 @@
  * stale shot or a stale water level would be worse than an honest failure, and
  * the page already knows how to say it cannot reach the machine.
  */
-var VER = '1.221.0';
-var CACHE = 'liquid-aqua-' + VER;
+var VER = '1.221.0-duo.1';
+var CACHE = 'liquid-aqua-duo-' + VER;
 var CORE = ['index.html', 'skin-manifest.json', 'inter-latin.woff2', 'inter-latin-ext.woff2'];
 
 self.addEventListener('install', function (e) {
@@ -23,7 +23,7 @@ self.addEventListener('install', function (e) {
 self.addEventListener('activate', function (e) {
   e.waitUntil(caches.keys().then(function (ks) {
     return Promise.all(ks.map(function (k) {
-      return (k !== CACHE && k.indexOf('liquid-aqua-') === 0) ? caches.delete(k) : null;
+      return (k !== CACHE && k.indexOf('liquid-aqua-duo-') === 0) ? caches.delete(k) : null;
     }));
   }).then(function () { return self.clients.claim(); }));
 });
