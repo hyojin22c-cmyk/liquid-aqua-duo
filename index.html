@@ -4829,8 +4829,11 @@ function fitStage(){
   else { a.style.transform='scale('+s+')'; a.style.transformOrigin='center center'; }
   var b=document.body, root=document.documentElement;
   b.classList.toggle('portrait',sh.portrait);
-  b.classList.toggle('compact',sh.portrait||sh.w<STAGE_W);
-  b.classList.toggle('fitpages',s<0.97);
+  var reshaped=sh.portrait||sh.w<STAGE_W;
+  b.classList.toggle('compact',reshaped);
+  // A screen of the tablet's own shape, only smaller, keeps the pages it always
+  // had; it is the reshaped stage the pages have to follow.
+  b.classList.toggle('fitpages',reshaped&&s<0.97);
   root.style.setProperty('--fit',String(s));
   root.style.setProperty('--fit-w',(vw/s).toFixed(1)+'px');
   root.style.setProperty('--fit-h',(vh/s).toFixed(1)+'px');
