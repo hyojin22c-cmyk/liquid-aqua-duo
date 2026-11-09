@@ -3998,6 +3998,8 @@ var I18N={
     mbUpdating:'Updating {n}',
     aiProvider:'Model', aiProviderDesc:'Which service answers when the skin asks.',
     claudePh:'Anthropic API key', claudeGet:'Get a key',
+    claudeModel:'Claude model', claudeModelDesc:'Opus answers best, Haiku fastest and cheapest. Billed to your Anthropic key.',
+    claudeLegacy:'previous default', aiRefused:'{m} declined to answer this request.',
     aiKeyNote:'The key is held on this device and sent straight to the service from here. Search grounding is used with Gemini only.',
     mbKeyLabelClaude:'Anthropic API key (stored on this phone)',
     vizUpdate:'Update on Visualizer', vizUpdated:'Sent to Visualizer',
@@ -4465,6 +4467,8 @@ var I18N={
     mbUpdating:'수정: {n}',
     aiProvider:'모델', aiProviderDesc:'스킨이 물을 때 어느 서비스가 답할지 정합니다.',
     claudePh:'Anthropic API 키', claudeGet:'키 발급',
+    claudeModel:'Claude 모델', claudeModelDesc:'Opus가 가장 정확하고 Haiku가 가장 빠르고 저렴합니다. 요금은 Anthropic 키로 청구됩니다.',
+    claudeLegacy:'이전 기본값', aiRefused:'{m}이(가) 이 요청에는 답하지 않았습니다.',
     aiKeyNote:'키는 이 기기에 보관되며 여기서 서비스로 바로 전송됩니다. 검색 보강은 Gemini에서만 사용됩니다.',
     mbKeyLabelClaude:'Anthropic API 키 (이 휴대폰에 저장됩니다)',
     vizUpdate:'Visualizer 업데이트', vizUpdated:'Visualizer에 반영했습니다',
@@ -7749,6 +7753,7 @@ function applyPrefsObject(p){
   if(typeof p.wfKind==='string') prefs.wfKind=p.wfKind;
   if(p.shotRead==='modal'||p.shotRead==='icon'||p.shotRead==='off') prefs.shotRead=p.shotRead;
   if(AI_PROVIDERS.indexOf(p.aiProvider)>=0) prefs.aiProvider=p.aiProvider;
+  if(typeof p.claudeModel==='string'&&claudeModelOk(p.claudeModel)) prefs.claudeModel=p.claudeModel;
   if(Array.isArray(p.mainTags)) prefs.mainTags=p.mainTags.filter(function(k){ return typeof k==='string'; });
   else if(p.mainTags===null) prefs.mainTags=null;
   if(Array.isArray(p.tagsGone)) prefs.tagsGone=p.tagsGone.filter(function(k){ return typeof k==='string'; });
@@ -8099,7 +8104,7 @@ function kpConfirm(){ var v=parseFloat(KP.str); if(isNaN(v)){ closeModal(null,'k
   syncRecipe(); pushRecipe(); closeModal(null,'keypadOverlay'); }
 
 // ── Preferences & settings ──────────────────────────────────────────
-var prefs={ lockPics:true, lockMotion:'burst', lockOn:10, lockOff:50, autoDye:true, monClose:{}, night:false, nightAuto:false, geminiKey:'', claudeKey:'', openaiKey:'', aiProvider:'gemini', shotRead:'modal', yieldHeadroom:true, wfKind:'', qrHost:'', lang:'auto', tempUnit:'C', weightUnit:'g', refillKitFull:'auto', monAuto:{espresso:true}, sleepDim:true, sleepBrightness:20,
+var prefs={ lockPics:true, lockMotion:'burst', lockOn:10, lockOff:50, autoDye:true, monClose:{}, night:false, nightAuto:false, geminiKey:'', claudeKey:'', openaiKey:'', aiProvider:'gemini', claudeModel:'claude-opus-5-5', shotRead:'modal', yieldHeadroom:true, wfKind:'', qrHost:'', lang:'auto', tempUnit:'C', weightUnit:'g', refillKitFull:'auto', monAuto:{espresso:true}, sleepDim:true, sleepBrightness:20,
   // Which scale this skin weighs a dose on. The gateway holds it open on request and attaches no meaning to it, so the choice lives here.
   dosingScaleId:'',
   // 'on' | 'off'. guideSrc is not chosen in settings: loading a profile makes
@@ -8233,6 +8238,7 @@ function saveGeminiKey(v){ prefs.geminiKey=(v||'').trim(); savePrefs(); }
 function saveClaudeKey(v){ prefs.claudeKey=(v||'').trim(); savePrefs(); }
 function saveOpenaiKey(v){ prefs.openaiKey=(v||'').trim(); savePrefs(); }
 function setAiProvider(v){ prefs.aiProvider=(AI_PROVIDERS.indexOf(v)>=0)?v:'gemini'; savePrefs(); renderSpContent(); }
+function setClaudeModel(v){ prefs.claudeModel=claudeModelOk(v)?v:CLAUDE_DEFAULT; savePrefs(); }
 
 // ── Settings full page ──────────────────────────────────────────────
 var SP_CATS=[
@@ -8551,6 +8557,8 @@ function renderSpContent(){ var box=document.getElementById('spContent'); if(!bo
     var prov=aiProvider();
     var keyPane=row('aiProvider','aiProviderDesc','<select class="set-select" onchange="setAiProvider(this.value)">'
       +AI_PROVIDERS.map(function(k){ return opt(k,AI_NAMES[k],prov); }).join('')+'</select>');
+    if(prov==='claude') keyPane+=row('claudeModel','claudeModelDesc','<select class="set-select" onchange="setClaudeModel(this.value)">'
+      +CLAUDE_MODELS.map(function(m){ return opt(m.id,m.name+(m.legacy?(' · '+t('claudeLegacy')):''),claudeModel().id); }).join('')+'</select>');
     // Only the key of the provider in use is asked for; the other is kept, so
     // switching back does not mean typing it in again.
     var KEYUI={
@@ -14021,10 +14029,26 @@ function openaiJson(key,parts,temperature){
 // Claude speaks the Anthropic Messages API. The prompt parts this skin builds
 // are Gemini-shaped, so they are translated rather than written twice.
 var CLAUDE_API='https://api.anthropic.com/v1/messages';
-// Haiku: the questions here are reading a label, sorting a profile and
-// summarising a shot, and it is the cheapest model that does them.
-var CLAUDE_MODEL='claude-haiku-4-5-20251001';
-var CLAUDE_MAX_TOKENS=8192;
+// Which Claude answers is the person's to choose, and so is what it costs.
+// The current models think before they answer whether asked to or not, take
+// no temperature but their own, and are asked for a middling effort -- these
+// are a label, a profile and a shot, not a proof. The Haiku the skin used to
+// send everything to stays on the list for anyone who wants it unchanged.
+// A model that can be refused on a policy reading is sent with the server's
+// own fallback, so a decline is answered by the model Anthropic picks for it
+// rather than by an empty result.
+var CLAUDE_MODELS=[
+  {id:'claude-opus-5-5',   name:'Claude Opus 5.5',   fallback:true},
+  {id:'claude-sonnet-5-5', name:'Claude Sonnet 5.5', fallback:true},
+  {id:'claude-haiku-5-5',  name:'Claude Haiku 5.5'},
+  {id:'claude-fable-5-1',  name:'Claude Fable 5.1',  fallback:true},
+  {id:'claude-haiku-4-5',  name:'Claude Haiku 4.5',  legacy:true}];
+var CLAUDE_DEFAULT='claude-opus-5-5';
+var CLAUDE_MAX_TOKENS=16000, CLAUDE_LEGACY_MAX_TOKENS=8192;
+function claudeModelOk(id){ return CLAUDE_MODELS.some(function(m){ return m.id===id; }); }
+function claudeModel(){
+  var id=claudeModelOk(prefs.claudeModel)?prefs.claudeModel:CLAUDE_DEFAULT;
+  return CLAUDE_MODELS.filter(function(m){ return m.id===id; })[0]; }
 function claudeContent(parts){
   return (parts||[]).map(function(p){
     if(p&&p.text!=null) return {type:'text',text:String(p.text)};
@@ -14032,21 +14056,31 @@ function claudeContent(parts){
     if(d) return {type:'image',source:{type:'base64',media_type:d.mime_type,data:d.data}};
     return null; }).filter(Boolean); }
 function claudeCall(key,parts,temperature){
-  var body={model:CLAUDE_MODEL,max_tokens:CLAUDE_MAX_TOKENS,
-    temperature:(temperature==null?0:temperature),
-    messages:[{role:'user',content:claudeContent(parts)}]};
+  var m=claudeModel();
+  var body={model:m.id,messages:[{role:'user',content:claudeContent(parts)}]};
   // A key used from a page is a key the page can read; the browser refuses the
   // call outright without this header saying so.
-  return fetch(CLAUDE_API,{method:'POST',headers:{
-      'Content-Type':'application/json',
-      'x-api-key':key,
-      'anthropic-version':'2023-06-01',
-      'anthropic-dangerous-direct-browser-access':'true'},
-    body:JSON.stringify(body)})
+  var headers={'Content-Type':'application/json','x-api-key':key,
+    'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'};
+  if(m.legacy){
+    body.max_tokens=CLAUDE_LEGACY_MAX_TOKENS;
+    body.temperature=(temperature==null?0:temperature); }
+  else {
+    // the thinking is spent out of max_tokens, so it is given room for both
+    body.max_tokens=CLAUDE_MAX_TOKENS;
+    body.output_config={effort:'medium'};
+    if(m.fallback){ body.fallbacks='default'; headers['anthropic-beta']='server-side-fallback-2026-07-01'; } }
+  return fetch(CLAUDE_API,{method:'POST',headers:headers,body:JSON.stringify(body)})
     .then(function(r){ return r.json().catch(function(){ return null; }).then(function(j){
       if(!r.ok){ var e=new Error((j&&j.error&&j.error.message)||('HTTP '+r.status)); e.status=r.status; throw e; }
       return j; }); })
     .then(function(j){
+      // A decline comes back as a success with nothing in it, and "could not
+      // parse" would send someone looking at their photo instead.
+      if(j&&j.stop_reason==='refusal'){
+        var cat=j.stop_details&&j.stop_details.category;
+        var re=new Error(t('aiRefused').replace('{m}',m.name)+(cat?(' ('+cat+')'):''));
+        re.kind='refused'; throw re; }
       var blocks=(j&&j.content)||[];
       var txt=blocks.filter(function(b){ return b&&b.type==='text'; })
         .map(function(b){ return b.text||''; }).join('');

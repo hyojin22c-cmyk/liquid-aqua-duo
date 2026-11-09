@@ -7,6 +7,7 @@ A fork of Liquid Aqua ([SongPaul/liquid-aqua-skin](https://github.com/SongPaul/l
 - **Inside Decaid on the phone itself** (`localhost`) it is always the full brewing screen, never the phone companion. Decaid runs as an enlarged phone app on the Duo's inner display, so the skin sees 466×678 or 678×466; it fills that, and once iOS enlarges it, it comes out the size it would be on the inner display.
 - **Folding and unfolding** in a browser switches between the phone page outside and the stage inside, waiting for a shot, an open page or a field being typed in to finish first.
 - A 1280×800 tablet gets exactly the original stage.
+- **The Claude model is a choice.** With Claude as the AI service, Settings › AI offers Opus 5.5 (default), Sonnet 5.5, Haiku 5.5, Fable 5.1, and the Haiku 4.5 the original used. The current models think before answering at `medium` effort; Opus, Sonnet and Fable are sent with the server's own refusal fallback (`fallbacks: "default"`), and a decline is said as one rather than as a parse error.
 
 Install from Decaid's skin manager as a GitHub release of `hyojin22c-cmyk/liquid-aqua-duo`. The skin id is `liquid-aqua-duo`, so it installs beside the original and shares its settings through the gateway store (`liquid-aqua`).
 
