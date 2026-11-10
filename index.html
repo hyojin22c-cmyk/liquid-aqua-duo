@@ -2788,6 +2788,16 @@ body.compact #slDetail .sl-metric{padding:8px 6px}
 body.portrait #slDetail{display:block;height:auto}
 body.portrait #slDetail .sl-view,body.portrait #slDetail .sl-edit{overflow:visible;min-height:0}
 body.portrait #slDetail .sl-edit{margin-top:14px}
+/* The save bar was sticky, and under the page's scale() iOS WebKit places a
+   sticky box wrongly: on the Duo the bar hung mid-record over the numbers
+   (Chrome gets it right, which is why the desk check missed it). Reshaped,
+   the bar is not sticky. On its side it is the grid's bottom row, the two
+   columns scrolling above it. On end it is fixed, and a fixed box under a
+   transform is placed against the transformed page, which WebKit does do
+   right; the record keeps room under its end so nothing stays behind it. */
+body.compact #slDetail .ep-save-bar{position:relative}
+body.portrait #slDetail .ep-save-bar{position:fixed;left:50px;right:50px;bottom:16px;z-index:5}
+body.portrait #slDetail{padding-bottom:84px}
 /* Profile list on end: beside a 300px filter rail the covers had 430px, room
    for one 232px column and an empty rail below the filters. The filters go on
    top and the covers get the width, three across. */
