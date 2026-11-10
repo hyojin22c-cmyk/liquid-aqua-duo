@@ -2769,6 +2769,25 @@ body.compact:not(.portrait) #shotLogPage .ep-body{grid-template-columns:270px mi
 body.portrait #shotLogPage .ep-body{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,168px) minmax(0,1fr)}
 /* Three buttons in the save bar broke their own labels in two ("기록 저 / 장"). */
 body.compact .ep-save-bar .m-btn{white-space:nowrap}
+/* ...and the bar stood 46px off the bottom of the screen: the record's own 18px
+   padding under it, then the page's 28px under the card. Reshaped, both give
+   way, so the buttons sit at the foot of the screen where a thumb looks. */
+body.compact #shotLogPage .ep-body{padding-bottom:10px}
+body.compact #slDetail{padding-bottom:6px}
+/* The record ran 93px past its column on its side, so the four numbers under
+   the graphs were cut by the bar. The graphs give 70px, the legends take
+   smaller type, and the numbers lose some padding. */
+body.compact:not(.portrait) #slDetail .sl-canvas-wrap{height:176px}
+body.compact:not(.portrait) #slDetail .sl-temp-wrap{height:92px}
+body.compact #slDetail .chart-legend{gap:3px 9px;font-size:10px}
+body.compact #slDetail .sl-detail-head{margin-bottom:8px}
+body.compact #slDetail .sl-metric{padding:8px 6px}
+/* On end the record and the notes were two scrolling boxes stacked, each
+   showing a slice (418 of 670, 334 of 1089). They are one page now that scrolls
+   as a whole, with the bar held at the foot of the screen. */
+body.portrait #slDetail{display:block;height:auto}
+body.portrait #slDetail .sl-view,body.portrait #slDetail .sl-edit{overflow:visible;min-height:0}
+body.portrait #slDetail .sl-edit{margin-top:14px}
 /* Profile list on end: beside a 300px filter rail the covers had 430px, room
    for one 232px column and an empty rail below the filters. The filters go on
    top and the covers get the width, three across. */
