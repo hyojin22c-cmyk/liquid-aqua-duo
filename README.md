@@ -9,6 +9,9 @@ A fork of Liquid Aqua ([SongPaul/liquid-aqua-skin](https://github.com/SongPaul/l
 - A 1280×800 tablet gets exactly the original stage.
 - **The Claude model is a choice.** With Claude as the AI service, Settings › AI offers Opus 5.5 (default), Sonnet 5.5, Haiku 5.5, Fable 5.1, and the Haiku 4.5 the original used. The current models think before answering at `medium` effort; Opus, Sonnet and Fable are sent with the server's own refusal fallback (`fallbacks: "default"`), and a decline is said as one rather than as a parse error.
 
+- **Unfolded, fixed where the stage was squeezed** (1.227.1-duo.2): on end the profile cover in the middle of the carousel is drawn again (a `.center` rule meant for the stage's middle column was dissolving it); the recipe's ratio no longer runs over its − and + buttons; the long-press hint sits inside the header; the bean card's chips fit without a hidden scroll; the shot log stacks its list above the record on end and gives the record more width on its side, and its save bar keeps each label on one line; the profile list on end puts the filters on top and shows the covers three across.
+- **New profiles for a bean** (needs the `hoi-profiles.reaplugin` Decaid plugin and Claude in Settings › AI): under the profile picks in a bean's Profiles tab, *Build new profiles for this bean* sends the bean form, the scanned bag photos and a note to Claude with the plugin's design knowledge, shows the lineup it designs (grinder, basket, drinks, why, what was guessed), and on *Add to Decaid* has the plugin generate and register the profiles and workflows against the bean being edited. Without the plugin the button says so and nothing else changes.
+
 Install from Decaid's skin manager as a GitHub release of `hyojin22c-cmyk/liquid-aqua-duo`. The skin id is `liquid-aqua-duo`, so it installs beside the original and shares its settings through the gateway store (`liquid-aqua`).
 
 The original README follows.
