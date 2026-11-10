@@ -1265,30 +1265,6 @@ body.night .ep-batch.add{color:var(--ink-mute)}
 body.night .ep-sw.auto{background:rgba(255,255,255,.07);color:var(--ink);border-color:rgba(255,255,255,.12)}
 body.night .ep-dot{border-color:#1a1526}
 .rec-bar{margin:2px 0 10px}
-/* Building new profiles (hoi-profiles plugin): below the picks from the catalogue,
-   because it is the slower and costlier of the two answers. */
-.hoi-sec{margin-top:14px;padding-top:12px;border-top:1px solid var(--glass-line);display:flex;flex-direction:column;gap:8px}
-.hoi-sec .field{margin:0}
-.hoi-sec .field textarea{min-height:58px;resize:vertical}
-.hoi-hint{font-size:11px;color:var(--ink-mute)}
-.hoi-box:empty{display:none}
-.hoi-box{display:flex;flex-direction:column;gap:8px}
-.hoi-err{font-size:12px;font-weight:700;color:var(--red);line-height:1.45}
-.hoi-miss{font-size:11px;line-height:1.5;color:#b45309;background:rgba(245,158,11,.10);border:1px solid rgba(245,158,11,.3);border-radius:10px;padding:7px 10px}
-.hoi-sum{font-size:12px;line-height:1.55;color:var(--ink-soft);background:var(--sheet);border:1px solid var(--edge);border-radius:12px;padding:10px 12px;max-height:240px;overflow-y:auto}
-.hoi-sum .h{font-weight:800;color:var(--ink);margin:6px 0 2px}
-.hoi-sum .h:first-child{margin-top:0}
-.hoi-sum .li{padding-left:12px;text-indent:-10px}
-.hoi-drink{border:1px solid var(--edge);border-radius:12px;padding:9px 11px;background-color:var(--pane-face);background-image:var(--ctl-sheen)}
-.hoi-drink .t{font-size:13px;font-weight:800;color:var(--ink)}
-.hoi-drink .m{font-size:11px;color:var(--ink-mute);margin-top:2px;line-height:1.45}
-.hoi-drink details{margin-top:5px;font-size:11px;color:var(--ink-soft)}
-.hoi-drink summary{cursor:pointer;font-weight:700;color:var(--accent)}
-.hoi-drink pre{white-space:pre-wrap;font-family:var(--font);margin:6px 0 0;line-height:1.5}
-.hoi-acts{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-.hoi-acts select{min-height:34px;border-radius:10px;border:1px solid var(--ctl-edge);background:var(--ctl-face);font-family:var(--font);font-size:12px;padding:0 8px;color:var(--ink)}
-.hoi-acts .lab{font-size:11px;font-weight:700;color:var(--ink-mute);margin-right:auto}
-.hoi-log{font-size:11px;color:var(--ink-mute);line-height:1.5}
 .rec-btn{width:100%;border-color:var(--accent);color:var(--accent);font-weight:800}
 .rec-box:not(:empty){margin-top:10px;display:flex;flex-direction:column;gap:6px}
 .rec-head{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-mute)}
@@ -2803,6 +2779,30 @@ body.portrait #slDetail{padding-bottom:84px}
    top and the covers get the width, three across. */
 body.portrait.ep-list #editPage .ep-body{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
 body.portrait.ep-list #editPage .ep-toolbar{max-height:230px}
+/* Building new profiles (hoi-profiles plugin): below the picks from the catalogue,
+   because it is the slower and costlier of the two answers. */
+.hoi-sec{margin-top:14px;padding-top:12px;border-top:1px solid var(--glass-line);display:flex;flex-direction:column;gap:8px}
+.hoi-sec .field{margin:0}
+.hoi-sec .field textarea{min-height:58px;resize:vertical}
+.hoi-hint{font-size:11px;color:var(--ink-mute)}
+.hoi-box:empty{display:none}
+.hoi-box{display:flex;flex-direction:column;gap:8px}
+.hoi-err{font-size:12px;font-weight:700;color:var(--red);line-height:1.45}
+.hoi-miss{font-size:11px;line-height:1.5;color:#b45309;background:rgba(245,158,11,.10);border:1px solid rgba(245,158,11,.3);border-radius:10px;padding:7px 10px}
+.hoi-sum{font-size:12px;line-height:1.55;color:var(--ink-soft);background:var(--sheet);border:1px solid var(--edge);border-radius:12px;padding:10px 12px;max-height:240px;overflow-y:auto}
+.hoi-sum .h{font-weight:800;color:var(--ink);margin:6px 0 2px}
+.hoi-sum .h:first-child{margin-top:0}
+.hoi-sum .li{padding-left:12px;text-indent:-10px}
+.hoi-drink{border:1px solid var(--edge);border-radius:12px;padding:9px 11px;background-color:var(--pane-face);background-image:var(--ctl-sheen)}
+.hoi-drink .t{font-size:13px;font-weight:800;color:var(--ink)}
+.hoi-drink .m{font-size:11px;color:var(--ink-mute);margin-top:2px;line-height:1.45}
+.hoi-drink details{margin-top:5px;font-size:11px;color:var(--ink-soft)}
+.hoi-drink summary{cursor:pointer;font-weight:700;color:var(--accent)}
+.hoi-drink pre{white-space:pre-wrap;font-family:var(--font);margin:6px 0 0;line-height:1.5}
+.hoi-acts{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.hoi-acts select{min-height:34px;border-radius:10px;border:1px solid var(--ctl-edge);background:var(--ctl-face);font-family:var(--font);font-size:12px;padding:0 8px;color:var(--ink)}
+.hoi-acts .lab{font-size:11px;font-weight:700;color:var(--ink-mute);margin-right:auto}
+.hoi-log{font-size:11px;color:var(--ink-mute);line-height:1.5}
 </style>
 </head>
 <body>
@@ -4194,7 +4194,7 @@ var I18N={
     rsTempHigh:'The group ran {d}°C above the setting. Check the machine', rsTempLow:'The group ran {d}°C below the setting. Check it was fully warmed up',
     aiAnalysis:'AI reading', aiRun:'Analyse', aiAgain:'Again', aiReading:'Reading the shot…', aiNoResult:'No analysis came back', aiFailed:'Analysis failed:',
     aiNothingToDo:'Nothing to do', aiCleared:'AI tags cleared', fromAi:'AI guess',
-    recButton:'✨ Suggest a profile for this bean', hoiButton:'✨ Build new profiles for this bean (Claude)', hoiMemoPh:'Roaster recipe, drinks you want, anything else (optional)', hoiWorking:'Claude is designing the profiles… {s}s', hoiNeedClaude:'Building profiles uses Claude: choose Claude in Settings › AI.', hoiNoPlugin:'The hoi-profiles plugin is not installed in Decaid.', hoiFailed:'Could not build the profiles:', hoiTooLong:'The answer ran out of room. Try again.', hoiHead:'New profiles', hoiMissing:'Guessed or not found', hoiApply:'Load now', hoiApplyNone:"Don't load", hoiRegister:'Add to Decaid', hoiRegistering:'Adding…', hoiDone:'Added to Decaid', hoiRedo:'Build again', hoiNotes:'Notes', hoiTokens:'{i} in · {o} out tokens', hoiPhotos:'{n} photos from the scan go with it', recHead:'Suggested profiles', recWorking:'Reading the bean and the catalogue…',
+    recButton:'✨ Suggest a profile for this bean', recHead:'Suggested profiles', recWorking:'Reading the bean and the catalogue…',
     usageHead:'Most used with this bean', usageCount:'{n} shots', profHead:'Profiles for this bean', recRank:'Pick {n}', avgGrind:'Avg grind', shotList:'Every shot', openShot:'Open this shot', noShotsForProfile:'No shots with this profile', showingN:'latest {n}', tabBeanInfo:'Bean', tabBeanProfiles:'Profiles', tabBeanHistory:'History', histHead:'This bean so far', avgDose:'Avg dose', avgYield:'Avg yield', avgRatio:'Avg ratio', avgRating:'Avg rating', grindersUsed:'Grinder & grind used', grinder:'Grinder', usageWorking:'Reading the shot history…',
     recFailed:'Suggestion failed:', recNoMatch:'No profile matched', recNoProfiles:'No espresso profiles installed', use:'Use',
     cardColor:'Card colour', auto:'Auto', customColor:'Pick any colour',
@@ -4665,7 +4665,7 @@ var I18N={
     rsTempHigh:'그룹 온도가 설정보다 {d}°C 높았습니다. 머신 상태를 확인하세요', rsTempLow:'그룹 온도가 설정보다 {d}°C 낮았습니다. 예열이 충분했는지 확인하세요',
     aiAnalysis:'AI 추출 분석', aiRun:'분석', aiAgain:'다시 분석', aiReading:'추출을 읽는 중…', aiNoResult:'분석 결과가 없습니다', aiFailed:'분석 실패:',
     aiNothingToDo:'처리할 프로파일이 없습니다', aiCleared:'AI 태그를 지웠습니다', fromAi:'AI 추정',
-    recButton:'✨ 이 원두에 맞는 프로파일 추천', hoiButton:'✨ 이 원두로 새 프로파일 만들기 (Claude)', hoiMemoPh:'로스터 권장 레시피, 원하는 음료 등 (선택)', hoiWorking:'Claude가 프로파일을 설계하는 중… {s}초', hoiNeedClaude:'프로파일 만들기는 Claude를 씁니다. 설정 › AI에서 Claude를 고르세요.', hoiNoPlugin:'Decaid에 hoi-profiles 플러그인이 설치되어 있지 않습니다.', hoiFailed:'프로파일을 만들지 못했습니다:', hoiTooLong:'답이 길이 제한에 걸렸습니다. 다시 시도하세요.', hoiHead:'새 프로파일', hoiMissing:'추정했거나 찾지 못한 정보', hoiApply:'지금 적용', hoiApplyNone:'적용 안 함', hoiRegister:'Decaid에 등록', hoiRegistering:'등록하는 중…', hoiDone:'Decaid에 등록했습니다', hoiRedo:'다시 만들기', hoiNotes:'노트', hoiTokens:'입력 {i} · 출력 {o} 토큰', hoiPhotos:'스캔한 사진 {n}장을 함께 보냅니다', recHead:'추천 프로파일', recWorking:'원두와 프로파일을 읽는 중…',
+    recButton:'✨ 이 원두에 맞는 프로파일 추천', recHead:'추천 프로파일', recWorking:'원두와 프로파일을 읽는 중…',
     usageHead:'이 원두로 많이 쓴 프로파일', usageCount:'{n}회', profHead:'이 원두의 프로파일', recRank:'추천 {n}', avgGrind:'평균 분쇄도', shotList:'추출 기록', openShot:'이 샷 열기', noShotsForProfile:'이 프로파일로 내린 샷 없음', showingN:'최근 {n}건', tabBeanInfo:'원두 정보', tabBeanProfiles:'추출 프로파일', tabBeanHistory:'기록', histHead:'이 원두 기록', avgDose:'평균 도징', avgYield:'평균 추출량', avgRatio:'평균 비율', avgRating:'평균 평점', grindersUsed:'사용한 그라인더 · 분쇄도', grinder:'그라인더', usageWorking:'샷 기록을 읽는 중…',
     recFailed:'추천 실패:', recNoMatch:'일치하는 프로파일이 없습니다', recNoProfiles:'설치된 에스프레소 프로파일이 없습니다', use:'사용',
     cardColor:'카드 색', auto:'자동', customColor:'직접 지정',
@@ -13607,6 +13607,12 @@ function useRecommended(i){ var r=recResults&&recResults[i]; if(!r) return;
 // own key and model, shows the answer, and only on a tap has the plugin
 // register it.
 var HOI_PLUGIN='/api/v1/plugins/hoi-profiles.reaplugin';
+// The feature's words live here rather than on the upstream I18N lines, which
+// upstream rewrites with every release: a merge then never has to choose
+// between its strings and these. Any language without them reads English.
+var HOI_I18N={en:{hoiButton:'✨ Build new profiles for this bean (Claude)', hoiMemoPh:'Roaster recipe, drinks you want, anything else (optional)', hoiWorking:'Claude is designing the profiles… {s}s', hoiNeedClaude:'Building profiles uses Claude: choose Claude in Settings › AI.', hoiNoPlugin:'The hoi-profiles plugin is not installed in Decaid.', hoiFailed:'Could not build the profiles:', hoiTooLong:'The answer ran out of room. Try again.', hoiHead:'New profiles', hoiMissing:'Guessed or not found', hoiApply:'Load now', hoiApplyNone:"Don't load", hoiRegister:'Add to Decaid', hoiRegistering:'Adding…', hoiDone:'Added to Decaid', hoiRedo:'Build again', hoiNotes:'Notes', hoiTokens:'{i} in · {o} out tokens', hoiPhotos:'{n} photos from the scan go with it'},
+  ko:{hoiButton:'✨ 이 원두로 새 프로파일 만들기 (Claude)', hoiMemoPh:'로스터 권장 레시피, 원하는 음료 등 (선택)', hoiWorking:'Claude가 프로파일을 설계하는 중… {s}초', hoiNeedClaude:'프로파일 만들기는 Claude를 씁니다. 설정 › AI에서 Claude를 고르세요.', hoiNoPlugin:'Decaid에 hoi-profiles 플러그인이 설치되어 있지 않습니다.', hoiFailed:'프로파일을 만들지 못했습니다:', hoiTooLong:'답이 길이 제한에 걸렸습니다. 다시 시도하세요.', hoiHead:'새 프로파일', hoiMissing:'추정했거나 찾지 못한 정보', hoiApply:'지금 적용', hoiApplyNone:'적용 안 함', hoiRegister:'Decaid에 등록', hoiRegistering:'등록하는 중…', hoiDone:'Decaid에 등록했습니다', hoiRedo:'다시 만들기', hoiNotes:'노트', hoiTokens:'입력 {i} · 출력 {o} 토큰', hoiPhotos:'스캔한 사진 {n}장을 함께 보냅니다'}};
+function hoiT(k){ var d=HOI_I18N[_lang]; return (d&&d[k]!=null)?d[k]:(HOI_I18N.en[k]!=null?HOI_I18N.en[k]:t(k)); }
 var HOI_MAX_TOKENS=32000, HOI_TIMEOUT=300000;
 var hoiPromptCache=null; // {hash, system, schema}
 var hoiState={forBean:null,busy:false,startedAt:0,res:null,err:null,dry:null,apply:'',
@@ -13622,10 +13628,10 @@ function hoiSectionHtml(){
   var n=(aiImages||[]).length;
   return '<div class="hoi-sec">'
     +'<div class="rec-bar"><button class="m-btn rec-btn" id="hoiGenBtn" onclick="hoiGenerate()"'
-      +(hoiState.busy?' disabled aria-busy="true"':'')+'>'+escapeHtml(t('hoiButton'))+'</button></div>'
-    +'<div class="field"><textarea id="hoiMemo" rows="2" placeholder="'+escapeAttr(t('hoiMemoPh'))
+      +(hoiState.busy?' disabled aria-busy="true"':'')+'>'+escapeHtml(hoiT('hoiButton'))+'</button></div>'
+    +'<div class="field"><textarea id="hoiMemo" rows="2" placeholder="'+escapeAttr(hoiT('hoiMemoPh'))
       +'" oninput="hoiState.memo=this.value">'+escapeHtml(hoiState.memo||'')+'</textarea></div>'
-    +(n?'<div class="hoi-hint">'+escapeHtml(t('hoiPhotos').replace('{n}',Math.min(n,4)))+'</div>':'')
+    +(n?'<div class="hoi-hint">'+escapeHtml(hoiT('hoiPhotos').replace('{n}',Math.min(n,4)))+'</div>':'')
     +'<div class="hoi-box" id="hoiBox">'+hoiBoxHtml()+'</div></div>'; }
 function renderHoiBox(){
   var box=document.getElementById('hoiBox'); if(box) box.innerHTML=hoiBoxHtml();
@@ -13651,30 +13657,30 @@ function hoiBoxHtml(){
   if(!hoiOwn()) return '';
   if(hoiState.busy){
     var sec=Math.max(0,Math.round((Date.now()-hoiState.startedAt)/1000));
-    return '<div class="rec-wait">'+escapeHtml(t('hoiWorking').replace('{s}',sec))+'</div>'; }
-  if(hoiState.err) return '<div class="hoi-err">'+escapeHtml(t('hoiFailed')+' '+hoiState.err)+'</div>';
+    return '<div class="rec-wait">'+escapeHtml(hoiT('hoiWorking').replace('{s}',sec))+'</div>'; }
+  if(hoiState.err) return '<div class="hoi-err">'+escapeHtml(hoiT('hoiFailed')+' '+hoiState.err)+'</div>';
   var res=hoiState.res; if(!res||!res.recipe) return '';
-  var r=res.recipe, h='<div class="rec-head">'+escapeHtml(t('hoiHead')+' · '+(r.name||''))+'</div>';
+  var r=res.recipe, h='<div class="rec-head">'+escapeHtml(hoiT('hoiHead')+' · '+(r.name||''))+'</div>';
   if(res.missing&&res.missing.length)
-    h+='<div class="hoi-miss"><b>'+escapeHtml(t('hoiMissing'))+'</b><br>'+res.missing.map(escapeHtml).join('<br>')+'</div>';
+    h+='<div class="hoi-miss"><b>'+escapeHtml(hoiT('hoiMissing'))+'</b><br>'+res.missing.map(escapeHtml).join('<br>')+'</div>';
   if(res.summary_md) h+='<div class="hoi-sum">'+hoiMd(res.summary_md)+'</div>';
   (r.drinks||[]).forEach(function(d){
     h+='<div class="hoi-drink"><div class="t">'+escapeHtml(hoiDrinkName(d.drink))+' · '+d.dose+'g → '+d.yield+'g</div>'
       +'<div class="m">'+escapeHtml(hoiParamLine(d))+'</div>'
       +'<div class="m">'+escapeHtml(d.grinder+' · '+d.basket+(d.serve?' · '+d.serve:''))+'</div>'
-      +'<details><summary>'+escapeHtml(t('hoiNotes'))+'</summary><pre>'+escapeHtml(d.notes||'')+'</pre></details></div>'; });
+      +'<details><summary>'+escapeHtml(hoiT('hoiNotes'))+'</summary><pre>'+escapeHtml(d.notes||'')+'</pre></details></div>'; });
   if(hoiState.done){
-    h+='<div class="hoi-log"><b>'+escapeHtml(t('hoiDone'))+'</b><br>'+(hoiState.done.log||[]).map(escapeHtml).join('<br>')+'</div>';
+    h+='<div class="hoi-log"><b>'+escapeHtml(hoiT('hoiDone'))+'</b><br>'+(hoiState.done.log||[]).map(escapeHtml).join('<br>')+'</div>';
   } else {
-    h+='<div class="hoi-acts"><span class="lab">'+escapeHtml(t('hoiApply'))+'</span>'
-      +'<select onchange="hoiState.apply=this.value"><option value="">'+escapeHtml(t('hoiApplyNone'))+'</option>'
+    h+='<div class="hoi-acts"><span class="lab">'+escapeHtml(hoiT('hoiApply'))+'</span>'
+      +'<select onchange="hoiState.apply=this.value"><option value="">'+escapeHtml(hoiT('hoiApplyNone'))+'</option>'
       +(r.drinks||[]).map(function(d){ return '<option value="'+escapeAttr(d.drink)+'"'+(hoiState.apply===d.drink?' selected':'')+'>'
         +escapeHtml(hoiDrinkName(d.drink))+'</option>'; }).join('')+'</select>'
-      +'<button class="m-btn" onclick="hoiGenerate()">'+escapeHtml(t('hoiRedo'))+'</button>'
+      +'<button class="m-btn" onclick="hoiGenerate()">'+escapeHtml(hoiT('hoiRedo'))+'</button>'
       +'<button class="m-btn primary" onclick="hoiRegister()"'+(hoiState.registering?' disabled':'')+'>'
         +escapeHtml(t(hoiState.registering?'hoiRegistering':'hoiRegister'))+'</button></div>'; }
   if(hoiState.usage){ var u=hoiState.usage;
-    h+='<div class="hoi-hint">'+escapeHtml(t('hoiTokens').replace('{i}',((u.input_tokens||0)+(u.cache_read_input_tokens||0)+(u.cache_creation_input_tokens||0)).toLocaleString())
+    h+='<div class="hoi-hint">'+escapeHtml(hoiT('hoiTokens').replace('{i}',((u.input_tokens||0)+(u.cache_read_input_tokens||0)+(u.cache_creation_input_tokens||0)).toLocaleString())
       .replace('{o}',(u.output_tokens||0).toLocaleString()))+'</div>'; }
   return h; }
 // The prompt is the plugin's, so a change to the knowledge reaches the skin
@@ -13683,7 +13689,7 @@ function hoiPrompt(){
   return api('GET',HOI_PLUGIN+'/info',undefined,8000).then(function(info){
     if(hoiPromptCache&&hoiPromptCache.hash===info.promptHash) return hoiPromptCache;
     return api('GET',HOI_PLUGIN+'/prompt',undefined,15000).then(function(p){ hoiPromptCache=p; return p; }); },
-    function(e){ var x=new Error(t('hoiNoPlugin')); x.cause=e; throw x; }); }
+    function(e){ var x=new Error(hoiT('hoiNoPlugin')); x.cause=e; throw x; }); }
 // Long edge 1568: enough to read a label, and a fraction of a phone photo's tokens.
 function hoiShrink(src){
   return new Promise(function(res){
@@ -13729,7 +13735,7 @@ function hoiClaude(key,prompt,content){
       if(j.stop_reason==='refusal'){
         var cat=j.stop_details&&j.stop_details.category;
         throw new Error(t('aiRefused').replace('{m}',m.name)+(cat?(' ('+cat+')'):'')); }
-      if(j.stop_reason==='max_tokens') throw new Error(t('hoiTooLong'));
+      if(j.stop_reason==='max_tokens') throw new Error(hoiT('hoiTooLong'));
       var txt=(j.content||[]).filter(function(b){ return b&&b.type==='text'; }).map(function(b){ return b.text||''; }).join('');
       var out=JSON.parse(txt); out._usage=j.usage||null; return out; })
     .finally(function(){ if(timer) clearTimeout(timer); }); }
@@ -13738,7 +13744,7 @@ function hoiIds(){
   return {beanId:(o&&o.id)||null,batchId:(b&&b.id)||null}; }
 function hoiGenerate(){
   if(hoiState.busy) return;
-  if(aiProvider()!=='claude'){ toast(t('hoiNeedClaude'),'err'); openSettingsPage(); spSelect('ai'); return; }
+  if(aiProvider()!=='claude'){ toast(hoiT('hoiNeedClaude'),'err'); openSettingsPage(); spSelect('ai'); return; }
   var key=aiKey();
   if(!key){ toast(tAi('aiNeedKey'),'err'); openSettingsPage(); spSelect('ai'); return; }
   var bean=beanFormDigest('bg');
@@ -13773,7 +13779,7 @@ function hoiRegister(){
   api('POST',HOI_PLUGIN+'/build',{recipe:res.recipe,apply:hoiState.apply||null,beanId:ids.beanId,batchId:ids.batchId,
       summary_md:res.summary_md||'',missing:res.missing||[]},30000)
     .then(function(r){
-      hoiState.done=r; toast(t('hoiDone'),'ok');
+      hoiState.done=r; toast(hoiT('hoiDone'),'ok');
       // the new covers, and on a new bean the bean and its batch, are the gateway's now
       return Promise.all([loadProfiles(),loadBeansGrinders(),hoiState.apply?loadWorkflow():null]); })
     .catch(function(e){ hoiState.err=(e&&e.message)||'error'; })

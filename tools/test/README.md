@@ -70,6 +70,7 @@ style.
 |---|---|
 | `card` | the recipe card: caption on the number between the buttons, the two groups behind a rule, rows lining up across groups, device names shown whole |
 | `devices` | the connection sheet: four roles two by two, what holds each, which call each button makes, nothing actionable mid-shot |
+| `hoi` | new profiles for a bean: every upstream name the feature calls still exists, the button sits in the bean's Profiles pane, the Claude request keeps its shape, nothing is registered before the tap. Run it after every upstream merge |
 | `grinder` | capability gating against what the xBloom Studio and the Mahlkoenig E64 actually declare: a reading is never the editable setting |
 | `panes` | steam, flush and water: capped at the shot pane's height without being cut |
 | `profiles` | the library and the editor as two views of one page: covers full width, a profile opening into the fields, the way back |
