@@ -2779,6 +2779,20 @@ body.portrait #slDetail .sl-edit{margin-top:14px}
 body.compact #slDetail .ep-save-bar{position:relative}
 body.portrait #slDetail .ep-save-bar{position:fixed;left:50px;right:50px;bottom:16px;z-index:5}
 body.portrait #slDetail{padding-bottom:84px}
+/* The same sticky bar hung mid-page in the profile editor and the bean and
+   grinder editors (simulator: 559-617 of a pane ending at 1187). Both outgrow
+   their pane on the reshaped stage and scroll as a whole -- the profile
+   editor's grid by 25px on its side -- so a bar in the flow would be pushed
+   off the screen. The bar is fixed at the foot of the page instead, and the
+   content keeps room under its end. */
+body.compact #epEditor .ep-save-bar{position:fixed;left:50px;right:50px;bottom:16px;z-index:5}
+body.compact #epEditor{padding-bottom:84px}
+/* With the bar's room kept, the editor's rows on its side added up to 33px past
+   the pane (the step table holds its 120px floor), so the curve gives 50. */
+body.compact:not(.portrait) #epEditor .ep-visual canvas{height:146px}
+body.compact #editPage .ep-body,body.compact #beanPage .ep-body{padding-bottom:10px}
+body.compact #bgEditor{padding-bottom:84px}
+body.compact #bgEditor .ep-save-bar{position:fixed;left:50px;right:50px;bottom:16px;z-index:5}
 /* Profile list on end: beside a 300px filter rail the covers had 430px, room
    for one 232px column and an empty rail below the filters. The filters go on
    top and the covers get the width, three across. */

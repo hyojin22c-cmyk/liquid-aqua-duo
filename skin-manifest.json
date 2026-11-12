@@ -2,7 +2,7 @@
   "id": "liquid-aqua-duo",
   "name": "Liquid Aqua Duo",
   "description": "Liquid Aqua (SongPaul/liquid-aqua-skin) reshaped for the iPhone Duo and other screens that are not 1280x800: the stage takes the screen's shape, stands on end as one stack on a portrait screen, keeps the full brewing screen inside Decaid on the phone itself, and follows the fold between the outer and inner displays. A bright liquid-glass espresso UI with a live water-tank header, album carousel profiles, profile-banded pressure and flow dials, a full-screen action monitor with split extraction and temperature graphs, recipe keypad, grinder settings, a beverage workflow with recent-setup recall, a shot log with multi-shot comparison and AI reading, a full settings page (display, machine, firmware, water & flow calibration, refill kit, plugins), and a low-power sleep screen.",
-  "version": "1.228.2-duo.1",
+  "version": "1.228.2-duo.2",
   "author": "hyojin22c-cmyk (based on Liquid Aqua by SongPaul)",
   "repository": "https://github.com/hyojin22c-cmyk/liquid-aqua-duo"
 }
