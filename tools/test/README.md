@@ -70,6 +70,7 @@ style.
 |---|---|
 | `card` | the recipe card: caption on the number between the buttons, the two groups behind a rule, rows lining up across groups, device names shown whole |
 | `devices` | the connection sheet: four roles two by two, what holds each, which call each button makes, nothing actionable mid-shot |
+| `duolist` | the profile list on the unfolded Duo: closed modals and pages hidden rather than only transparent (iOS gave them the swipe meant for the list), and on end every tag chip shown, a finger moving over a chip scrolls instead of choosing it, a tap and a hold still do what they did, curves drawn a list height ahead, scroll boxes that stop at their ends |
 | `hoi` | new profiles for a bean: every upstream name the feature calls still exists, the button sits in the bean's Profiles pane, the Claude request keeps its shape, nothing is registered before the tap. Run it after every upstream merge |
 | `thermo` | a plugin thermometer: its cell in the sheet, the milk reading and target on the steam card, the stop at the target |
 | `grinder` | capability gating against what the xBloom Studio and the Mahlkoenig E64 actually declare: a reading is never the editable setting |

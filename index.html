@@ -2797,7 +2797,29 @@ body.compact #bgEditor .ep-save-bar{position:fixed;left:50px;right:50px;bottom:1
    for one 232px column and an empty rail below the filters. The filters go on
    top and the covers get the width, three across. */
 body.portrait.ep-list #editPage .ep-body{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
-body.portrait.ep-list #editPage .ep-toolbar{max-height:230px}
+/* The panel was held to 230px and nothing in it was let off, so the chips gave
+   up the height: a 50px box, a row and a half of them with the second cut
+   through the middle, scrolling on its own inside a panel that did not. Nothing
+   in the panel shrinks now. It shows all it holds -- 250px with two rows of
+   chips -- and only past 340px, with the list-editing bar open over more chips,
+   does it scroll, as one. */
+body.portrait.ep-list #editPage .ep-toolbar{max-height:340px}
+body.portrait.ep-list #epTools>*{flex-shrink:0}
+/* A box scrolled to its end stops there, rather than handing the rest of the
+   swipe to the panel or the page around it. */
+body.compact #editPage .ep-list,body.compact #epTools,body.compact #epTools .ep-tags{overscroll-behavior:contain}
+/* A finger could not scroll the profile list on iOS at all. The 22 modals sit
+   over every page (z-index 260), each a full-screen layer kept at opacity 0 and
+   pointer-events:none while closed, and iOS WebKit still gave them the swipe:
+   the list saw its touches, and never moved. Measured in Safari on the Duo
+   simulator with real drags, 110pt each: 0 of 3 moved the list, 3 of 3 with the
+   closed modals hidden. A closed modal is hidden, and so is a closed page,
+   whose own lists sit over the page that is open just the same. They stay
+   visible through the fade out and are visible the moment they open. */
+.overlay,.editpage{visibility:hidden;transition-property:opacity,visibility}
+.overlay{transition-duration:.2s,0s;transition-delay:0s,.2s}
+.editpage{transition-duration:.18s,0s;transition-delay:0s,.18s}
+.overlay.show,.editpage.show{visibility:visible;transition-delay:0s,0s}
 /* Building new profiles (hoi-profiles plugin): below the picks from the catalogue,
    because it is the slower and costlier of the two answers. */
 .hoi-sec{margin-top:14px;padding-top:12px;border-top:1px solid var(--glass-line);display:flex;flex-direction:column;gap:8px}
@@ -13922,6 +13944,36 @@ function hoiRegister(){
       return Promise.all([loadProfiles(),loadBeansGrinders(),hoiState.apply?loadWorkflow():null]); })
     .catch(function(e){ hoiState.err=(e&&e.message)||'error'; })
     .then(function(){ hoiState.registering=false; renderHoiBox(); }); }
+// -- The profile list under a finger ----------------------------------
+// The tag chips over the covers were bound the way the action buttons are, and
+// those take touchstart: a finger that landed on a chip could not scroll the box
+// of chips it was in, and lifting it chose the tag whatever it had done in
+// between, which rebuilt the list. The chips take the hold the covers below
+// them have, where a finger that moves is scrolling and neither taps nor holds.
+// A hold redraws the chips, so the click its lift sends lands on a new chip
+// that never saw the hold. The hold is remembered until the next press, and the
+// click it leaves behind is the one it swallows.
+var _duoRenderEpTools=renderEpTools, _duoTagHeld=false;
+['pointerdown','keydown'].forEach(function(ev){
+  document.addEventListener(ev,function(){ _duoTagHeld=false; },true); });
+renderEpTools=function(){
+  _duoRenderEpTools.apply(this,arguments);
+  Array.prototype.forEach.call(document.querySelectorAll('#epTools .ep-tag'),function(b){
+    clearBtn(b);
+    bindHold(b,function(){ if(_duoTagHeld){ _duoTagHeld=false; return; } epSetTag(b.dataset.k); },
+               function(){ _duoTagHeld=true; toggleMainTag(b.dataset.k); }); }); };
+// A cover's curve is drawn as it comes near, and 120px ahead is less than a
+// flick carries a cover in a frame or two, so a cover could come up blank and
+// fill in after. The curves are drawn a whole list's height ahead instead -- still
+// only near what is on screen, so a long library does not hold a canvas for
+// every profile in it.
+var DUO_CURVE_AHEAD='100% 0px';
+ensureCurveObserver=function(){ if(epCurveObserver||!('IntersectionObserver' in window)) return;
+  epCurveObserver=new IntersectionObserver(function(entries){ entries.forEach(function(en){
+    if(!en.isIntersecting) return; var cv=en.target;
+    if(!cv._drawn){ cv._drawn=true; drawCardCurve(cv,cv._profile); }
+    epCurveObserver.unobserve(cv); }); },
+  {root:document.getElementById('epList'),rootMargin:DUO_CURVE_AHEAD}); };
 // -- Blends -------------------------------------------------------
 // A blend is several coffees in a stated proportion, and the gateway's bean
 // record describes one: one origin, one process, one variety. The parts live in
