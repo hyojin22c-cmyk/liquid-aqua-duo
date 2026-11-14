@@ -1,13 +1,29 @@
 // The profile list on the unfolded Duo, under a finger. The page is put into
-// the shape fitStage() gives it on end (800 wide, scaled down) so the panel
-// over the covers is measured where it was squeezed, and the tag chips are
-// pressed the way a finger presses them: down, moved or held, up, click.
-function duoOnEnd(on) {
-  var b = document.body, r = document.documentElement.style;
-  ['portrait', 'compact', 'fitpages', 'scaled'].forEach(function (c) { b.classList.toggle(c, on); });
-  if (on) { r.setProperty('--fit', '0.7825'); r.setProperty('--fit-w', '800px'); r.setProperty('--fit-h', '1137px'); }
-  else fitStage();
+// the shape fitStage() gives the Duo so the panel over the covers is measured
+// where it was squeezed, and the tag chips are pressed the way a finger presses
+// them: down, moved or held, up, click.
+//
+// That shape is 720 on its short side at 87% (.dense): 720x1024 on end, 1024x720
+// on its side. The test window is the tablet's, so the shape is put on by hand
+// and fitStage() takes it off again.
+function duoShape(kind) {
+  var b = document.body, r = document.documentElement.style, app = document.querySelector('.app');
+  // The clock a suite runs under does not drive CSS transitions, so a control
+  // caught changing shape would be measured where it started, not where it ends.
+  if (!document.getElementById('__duoStill')) {
+    var st = document.createElement('style'); st.id = '__duoStill';
+    st.textContent = '.app, .app *, .editpage, .editpage * { transition: none !important; }';
+    document.head.appendChild(st);
+  }
+  ['compact', 'dense', 'fitpages', 'scaled'].forEach(function (c) { b.classList.toggle(c, !!kind); });
+  b.classList.toggle('portrait', kind === 'end');
+  if (!kind) { fitStage(); return; }
+  var w = kind === 'end' ? 720 : 1024, h = kind === 'end' ? 1024 : 720;
+  app.style.width = w + 'px'; app.style.height = h + 'px';
+  app.style.transform = 'scale(0.869)'; app.style.transformOrigin = 'center center';
+  r.setProperty('--fit', '0.869'); r.setProperty('--fit-w', w + 'px'); r.setProperty('--fit-h', h + 'px');
 }
+function duoOnEnd(on) { duoShape(on ? 'end' : null); }
 
 function duoPress(b, moveBy, holdMs) {
   var r = b.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
@@ -112,28 +128,30 @@ test('closed modals and pages are hidden, not only transparent', function (T) {
   duoClose();
 });
 
-// The stage on end is 800 wide, which is what shrank the dials; the reading
-// over each has to shrink with it, to the share of the dial it has on the
-// tablet (two fifths), where before it took half and covered the 3 and the 9.
-test('on end a gauge reading keeps the tablet share of its dial', function (T) {
-  var app = document.querySelector('.app'), was = [app.style.width, app.style.height];
+// The reshaped stage gives the dials less width than the tablet does, which is
+// what shrank them; the reading over each has to shrink with it, to the share
+// of the dial it has on the tablet (two fifths), where before it took half and
+// covered the 3 and the 9.
+test('a gauge reading keeps the tablet share of its dial, on end and on its side', function (T) {
   var st = { p: state.pressure, f: state.flow };
-  duoOnEnd(true);
-  app.style.width = '800px'; app.style.height = '1137px';
+  ['end', 'side'].forEach(function (kind) {
+  duoShape(kind);
   state.pressure = 8.6; state.flow = 2.3; applyGauges('pressure', 'flow');
   T.all('.gauges .gauge.dial').forEach(function (g) {
     var v = g.querySelector('.gauge-val'), body = g.querySelector('.gs-body');
     var r = document.createRange(); r.selectNodeContents(v); r.setEnd(v.firstChild, v.firstChild.length);
     var share = r.getBoundingClientRect().width / body.getBoundingClientRect().width;
-    T.atMost(Math.round(share * 100), 42, 'the number, as a share of the dial (%)');
+    T.atMost(Math.round(share * 100), 42, kind + ': the number, as a share of the dial (%)');
+  });
   });
   state.pressure = st.p; state.flow = st.f; applyGauges('pressure', 'flow');
-  app.style.width = was[0]; app.style.height = was[1];
-  duoOnEnd(false);
+  duoShape(null);
 });
 
 // Beside the curve the step table had 340px of the 480 it needs and ran off
-// the screen; on end the editor is one column and the table has the width.
+// the screen; on end the editor is one column and the table has the width. It
+// shows five steps and a half and scrolls for the rest, so the step being
+// edited stays on the screen with the rows.
 test('on end the profile editor shows the whole step table and the name', function (T) {
   duoOnEnd(true);
   openEditPage();
@@ -145,6 +163,9 @@ test('on end the profile editor shows the whole step table and the name', functi
   T.atMost(wrap.scrollWidth - wrap.clientWidth, 1, 'the table does not run past its box');
   T.atMost(grid.getBoundingClientRect().right - ed.getBoundingClientRect().right, 1, 'nor past the editor');
   T.ok(wrap.clientHeight > 150, 'and is given height: ' + wrap.clientHeight);
+  T.atMost(wrap.clientHeight, 240, 'but not so much that the step editor is pushed away');
+  var se = T.el('#epEditor .ep-step-editor');
+  T.atMost(se.offsetTop - (wrap.offsetTop + wrap.offsetHeight), 16, 'which starts right under the rows');
   T.ok(name.offsetWidth > meta.offsetWidth * 0.8, 'the name takes the row: ' + name.offsetWidth + ' of ' + meta.offsetWidth);
   closeEditPage();
   duoOnEnd(false);

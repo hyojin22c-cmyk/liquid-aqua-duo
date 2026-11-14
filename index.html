@@ -2729,6 +2729,28 @@ body.compact:not(.portrait) .app{grid-template-columns:minmax(0,1fr) 410px}
 body.compact .live-row{grid-template-columns:160px minmax(0,1fr)}
 body.compact .live{grid-template-columns:minmax(0,1fr) 300px;padding:11px 14px;gap:12px}
 body.compact .live>.gauges{padding-left:12px}
+/* Under 800 on its short side (.dense: the Duo at 720) the stage is 1024 wide
+   on its side, and the weight had 114px beside the dials: "345.2 g" is 144
+   with its icon and ran 15px onto the pressure dial. The tank's readings are
+   100px in a 160 column and the dials carry their numbers at any width, so
+   the tank gives 16px and the dials 16. */
+body.dense:not(.portrait) .live-row{grid-template-columns:144px minmax(0,1fr)}
+body.dense:not(.portrait) .live{grid-template-columns:minmax(0,1fr) 284px}
+/* At 720 the right column is 640 under the header, and its cards add up to
+   623 with two rows of bean chips and 650 with three: the bean card ran 10px
+   over and scrolled with nothing to say it did. The covers' heading gives 6px
+   of the 12 under it, and the three cards 2px of padding top and bottom, which
+   leaves a third row 8px to spare. */
+body.dense:not(.portrait) .carousel-card,body.dense:not(.portrait) .bean-info,
+body.dense:not(.portrait) .lastshot-card{padding-top:8px;padding-bottom:8px}
+body.dense:not(.portrait) .cc-head{margin-bottom:6px}
+/* The five actions shared the header evenly, 134px each, and the shot's line
+   under its name is the long one: "90.0° · 18.0 → 36.0g · 1:2.0" is 131 and
+   lost its ratio to an ellipsis while the workflow's 46 sat in the same room.
+   The shot takes a share and a third. */
+body.dense #btnShot{flex:1.35 1 0}
+/* The tank's four labels are the smallest type on the stage, 9px. */
+body.dense .ht-l{font-size:10px}
 /* Stood on end -- the iPhone Duo opened, 626x890. The two columns come apart
    into one stack: the readings across the top, the profile beside the recipe,
    the bean beside the last shot, and the graphs given the rest of the height,
@@ -2742,6 +2764,15 @@ body.portrait .app:has(#camCard:not([hidden])){
 /* .app> and not a bare .center: the profile cover in the middle of the
    carousel is also .center, and dissolving it left its drawing loose across
    the card with no cover around it. */
+/* At 720 across, half the width was 360 for the recipe, and steam's seven
+   controls need the 400 they have at 800: "-5 50 +5" ran together. The covers
+   need less than half -- the middle one is 242 wide -- so the profile takes
+   42.5% and the recipe the rest, while the bean and the last shot under them
+   stay half and half. */
+body.dense.portrait .app{grid-template-columns:minmax(0,17fr) minmax(0,3fr) minmax(0,20fr);
+  grid-template-areas:'hd hd hd' 'lv lv lv' 'car rec rec' 'bean bean last' 'ch ch ch' 'tc tc tc'}
+body.dense.portrait .app:has(#camCard:not([hidden])){
+  grid-template-areas:'hd hd hd' 'lv lv lv' 'cam cam cam' 'car rec rec' 'bean bean last' 'ch ch ch' 'tc tc tc'}
 body.portrait .app>.center,body.portrait .app>.right{display:contents}
 body.portrait header{grid-area:hd;flex-wrap:wrap;row-gap:8px;padding:10px 14px 20px}
 body.portrait .brand{flex:1 1 auto}
@@ -2779,12 +2810,15 @@ body.portrait .mon-body.cam{grid-template-columns:minmax(0,1fr);grid-template-ro
    past the screen, and its heading broke into single words ("추출 단 / 계").
    The editor scrolls as a whole on the reshaped stage, so on end it is one
    column: the curve, the heading and the table each take the width, and the
-   step being edited follows them. */
+   step being edited follows them. The table shows five steps and a half and
+   scrolls for the rest, as it does beside the editor: shown whole, a profile
+   of nine steps put the step being edited 390px under the row that chose it,
+   and the curve, the rows and the sliders are now on the screen together. */
 body.portrait #epEditor{grid-template-columns:minmax(0,1fr);grid-template-rows:none;grid-auto-rows:auto;
   height:auto;min-height:100%}
 body.portrait #epEditor .ep-visual{grid-column:1;grid-row:2}
 body.portrait #epEditor .ep-steps-title{grid-column:1;grid-row:3}
-body.portrait #epEditor .ep-grid-wrap{grid-column:1;grid-row:4;overflow-y:visible;min-height:auto}
+body.portrait #epEditor .ep-grid-wrap{grid-column:1;grid-row:4;min-height:auto;max-height:236px}
 body.portrait #epEditor .ep-step-editor{grid-column:1;grid-row:5;overflow-y:visible}
 /* The name shared its row with seven colour swatches and three roast chips
    and was left 90px ("A-Flow / def"). It takes the row; they go under it. */
@@ -2903,9 +2937,104 @@ body.compact .ep-card .cfoot>button{position:relative}
 body.compact .ep-card .cfoot>button::after{content:'';position:absolute;inset:-7px -3px}
 body.compact .ep-card .cfoot>button:first-of-type::after{left:-7px}
 body.compact .ep-card .cfoot>button:last-child::after{right:-7px}
+/* ── What a finger is asked to hit ─────────────────────────────────────
+   Measured on the Duo's screen, in its pixels. Each of these was under 26
+   across or tall, most beside something a miss would set off instead. They
+   are drawn as they were, except the two that had room to be drawn larger;
+   the rest answer a wider reach through an unseen ::after (::before where the
+   ::after was taken). */
+/* A step's move, copy and delete were 19px in a row of four with 2px between
+   them, delete last. The table has 90px to spare beside the step editor and
+   140 on end, so they are 30 with 4 between, and reach the row's full height. */
+body.compact .ep-grid td.ops button{position:relative;width:30px;height:30px;margin-left:4px;font-size:13px}
+body.compact .ep-grid td.ops button::after{content:'';position:absolute;inset:-4px -2px}
+/* The nine rows of the taste card were pips 26x24, in a dialog that opens
+   after every shot with 200px lying empty to their right. */
+body.compact .tc-row{min-height:42px}
+body.compact .tc-pips{gap:5px}
+body.compact .tc-pip{width:38px;height:34px;font-size:13px}
+body.compact .tc-two .tc-pip{min-width:56px}
+/* A steam, flush or water preset is pressed on its name and edited on its
+   pencil, and those were the letters themselves: "Latte" 23x12 and the
+   pencil 12x13, inside a chip whose own face did nothing. The name answers
+   from the chip's left edge and the pencil from its right, the full height. */
+body.compact .preset-chip .pc-name,body.compact .preset-chip .pc-save{position:relative}
+body.compact .preset-chip .pc-name::after{content:'';position:absolute;inset:-9px -3px -9px -12px}
+body.compact .preset-chip .pc-save::after{content:'';position:absolute;inset:-9px -3px}
+body.compact .preset-chip .pc-save:last-child::after{right:-12px}
+/* The pencil on the loaded cover, 22px in the cover's corner; a miss is a tap
+   on the cover. The cover's own edge is where its reach ends. */
+body.compact .al-edit::after{content:'';position:absolute;inset:-8px}
+/* - and + beside the dose, the ratio and the yield were narrowed to 26px to
+   leave the number its room (23 on the screen). They reach 5px further out
+   each way, which takes 2 from the number between them. */
+body.compact .recipe .rg-cols .ms-btn{position:relative}
+body.compact .recipe .rg-cols .ms-btn::after{content:'';position:absolute;inset:-4px -5px}
+/* The legend over a graph switches its lines on and off, 19px tall. */
+body.compact .legend-item.tog{position:relative}
+body.compact .legend-item.tog::after{content:'';position:absolute;inset:-7px 0}
+/* The x on a tag in the profile editor (16px) and the box that picks a tag in
+   the tag list (17px, in a row 44 tall). */
+body.compact .ep-tagchip button{position:relative}
+body.compact .ep-tagchip button::after{content:'';position:absolute;inset:-7px -6px -7px -3px}
+body.compact .tge-check{position:relative}
+body.compact .tge-check::before{content:'';position:absolute;inset:-12px}
 /* A box scrolled to its end stops there, rather than handing the rest of the
    swipe to the panel or the page around it. */
 body.compact #editPage .ep-list,body.compact #epTools,body.compact #epTools .ep-tags{overscroll-behavior:contain}
+/* ── The Duo at 720: the pages ─────────────────────────────────────────
+   The pages take the stage's scale, so at 87% they have 1024x720 on their side
+   and 720x1024 on end where they had 1137x800 and 800x1137. Each rule here
+   answers something measured at those two sizes. */
+/* Profile list. Covers at 232px were two across where they had been three, on
+   either shape. At 200 they are three again, and on the screen each is the
+   width it was before (176px against 181). */
+body.dense.ep-list .ep-list{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+body.dense:not(.portrait).ep-list #editPage .ep-body{grid-template-columns:280px minmax(0,1fr)}
+/* On end the title and six buttons want 836px of 720: the title stood on end
+   ("목 / 록") and the buttons broke their words. What is done to the page keeps
+   the title's row; what is done to the library takes a row of its own. */
+body.dense.portrait.ep-list #editPage .ep-head{align-items:flex-start}
+body.dense.portrait.ep-list #editPage .ep-head-left{padding-top:11px}
+body.dense.portrait.ep-list #editPage .ep-head-btns{flex:1;flex-wrap:wrap;justify-content:flex-end;gap:8px 10px;min-width:0}
+body.dense.portrait.ep-list #editPage .ep-acts{order:2;flex:1 0 100%;justify-content:flex-end}
+body.dense .ep-title{white-space:nowrap}
+/* Profile editor on its side. The step editor took its 460px and left the
+   table 450 of the 477 it needs, so the copy and delete buttons were cut. It
+   works at 340, which is what its own rule allows, and the table gets 568:
+   room for the 517 it needs with its buttons at a size to press (above). */
+body.dense:not(.portrait).ep-edit #epEditor{grid-template-columns:minmax(0,1fr) 340px}
+/* Shot log on its side. Beside a 270px list the record and the notes had 371
+   and 247: bean and grinder were cut to "Momos Coffe" and "Niche Zerc", the
+   analysis buttons stacked, and the second row of numbers sat under the bar.
+   As on end, the record and the notes are one page that scrolls, the record
+   first at the pane's full width, and the bar is held at the foot of the pane
+   (316px in: the page's 28, the list's 250, the gap's 16 and the pane's 22). */
+body.dense:not(.portrait) #shotLogPage .ep-body{grid-template-columns:250px minmax(0,1fr)}
+body.dense:not(.portrait) #slDetail{display:block;height:auto;padding-bottom:84px}
+body.dense:not(.portrait) #slDetail .sl-view,body.dense:not(.portrait) #slDetail .sl-edit{overflow:visible;min-height:0}
+body.dense:not(.portrait) #slDetail .sl-edit{margin-top:14px}
+body.dense:not(.portrait) #slDetail .ep-save-bar{position:fixed;left:316px;right:50px;bottom:16px;z-index:5}
+body.dense:not(.portrait) #slDetail .sl-canvas-wrap{height:190px}
+body.dense:not(.portrait) #slDetail .sl-temp-wrap{height:96px}
+/* Shot log on end. The strip over the record showed one shot of however many
+   there were. Two across, it shows four in the same height and a little more. */
+body.portrait #shotLogPage .ep-body{grid-template-rows:minmax(0,200px) minmax(0,1fr)}
+body.portrait #slList{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-auto-rows:min-content;align-content:start;gap:7px 10px}
+body.portrait #slList>:not(.ep-item){grid-column:1/-1}
+/* Settings on end. Seven names down a 300px rail left the settings 348px (428
+   at 800), and a sentence beside its control folded into six lines. The names
+   go across the top, each under its icon, and the settings take the width. */
+body.portrait #settingsPage .ep-body{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
+body.portrait #settingsPage .sp-nav{flex-direction:row;padding:8px;gap:4px;overflow-x:auto;overflow-y:hidden}
+body.portrait #settingsPage .sp-nav-item{flex:1 0 auto;flex-direction:column;justify-content:center;gap:3px;
+  min-width:72px;padding:8px 6px;font-size:12px;text-align:center}
+body.portrait #settingsPage .sp-nav-item .ic{width:auto}
+body.portrait #settingsPage .sp-content-inner{max-width:none}
+/* Tags on end. Beside the 300px panel a row had 348px for a name, its count,
+   its place and its delete button, and the button was cut in half. The panel
+   goes on top, as the profile list's does. */
+body.portrait #tagPage .ep-body{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
 /* Building new profiles (hoi-profiles plugin): below the picks from the catalogue,
    because it is the slower and costlier of the two answers. */
 .hoi-sec{margin-top:14px;padding-top:12px;border-top:1px solid var(--glass-line);display:flex;flex-direction:column;gap:8px}
@@ -5025,10 +5154,21 @@ function applyI18n(){ _lang=resolveLang(prefs.lang||'auto'); document.documentEl
 // The stage was a fixed 1280x800 scaled whole onto any screen, so a screen of
 // another shape got it small with the rest left empty: the iPhone Duo opened,
 // 626x890, showed it at half size in a band across the middle. The stage now
-// takes the screen's shape. On its side it stays 800 tall and gives up width,
-// down to 1100; on end it is 800 wide and as tall as the screen makes it. A
-// 1280x800 tablet still gets exactly 1280x800.
+// takes the screen's shape. On its side it gives up width, down to 1100; on
+// end it is as tall as the screen makes it. Its short side is 800 where the
+// screen can show that at 87% or better and comes down to 720 where it cannot
+// (below). A 1280x800 tablet still gets exactly 1280x800.
 var STAGE_W=1280, STAGE_H=800, STAGE_MIN_W=1100, PORTRAIT_AT=1.15;
+// A reshaped stage kept the tablet's 800 across its short side whatever the
+// screen, and the Duo's short side is 626: everything on it was drawn at 78%,
+// a 44px button 34 across and an 11px label under 9, on a screen held in the
+// hand. Measured, the layout does not need the 800. On its side the right
+// column's cards add up to 623 under an 80px header, and on end the graphs
+// take whatever is left over, so the short side comes down to 720 before
+// anything is squeezed -- and that is everything at 87% instead. A screen that
+// can show the 800 at 87% or better keeps it.
+var STAGE_SHORT_MIN=720, STAGE_FIT_AT=0.87;
+function stageShort(px){ return Math.round(Math.max(STAGE_SHORT_MIN,Math.min(STAGE_H,px/STAGE_FIT_AT))); }
 var _stageFit=1;
 // The status bar and the home indicator are not the page's to draw under once
 // it fills the screen, and only CSS can read how much they take.
@@ -5039,12 +5179,20 @@ function safeInsets(){
   return { t:parseFloat(cs.paddingTop)||0, r:parseFloat(cs.paddingRight)||0,
            b:parseFloat(cs.paddingBottom)||0, l:parseFloat(cs.paddingLeft)||0 }; }
 function stageShape(vw,vh){
-  var r=vh/vw, w=STAGE_W, h=STAGE_H;
-  if(r>=PORTRAIT_AT) return { w:800, h:Math.round(Math.min(1700,Math.max(1000,800*r))), portrait:true };
-  w=Math.round(STAGE_H/r);
-  if(w>STAGE_W) w=STAGE_W;
-  else if(w<STAGE_MIN_W){ w=STAGE_MIN_W; h=Math.round(STAGE_MIN_W*r); }
-  return { w:w, h:h, portrait:false }; }
+  var r=vh/vw, w, h;
+  if(r>=PORTRAIT_AT){ w=stageShort(vw);
+    return { w:w, h:Math.round(Math.min(w*2.125,Math.max(w*1.25,w*r))), portrait:true, dense:w<STAGE_H }; }
+  // The tablet's own shape or wider is the tablet's own stage, whole, however
+  // small the screen: only a stage that changes shape changes size with it.
+  if(STAGE_H/r>=STAGE_W) return { w:STAGE_W, h:STAGE_H, portrait:false, dense:false };
+  h=stageShort(vh); w=Math.round(h/r);
+  // .dense is said of the short side the stage was given, before a screen
+  // nearer square is made taller to keep its width: that one is narrow too
+  var dense=h<STAGE_H;
+  // the narrowest the columns go: 1100 under the full 800, 1020 under 720
+  var minW=STAGE_MIN_W-(STAGE_H-h);
+  if(w<minW){ w=minW; h=Math.round(minW*r); }
+  return { w:w, h:h, portrait:false, dense:dense }; }
 function fitStage(){
   // the phone has a page of its own and the stage is not on it
   if(document.body.classList.contains('mobile-scan')) return;
@@ -5062,6 +5210,8 @@ function fitStage(){
   b.classList.toggle('portrait',sh.portrait);
   var reshaped=sh.portrait||sh.w<STAGE_W;
   b.classList.toggle('compact',reshaped);
+  // .dense is the stage under 800 on its short side: the Duo, not an iPad
+  b.classList.toggle('dense',reshaped&&!!sh.dense);
   // A screen of the tablet's own shape, only smaller, keeps the pages it always
   // had; it is the reshaped stage the pages have to follow.
   b.classList.toggle('fitpages',reshaped&&s<0.97);
@@ -14721,6 +14871,47 @@ renderEpTools=function(){
 // fill in after. The curves are drawn a whole list's height ahead instead -- still
 // only near what is on screen, so a long library does not hold a canvas for
 // every profile in it.
+// -- Screen pixels and stage pixels -------------------------------------
+// getBoundingClientRect() answers in the screen's pixels and a style is
+// written in the stage's, and on a scaled stage one is 87% of the other.
+// Three places wrote the first as the second, and each came out short by the
+// difference: the camera's picture was sized 13% smaller than its pane and
+// its card capped 13% under the picture's shape; the ripple under a finger
+// started up and to the left of it, by more the further into a card the
+// finger was; and a step picked on the curve was scrolled most of the way
+// into the table. Unscaled -- the monitor, a dialog, the tablet -- the two
+// are the same pixel and nothing here changes.
+function duoScaleOf(el){ var w=el&&el.offsetWidth, r=w?el.getBoundingClientRect():null;
+  var k=(r&&r.width)?r.width/w:1; return Math.abs(k-1)>0.01?k:1; }
+var _duoRippleIn=rippleIn, _duoCamApplyView=camApplyView, _duoCamFitCard=camFitCard;
+rippleIn=function(host,x,y){
+  var k=duoScaleOf(host);
+  if(k!==1){ var r=host.getBoundingClientRect(); x=r.left+(x-r.left)/k; y=r.top+(y-r.top)/k; }
+  return _duoRippleIn(host,x,y); };
+// Upstream leaves what it wrote before when the pane has no size yet, so the
+// correction is made only on a call that will write: a second division of the
+// same figure would undo the first.
+function duoCamPane(){ var pane=document.getElementById('camPane'); if(!pane||pane.hidden) return null;
+  var r=pane.getBoundingClientRect(); return (r.width&&r.height)?pane:null; }
+camApplyView=function(){
+  var pane=duoCamPane();
+  _duoCamApplyView.apply(this,arguments);
+  var k=pane?duoScaleOf(pane):1; if(k===1) return;
+  ['camVideo','camImg'].forEach(function(id){ var el=document.getElementById(id); if(!el) return;
+    var w=parseFloat(el.style.width), h=parseFloat(el.style.height);
+    if(w) el.style.width=(w/k).toFixed(1)+'px';
+    if(h) el.style.height=(h/k).toFixed(1)+'px'; }); };
+camFitCard=function(){
+  var pane=duoCamPane();
+  _duoCamFitCard.apply(this,arguments);
+  var k=pane?duoScaleOf(pane):1, mh=pane?parseFloat(pane.style.maxHeight):0;
+  if(mh&&k!==1) pane.style.maxHeight=Math.round(mh/k)+'px'; };
+epScrollRowIntoView=function(i){
+  var w=document.querySelector('.ep-grid-wrap'), tr=document.querySelector('.ep-grid tr.gr[data-i="'+i+'"]');
+  if(!w||!tr) return;
+  var k=duoScaleOf(w), wb=w.getBoundingClientRect(), rb=tr.getBoundingClientRect();
+  if(rb.top<wb.top) w.scrollTop-=(wb.top-rb.top)/k+4;
+  else if(rb.bottom>wb.bottom) w.scrollTop+=(rb.bottom-wb.bottom)/k+4; };
 var DUO_CURVE_AHEAD='100% 0px';
 ensureCurveObserver=function(){ if(epCurveObserver||!('IntersectionObserver' in window)) return;
   epCurveObserver=new IntersectionObserver(function(entries){ entries.forEach(function(en){

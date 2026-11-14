@@ -70,6 +70,7 @@ style.
 |---|---|
 | `card` | the recipe card: caption on the number between the buttons, the two groups behind a rule, rows lining up across groups, device names shown whole |
 | `devices` | the connection sheet: four roles two by two, what holds each, which call each button makes, nothing actionable mid-shot |
+| `duostage` | the stage on the unfolded Duo: 720 on its short side (87%) with the tablet and iPad left alone, the weight clear of the dials, steam's controls apart, covers three across, the shot log as one page, settings and tags stacked on end, small controls answering further than they are drawn, and the three places that mixed screen pixels with stage pixels (ripple, camera, step scroll) |
 | `duolist` | the profile list on the unfolded Duo: closed modals and pages hidden rather than only transparent (iOS gave them the swipe meant for the list), on end every tag chip shown and the profile editor's whole step table, gauge readings at the tablet's share of their dial, cover buttons that answer a near miss, a finger moving over a chip scrolls instead of choosing it, a tap and a hold still do what they did, curves drawn a list height ahead, scroll boxes that stop at their ends |
 | `hoi` | new profiles for a bean: every upstream name the feature calls still exists, the button sits in the bean's Profiles pane, the Claude request keeps its shape, nothing is registered before the tap. Run it after every upstream merge |
 | `thermo` | a plugin thermometer: its cell in the sheet, the milk reading and target on the steam card, the stop at the target |
