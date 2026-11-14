@@ -15,7 +15,7 @@
 @font-face{font-family:'Inter';font-style:normal;font-weight:300 800;font-display:swap;src:url(inter-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
 @font-face{font-family:'Inter';font-style:normal;font-weight:300 800;font-display:swap;src:url(inter-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF}
 
-:root{
+:root{ --pane-gap:0px; --pane-line:rgba(80,70,160,.14);
   --accent:#6366f1; --accent2:#8b5cf6; --accent3:#ec4899;
   --mb-card:rgba(255,255,255,.88);
   --hot:#f97316; --steam:#38bdf8; --green:#10b981; --red:#ef4444; --amber:#f59e0b;
@@ -46,7 +46,7 @@ body::before{content:'';position:fixed;inset:0;z-index:-2;
   background:radial-gradient(circle at 18% 22%,rgba(139,92,246,.42),transparent 46%),radial-gradient(circle at 84% 18%,rgba(56,189,248,.38),transparent 48%),radial-gradient(circle at 78% 84%,rgba(236,72,153,.32),transparent 48%),radial-gradient(circle at 22% 90%,rgba(99,102,241,.38),transparent 48%),linear-gradient(135deg,#e8ecff,#f5edff)}
 
 /* Night mode: dark liquid-glass palette */
-body.night{--ink:#e8e6f5; --ink-soft:#b8b4d8; --ink-mute:#7d7aa0;
+body.night{--pane-line:rgba(255,255,255,.09); --ink:#e8e6f5; --ink-soft:#b8b4d8; --ink-mute:#7d7aa0;
   --glass:rgba(40,36,66,.55); --glass-hi:rgba(255,255,255,.06); --glass-line:rgba(255,255,255,.1);
   --sheet:#191627; --edge:rgba(255,255,255,.16); --field:rgba(255,255,255,.05);
   --ctl-face:rgba(255,255,255,.09); --ctl-edge:rgba(255,255,255,.15);
@@ -107,9 +107,14 @@ body.night .bg-tab.active{background:rgba(99,102,241,.25);border-color:var(--acc
 body.night .ep-item.active{border-color:var(--accent);box-shadow:0 0 0 2px rgba(99,102,241,.3)}
 
 .stage-wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
-.app{width:1280px;height:800px;display:grid;grid-template-columns:1fr 440px;grid-template-rows:80px 1fr;gap:10px;padding:10px;flex-shrink:0}
+.app{width:1280px;height:800px;display:grid;grid-template-columns:1fr 440px;grid-template-rows:80px 1fr;gap:var(--pane-gap);padding:var(--pane-gap);flex-shrink:0}
 .glass{background:rgba(255,255,255,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--glass-line);border-radius:var(--r-md);box-shadow:var(--shadow)}
 body.scaled .glass{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(255,255,255,.85)}
+/* The main screen is one sheet: the panes meet edge to edge and a hairline
+   on their right and bottom is what tells them apart. */
+.app>header.glass,.app .center>.glass,.app .live-row>.glass,.app .right>.glass{border:none;border-radius:0;
+  box-shadow:inset -1px 0 0 var(--pane-line),inset 0 -1px 0 var(--pane-line)}
+.app .tank-card .water-bg{border-radius:0}
 body.scaled.night .glass{background:rgba(30,27,54,.9)}
 /* While a modal/full-page overlay is open, the background is hidden behind it —
    drop the (expensive) backdrop blur on background panels for a smoother modal. */
@@ -150,13 +155,18 @@ body.asleep-settled .app .glass{backdrop-filter:none;-webkit-backdrop-filter:non
 .lock-ripple{position:absolute;inset:-40% -20%;z-index:-1;border-radius:50%;pointer-events:none;
   background:radial-gradient(60% 55% at 50% 50%,rgba(56,189,248,.10),rgba(99,102,241,.05) 45%,transparent 70%)}
 /* While asleep, stop the water-tank wave animation to save the panel/CPU. */
-body.asleep-settled .wave-path,body.asleep-settled .wave-path2,body.asleep-settled .batt-fluid svg{animation-play-state:paused!important}
 
 /* ── Header: water tank + actions ────────────────────────────────── */
 header{grid-column:1 / -1;grid-row:1;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:0 20px}
 .water-fill{position:absolute;left:0;bottom:0;width:100%;background:linear-gradient(180deg,rgba(56,189,248,.28),rgba(99,102,241,.4));transition:height 1.2s cubic-bezier(.4,0,.2,1),background .9s ease}
-.water-fill svg{position:absolute;top:-16px;left:0;width:100%;height:18px;display:block}
-.water-fill svg.bubbles{position:absolute;top:auto;bottom:0;left:0;width:100%;height:100%;pointer-events:none}
+.water-fill{visibility:hidden}
+.tank-fx{position:absolute;inset:0;width:100%;height:100%;display:block}
+.fps-meter{position:fixed;left:6px;bottom:6px;z-index:99999;font:700 11px Inter,monospace;padding:3px 7px;border-radius:6px;background:rgba(0,0,0,.62);color:#fff;cursor:pointer}
+.fps-log{position:fixed;left:6px;bottom:30px;z-index:99999;width:min(620px,calc(100vw - 12px));max-height:62vh;overflow:auto;border-radius:8px;background:rgba(0,0,0,.86);color:#fff;font:11px/1.45 ui-monospace,Menlo,Consolas,monospace;padding:8px 10px}
+.fps-log .fl-head{display:flex;gap:8px;align-items:center;margin-bottom:6px;font:600 11px Inter,sans-serif}
+.fps-log .fl-head span{flex:1}
+.fps-log .fl-head button{background:rgba(255,255,255,.16);color:#fff;border:0;border-radius:5px;padding:4px 10px;font:600 11px Inter,sans-serif}
+.fps-log pre{margin:0;white-space:pre-wrap;font:inherit}
 .wave-path{fill:rgba(56,189,248,.45);transition:fill .9s ease}
 .wave-path2{fill:rgba(99,102,241,.32);transition:fill .9s ease}
 header>*{position:relative;z-index:1}
@@ -178,9 +188,7 @@ header>*{position:relative;z-index:1}
 .batt>*{position:relative;z-index:1}
 .batt-fluid{position:absolute;left:0;bottom:0;z-index:0;width:100%;height:0;background:linear-gradient(180deg,rgba(16,185,129,.26),rgba(16,185,129,.52));transition:height 1.2s cubic-bezier(.4,0,.2,1),background .6s ease}
 .batt .batt-fluid{color:rgba(16,185,129,.40)}
-.batt-fluid svg{position:absolute;top:-5px;left:0;width:200%;height:6px;display:block;animation:battwave 3.6s linear infinite}
 .batt-wave{fill:currentColor}
-@keyframes battwave{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 .batt .batt-pct{font-size:11px;font-weight:800;color:var(--ink);letter-spacing:0;font-variant-numeric:tabular-nums}
 .batt.low .batt-fluid{background:linear-gradient(180deg,rgba(239,68,68,.26),rgba(239,68,68,.52));color:rgba(239,68,68,.40)}
 .batt.low .batt-pct{color:var(--red)}
@@ -251,6 +259,9 @@ header>*{position:relative;z-index:1}
 .conn-toggle:active{transform:scale(.96)}
 .conn-toggle.ing{border-color:var(--amber)}
 .conn-grid{display:grid;grid-template-columns:auto auto;gap:2px 9px;align-items:center;justify-items:center}
+.conn-grid.c3{grid-template-columns:auto auto auto}
+.cglyph[hidden]{display:none}
+.cg-svg{width:15px;height:15px;display:block}
 .cglyph{font-size:15px;line-height:15px;color:var(--ink-mute);opacity:.5;transition:color .2s,opacity .2s}
 .cglyph.up{color:var(--green);opacity:1}
 .cglyph.ing{color:var(--amber);opacity:1;animation:blink .8s infinite}
@@ -286,10 +297,10 @@ header>*{position:relative;z-index:1}
 @keyframes actpulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.12)}}
 
 /* ── Center column ───────────────────────────────────────────────── */
-.center{grid-column:1;grid-row:2;display:flex;flex-direction:column;gap:10px;min-height:0}
+.center{grid-column:1;grid-row:2;display:flex;flex-direction:column;gap:var(--pane-gap);min-height:0}
 /* the tank keeps the card it always had -- water filling the whole panel
    with the readings floating on it -- only stood on end beside the rest */
-.live-row{display:grid;grid-template-columns:1fr 3fr;gap:10px;flex-shrink:0}
+.live-row{display:grid;grid-template-columns:1fr 3fr;gap:var(--pane-gap);flex-shrink:0}
 .tank-card{position:relative;overflow:hidden;min-width:0}
 .tank-card .water-bg{position:absolute;inset:0;z-index:0;overflow:hidden;border-radius:var(--r-md)}
 .tank-card .tank-content{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;justify-content:center;gap:8px;padding:10px 16px}
@@ -391,7 +402,7 @@ body.night .gauge.z1{--zc:#fbbf24} body.night .gauge.z2{--zc:#34d399} body.night
 .chart-canvas-wrap canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 
 /* ── Right column ────────────────────────────────────────────────── */
-.right{grid-column:2;grid-row:2;display:flex;flex-direction:column;gap:10px;min-height:0}
+.right{grid-column:2;grid-row:2;display:flex;flex-direction:column;gap:var(--pane-gap);min-height:0}
 
 /* Current profile hero */
 /* Profile album carousel (current + favorites merged) */
@@ -715,6 +726,47 @@ body.night.no-fx .glass{background:rgba(30,27,54,.92)}
   font-size:12px;font-weight:900;line-height:1;font-family:var(--font);
   box-shadow:0 2px 8px rgba(245,158,11,.38);animation:rcpulse 2.4s ease-in-out infinite}
 .rc-alert[hidden]{display:none}
+.dz-row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--ctl-edge)}
+.dz-row:last-child{border-bottom:none}
+.dz-name{flex:1;min-width:0}
+.dz-n{font-size:13px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dz-st{font-size:11px;font-weight:600;color:var(--ink-mute)}
+.dz-st.ok{color:var(--green)} .dz-st.failed,.dz-st.uncertain{color:var(--amber)}
+.dz-g{width:68px;min-height:36px;padding:4px 6px;border-radius:9px;border:1px solid var(--ctl-edge);background:var(--ctl-face);
+  font-family:var(--font);font-size:15px;font-weight:700;color:var(--ink);text-align:center;cursor:pointer;-webkit-appearance:none}
+.dz-tabs{display:flex;gap:5px;flex:none;overflow-x:auto;scrollbar-width:none;margin-bottom:8px}
+.dz-tabs[hidden]{display:none}
+.dz-tabs::-webkit-scrollbar{display:none}
+.dz-tab{flex:none;display:inline-flex;align-items:center;gap:5px;min-height:28px;padding:3px 11px;border-radius:14px;border:1px solid var(--ctl-edge);background:var(--ctl-face);
+  font-family:var(--font);font-size:12px;font-weight:700;color:var(--ink-mute);cursor:pointer;-webkit-appearance:none}
+.dz-tab.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.dz-tl{display:flex;flex-direction:column;align-items:flex-start;line-height:1.15;text-align:left}
+.dz-tn{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dz-tr{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;font-weight:600;opacity:.75}
+.dz-tab.ok:not(.on){color:var(--green)}
+.dz-tab.failed:not(.on),.dz-tab.uncertain:not(.on){color:var(--amber)}
+.bean-info.dz-mod .bean-row,.bean-info.dz-mod .bean-chips{display:none}
+.dz-panel[hidden]{display:none}
+.dz-panel{display:flex;flex-direction:column;gap:6px;min-height:0}
+.dz-panel .dz-row{gap:5px;padding:3px 0;border-bottom:none}
+.dz-panel .dz-bean{width:100%;margin:0}
+.dz-num.ok{background:var(--green);color:#fff}
+.dz-num.failed,.dz-num.uncertain{background:var(--amber);color:#fff}
+.dz-num.busy{background:var(--accent);color:#fff}
+.dz-panel .dz-row .ms-btn{width:30px;height:30px;min-width:30px}
+.dz-panel .dz-g{width:54px;min-height:30px;font-size:14px}
+.dz-panel .cn-btn{min-height:30px;padding:0 9px;font-size:12px}
+.dz-pick.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.dz-m .dz-st{display:inline}
+.dz-tabs{align-items:center}
+.dz-tabs .dz-all{margin-left:auto;flex:none;min-height:28px;height:28px;padding:0 12px;font-size:12px;border-radius:14px}
+.dz-m{font-size:11px;font-weight:600;color:var(--ink-mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px}
+.dz-bean{max-width:100%;min-height:28px;margin:3px 0 2px;padding:2px 8px;border-radius:8px;border:1px solid var(--ctl-edge);
+  background:var(--ctl-face);font-family:var(--font);font-size:12px;font-weight:600;color:var(--ink)}
+.dz-num{display:inline-block;min-width:16px;height:16px;line-height:16px;margin-right:2px;border-radius:8px;
+  background:rgba(139,92,246,.18);font-size:10px;font-weight:800;text-align:center}
+.dz-tab.on .dz-num{background:rgba(255,255,255,.3)}
+.dz-max{font-size:11px;font-weight:600;color:var(--ink-mute);padding:4px 0}
 .ls-alert{position:static;margin-right:7px;flex:none}
 /* Laid over the yield block rather than added to it, so the card is the height
    it was. */
@@ -730,8 +782,7 @@ body.night.no-fx .glass{background:rgba(30,27,54,.92)}
 .cut-what{font-size:14px;font-weight:700;color:var(--ink);line-height:1.6}
 .cut-else{font-size:12px;font-weight:600;color:var(--ink-mute);line-height:1.6;margin-top:10px}
 .rc-alert:active{transform:scale(.92)}
-@keyframes rcpulse{0%,100%{box-shadow:0 2px 8px rgba(245,158,11,.38)}
-  50%{box-shadow:0 2px 14px rgba(245,158,11,.75)}}
+@keyframes rcpulse{0%,100%{opacity:1}50%{opacity:.6}}
 .ag-modal{max-width:520px}
 .ag-more{margin-top:8px}
 .mcal-now{font-size:13px;color:var(--ink);margin:4px 0 10px}
@@ -950,8 +1001,10 @@ body.night .bl-card{background:rgba(255,255,255,.04);border-color:rgba(255,255,2
 .bean-edit{min-height:44px;padding:0 12px;font-size:12px;font-weight:700;color:var(--accent);cursor:pointer;background:none;border:none;-webkit-appearance:none}
 
 /* ── Profile Editor full page ────────────────────────────────────── */
-.editpage{position:fixed;inset:0;z-index:250;background:linear-gradient(135deg,#eef1ff,#f5edff);display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .18s ease;will-change:opacity;contain:layout paint}
-.editpage.show{opacity:1;pointer-events:auto}
+.editpage{position:fixed;inset:0;z-index:250;background:linear-gradient(135deg,#eef1ff,#f5edff);display:flex;flex-direction:column;opacity:0;pointer-events:none;visibility:hidden;transition:opacity .18s ease,visibility 0s linear .18s;contain:layout paint}
+/* A closed page is not drawn once it has faded out, so the eight of them do
+   not each keep a screen-sized layer for the GPU to carry every frame. */
+.editpage.show{opacity:1;pointer-events:auto;visibility:visible;transition:opacity .18s ease;will-change:opacity}
 body.page-swap .editpage{transition:none}
 .ep-head{display:flex;align-items:center;justify-content:space-between;padding:18px 28px;border-bottom:1px solid var(--glass-line);background:rgba(255,255,255,.6)}
 .ep-head-left{display:flex;align-items:center;gap:12px;min-width:0}
@@ -2353,8 +2406,11 @@ body.night .ep-grid .gname{color:var(--ink)}
 /* Above .editpage (250): a modal is opened BY a page -- the settings page, the
    profile editor -- and belongs on top of the one that opened it. Below the
    toast (300) and the lock screen (400). */
-.overlay{position:fixed;inset:0;background:rgba(30,27,58,.72);display:flex;align-items:center;justify-content:center;z-index:260;opacity:0;pointer-events:none;transition:opacity .2s;padding:24px}
-.overlay.show{opacity:1;pointer-events:auto}
+.overlay{position:fixed;inset:0;background:rgba(30,27,58,.72);display:flex;visibility:hidden;contain:layout paint;align-items:center;justify-content:center;z-index:260;opacity:0;pointer-events:none;transition:opacity .2s,visibility 0s linear .2s;padding:24px}
+.overlay.show{opacity:1;pointer-events:auto;visibility:visible;transition:opacity .2s}
+.overlay.primed:not(.show){visibility:visible;opacity:.01;will-change:opacity}
+.overlay.primed.show{will-change:opacity}
+.overlay.primed .modal{will-change:transform}
 .modal{background:#fbfaff;border:1px solid var(--glass-line);border-radius:var(--r-lg);box-shadow:var(--shadow-lg);width:600px;max-width:94vw;max-height:90vh;overflow-y:auto;transform:translateY(20px) scale(.98);transition:transform .25s}
 .modal.wide{width:1000px}
 .overlay.show .modal{transform:translateY(0) scale(1)}
@@ -2374,7 +2430,7 @@ body.night .ep-grid .gname{color:var(--ink)}
 .preset-chip .pc-put{display:none}
 .preset-chip.edited .pc-put{display:inline}
 .ps-modal{max-width:420px}
-.cn-modal{max-width:660px}
+.cn-modal{width:860px;max-width:96vw}
 .ep-imp{display:flex;align-items:center;gap:14px;width:100%;margin-top:10px;
   padding:14px 16px;border-radius:14px;border:1px solid var(--ctl-edge);
   background-color:var(--ctl-face);background-image:var(--ctl-sheen);
@@ -2388,6 +2444,12 @@ body.night .ep-grid .gname{color:var(--ink)}
 .cn-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px;margin-top:10px}
 .cn-cell{min-width:0;border:1px solid var(--edge);border-radius:14px;padding:11px 12px 10px}
 .cn-cell.wide{grid-column:1/-1}
+.cn-modal.more{width:960px}
+.cn-sec-x{margin-left:auto;display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0}
+.cn-sec-x .dz-max{padding:0}
+.cn-held{max-height:190px;overflow-y:auto}
+.cn-cell[data-cell="doser"] .cn-held{display:grid;grid-template-columns:1fr 1fr;column-gap:18px}
+@media (max-width:820px){.cn-cell[data-cell="doser"] .cn-held{grid-template-columns:1fr}}
 .milk-now.hit{color:var(--green)}
 .live-milk{font-size:15px;font-weight:800;color:var(--ink);letter-spacing:-.02em;white-space:nowrap}
 .live-milk:empty{display:none}
@@ -2397,7 +2459,7 @@ body.night .ep-grid .gname{color:var(--ink)}
 .cn-now-h{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-mute);opacity:.6;margin:8px 0 2px}
 .cn-line{display:flex;align-items:center;gap:8px;padding:5px 0;min-width:0}
 .cn-line-t{flex:1;min-width:0}
-.cn-name{font-size:13px;font-weight:800;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cn-name{font-size:13px;font-weight:800;color:var(--ink);overflow:hidden;overflow-wrap:anywhere;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .cn-line.up .cn-name{color:var(--green)}
 .cn-sub{font-size:10px;font-weight:600;color:var(--ink-mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cn-acts{display:flex;gap:6px;flex:none}
@@ -2808,18 +2870,6 @@ body.portrait.ep-list #epTools>*{flex-shrink:0}
 /* A box scrolled to its end stops there, rather than handing the rest of the
    swipe to the panel or the page around it. */
 body.compact #editPage .ep-list,body.compact #epTools,body.compact #epTools .ep-tags{overscroll-behavior:contain}
-/* A finger could not scroll the profile list on iOS at all. The 22 modals sit
-   over every page (z-index 260), each a full-screen layer kept at opacity 0 and
-   pointer-events:none while closed, and iOS WebKit still gave them the swipe:
-   the list saw its touches, and never moved. Measured in Safari on the Duo
-   simulator with real drags, 110pt each: 0 of 3 moved the list, 3 of 3 with the
-   closed modals hidden. A closed modal is hidden, and so is a closed page,
-   whose own lists sit over the page that is open just the same. They stay
-   visible through the fade out and are visible the moment they open. */
-.overlay,.editpage{visibility:hidden;transition-property:opacity,visibility}
-.overlay{transition-duration:.2s,0s;transition-delay:0s,.2s}
-.editpage{transition-duration:.18s,0s;transition-delay:0s,.18s}
-.overlay.show,.editpage.show{visibility:visible;transition-delay:0s,0s}
 /* Building new profiles (hoi-profiles plugin): below the picks from the catalogue,
    because it is the slower and costlier of the two answers. */
 .hoi-sec{margin-top:14px;padding-top:12px;border-top:1px solid var(--glass-line);display:flex;flex-direction:column;gap:8px}
@@ -2857,11 +2907,7 @@ body.compact #editPage .ep-list,body.compact #epTools,body.compact #epTools .ep-
         <div class="brand-meta">
           <span class="hdr-clock" id="hdrClock"></span>
           <span class="batt" id="battPill" style="display:none">
-            <span class="batt-fluid" id="battFluid" style="height:0">
-              <svg viewBox="0 0 128 10" preserveAspectRatio="none">
-                <path class="batt-wave" d="M0,5 Q8,1 16,5 T32,5 T48,5 T64,5 T80,5 T96,5 T112,5 T128,5 V10 H0 Z"/>
-              </svg>
-            </span>
+            <span class="batt-fluid" id="battFluid" style="height:0"></span>
             <i class="batt-bolt"></i><span class="batt-pct" id="battPct"></span>
           </span>
         </div>
@@ -2872,6 +2918,8 @@ body.compact #editPage .ep-list,body.compact #epTools,body.compact #epTools .ep-
           <span class="cglyph" id="cgScale">⏱︎</span>
           <span class="cglyph" id="cgDosing">⚖︎</span>
           <span class="cglyph" id="cgGrinder">⚙︎</span>
+          <span class="cglyph" id="cgThermo" hidden><svg class="cg-svg" viewBox="0 0 16 16" aria-hidden="true"><path d="M6.5 2.5a1.5 1.5 0 0 1 3 0v6.6a3 3 0 1 1-3 0z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="8" cy="11.7" r="1.6" fill="currentColor"/><path d="M8 5.5v5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+          <span class="cglyph" id="cgDoser" hidden>⛁︎</span>
         </span>
       </button></div>
 
@@ -2922,12 +2970,8 @@ body.compact #editPage .ep-list,body.compact #epTools,body.compact #epTools .ep-
     <div class="live-row">
     <div class="tank-card glass" id="tankCard" title="Water tank level">
       <div class="water-bg">
-        <div class="water-fill" id="waterFill" style="height:0%">
-          <svg viewBox="0 0 1280 18" preserveAspectRatio="none">
-            <path class="wave-path" d=""><animate attributeName="d" dur="5s" repeatCount="indefinite"
-              values="M0,9 Q160,16 320,9 T640,9 T960,9 T1280,9 V18 H0 Z;M0,9 Q160,2 320,9 T640,9 T960,9 T1280,9 V18 H0 Z;M0,9 Q160,16 320,9 T640,9 T960,9 T1280,9 V18 H0 Z"/></path>
-          </svg>
-        </div>
+        <div class="water-fill" id="waterFill" style="height:0%"></div>
+        <canvas class="tank-fx" id="tankFx"></canvas>
       </div>
       <div class="tank-content">
         <div class="htemp" title="Group head temperature"><span class="ht-ico">🔥</span><span class="ht-v"><span id="groupTemp">—</span>°</span><span class="ht-l" data-i18n="group">Group</span></div>
@@ -3172,13 +3216,15 @@ body.compact #editPage .ep-list,body.compact #epTools,body.compact #epTools .ep-
         </div>
       </div>
 
-    <div class="bean-info glass">
+    <div class="bean-info glass" id="beanInfo">
+      <div class="dz-tabs" id="dzTabs" hidden></div>
       <div class="bean-row">
         <div class="bean-ico">🫘</div>
         <div class="bean-txt"><div class="bean-name" id="beanName">No bean selected</div><div class="bean-sub" id="beanSub">Tap edit to add beans &amp; grinder</div></div>
         <button class="bean-edit" onclick="openBeanModal()">Edit</button>
       </div>
       <div class="bean-chips" id="beanChips"></div>
+      <div class="dz-panel" id="dzPanel" hidden><div class="dz-list" id="doserList"></div></div>
     </div>
 
     <div class="lastshot-card glass">
@@ -3452,6 +3498,7 @@ body.compact #editPage .ep-list,body.compact #epTools,body.compact #epTools .ep-
     </div>
   </div></div>
 </div>
+
 
 <!-- Which scale does which -->
 <div class="overlay" id="scalePickOverlay" onclick="closeModal(event,'scalePickOverlay')">
@@ -3930,8 +3977,8 @@ var I18N={
     vizNoPlugin:'The Visualizer plugin is not installed or is disabled — a share code needs it. A shot link works without it.',
     vizProfileSaved:'Profile saved: {n}', vizShown:'Showing Visualizer shot — {n}', vizFailed:'Import failed',
     vizGraph:'Visualizer shot',
-    catSkin:'Skin', skinHistory:'Update history', skinCheck:'Check for skin updates',
-    skinChecking:'Checking…', skinChecked:'Update check finished.', skinUpToDate:'This skin is up to date.',
+    catSkin:'Skin', skinHistory:'Update history', 
+    pluginViaApp:'Plugins are installed, switched and set up in the Decaid app, under Plugins on its dashboard.', skinViaApp:'Skin updates are installed from the Decaid app: Web Interface on its dashboard, then the menu at the top right, then Check for updates.', skinOpenApp:'Open the Decaid app', autoUpdViaApp:'Automatic updates are turned on in the Decaid app’s settings.', skinUpToDate:'This skin is up to date.',
     skinNewer:'v{v} is available.', skinNewsFail:'Could not load the update history.',
     skinInstalledTag:'running', skinAll:'All releases',
     skinStale:'v{v} is installed but this page is still running v{r}. Reload to use it.', skinReload:'Reload',
@@ -3984,7 +4031,9 @@ var I18N={
     dose:'Dose', yield:'Yield', ratio:'Ratio', time:'Time', peak:'Peak', volume:'Volume',
     camStream:'Camera', camStreamDesc:'Show a camera where the profile albums are. Scan the code it puts there with a phone: it can send its own camera, or the address of an IP-camera app on it.',
     camUrlName:'Stream address', camUrlDesc:'For the IP-camera app way: the MJPEG address of a camera on this network, usually ending in /video. A phone sending its own camera does not use this.',
-    fx:'Screen effects', fxDesc:'The ripple under a touch, the light across the loaded profile, and the blur behind the glass. Turn it off if the screen stutters.',
+    fpsMeter:'Frame meter', fpsMeterDesc:'Shows frames per second and the time the animations take, in a corner of the screen. For checking how smoothly this tablet runs. Tap it for a log of slow frames.',
+    fpsLogHint:'Frames slower than 34 ms and what ran around them', fpsLogClear:'Clear', fpsLogCopy:'Copy', fpsLogCopied:'Log copied', fpsLogEmpty:'No slow frames yet.',
+    fx:'Screen effects', fxDesc:'The moving water in the tank, the graph and the loaded profile\u2019s cover, the ripple under a touch, and the blur behind the glass. Turn it off if the screen stutters.',
     camRotate:'Turn the picture', camRotateDesc:'For a phone lying on its side or clipped upside down.',
     camFit:'Fill the pane', camFitDesc:'Crop to the edges instead of leaving bars.',
     camZoom:'Enlarge', camZoomDesc:'Crops in on the middle of the picture.',
@@ -4108,7 +4157,7 @@ var I18N={
     connFind:'Find', connStUp:'connected', connStWorking:'working',
     connStSeen:'found', connStAway:'remembered, out of range',
     connViaPlugin:'plugin', connOwned:'Held by the machine',
-    thermo:'Thermometer', milkTempNow:'Milk now', milkStop:'Milk target', milkStopOff:'off',
+    thermo:'Thermometer', doser:'Bean doser', dzTitle:'Dispense beans', dzBeanTab:'Bean', dzAllAsk:'Dispense {g} g from every module?', dzXTab:'XDOSING', dzPick:'Use', dzInUse:'In use', dzSlot:'Doser {n}', dzNoBean:'No bean', dzGo:'Dispense', dzDispense:'Dispense', dzAll:'Dispense all · {g} g', dzNone:'No dosing module connected', dzBusy:'Dispensing…', dzOk:'{g} g dispensed', dzFailed:'Failed — {e}', dzUncertain:'May have dispensed — check the cup', dzUncertainAsk:'{n} may already have dispensed. Dispense again?', dzMax:'Up to {n} modules can be connected at once', tDzOk:'{n}: {g} g dispensed', tDzFailed:'{n}: dispensing failed', tDzUncertain:'{n} may have dispensed — check the cup before trying again', tDzBean:'The shot will be saved with {b}', milkTempNow:'Milk now', milkStop:'Milk target', milkStopOff:'off',
     thermoNone:'no thermometer', tMilkReached:'Milk reached {v}° — steam stopped',
     connJoin:'Connect', connDrop:'Disconnect', connForget:'Forget',
     cnRecord:'list: {g}', cnUse:'Use', cnNotUsed:'not in use, {g} is', cnNoGrinder:'no grinder',
@@ -4230,8 +4279,8 @@ var I18N={
     wfWaterNote:'Poured at {t}\u00b0, as the hot-water options are set.',
     wfStage_espresso:'Espresso', wfStage_water:'Hot water', wfStage_steam:'Steam',
     wfSaved:'Done', wfRecent:'Recent', wfLoaded:'Loaded', wfAll:'All', wfHistEmpty:'None of these yet', wfStartWhere:'Everything above is already set on the machine. Start it from Extract in the top bar, or from the group head.',
-    rsTitle:'Shot feedback', rsVRanOut:'The profile ended before the target weight', rsMore:'Details', rsRanOut:'The profile\u2019s time ran out at {y}g ({p}% of {w}g)', rsRanOutFix:'Give the last step about {n}s more', rsRanOutWhy:'It was pouring about {f}g/s at the end, so {n}s more reaches the target.', rsRanOutTight:'Pressure sat at its limit, so less water came through than the profile asked. Change the grind first; lengthen the last step only if it still falls short.', rsRanOutYield:'Or, if it tasted good, set the yield to {y}g', rsRanOutYieldWhy:'That is what this profile pours in its time.', cutElseTime:'The other way is to make the profile\u2019s last step longer in the profile editor.', cutElseStep:'The other way is to raise the last step\u2019s weight in the profile editor, which leaves the recipe as it is.', cutElseVolume:'With a scale connected the shot stops on weight instead of volume.', rsSetting:'Read the shot', rsSettingDesc:'When a shot ends, its pressure, flow and weight are checked right here, with no AI and no network. Show it at once, or just mark the shot card with !.',
-    rsModeModal:'Open it', rsModeIcon:'Mark only', rsModeOff:'Off',
+    rsTitle:'Shot feedback', rsVRanOut:'The profile ended before the target weight', rsMore:'Details', rsRanOut:'The profile\u2019s time ran out at {y}g ({p}% of {w}g)', rsRanOutFix:'Give the last step about {n}s more', rsRanOutWhy:'It was pouring about {f}g/s at the end, so {n}s more reaches the target.', rsRanOutTight:'Pressure sat at its limit, so less water came through than the profile asked. Change the grind first; lengthen the last step only if it still falls short.', rsRanOutYield:'Or, if it tasted good, set the yield to {y}g', rsRanOutYieldWhy:'That is what this profile pours in its time.', cutElseTime:'The other way is to make the profile\u2019s last step longer in the profile editor.', cutElseStep:'The other way is to raise the last step\u2019s weight in the profile editor, which leaves the recipe as it is.', cutElseVolume:'With a scale connected the shot stops on weight instead of volume.', rsSetting:'Read the shot', rsSettingDesc:'When a shot ends, its pressure, flow and weight are checked right here, with no AI and no network. The shot card is marked with ! when there is something to read; tap it to open.',
+    rsModeIcon:'On', rsModeOff:'Off',
     cutTitle:'The profile stops first', cutMayTitle:'It may not reach the yield', cutTight:'In the time this profile allows it can pour about {a}g, which is the {b}g asked for and not a drop more. Any shortfall in flow and it misses.', cutTime:'In the time this profile allows it can pour about {a}g at most. The card asks for {b}g.', cutPast:'The last {n} shot(s) on this profile ended before reaching the target. {b}g may be out of its reach too.', cutVolume:'This profile ends itself at {a}ml. The card asks for {b}g, and the shot stops before it gets there.', cutStep:'The last step of this profile ends at {a}g. The card asks for {b}g, so the shot stops before it gets there.', cutClock:'Nothing in this profile stops on weight — it ends on the clock, about {n}s in. {b}g may be more than it pours in that time.', cutFix:'Make it {a}g', cutElse:'The other way is to raise the profile\u2019s own target in the profile editor, which leaves the recipe as it is.', tRecipeMatched:'Yield matched to the profile',
     rsYield:'Yield {y}g (target {w}g)', rsYieldOnly:'Yield {y}g', rsStopOther:'The shot was stopped ({r}), so this weight says nothing about the grind', rsVShort:'It came up short of the target',
     rsResist:'Puck resistance {r} (normal 3-6.5; higher is tighter)', rsNoScale:'No scale reading, so yield and ratio were not judged', rsEy:'Extraction yield {e}%', rsEyLow:'Extraction yield {e}% · low (under-extracted)', rsEyHigh:'Extraction yield {e}% · high (over-extracted)', rsYieldShort:'Stopped at {p}% of the target yield', rsYieldOver:'{g}g over the target',
@@ -4397,8 +4446,8 @@ var I18N={
     vizNoPlugin:'Visualizer 플러그인이 없거나 꺼져 있습니다 — 공유 코드는 플러그인이 필요합니다. 샷 링크는 없어도 됩니다.',
     vizProfileSaved:'프로파일 저장됨: {n}', vizShown:'Visualizer 샷 표시 중 — {n}', vizFailed:'가져오기 실패',
     vizGraph:'Visualizer 샷',
-    catSkin:'스킨', skinHistory:'업데이트 내역', skinCheck:'스킨 업데이트 확인',
-    skinChecking:'확인 중…', skinChecked:'업데이트 확인을 마쳤습니다.', skinUpToDate:'스킨이 최신입니다.',
+    catSkin:'스킨', skinHistory:'업데이트 내역', 
+    pluginViaApp:'플러그인 설치, 켜기·끄기, 설정은 Decaid 앱 대시보드의 Plugins에서 할 수 있습니다.', skinViaApp:'스킨 업데이트는 Decaid 앱에서 설치합니다. 대시보드의 Web Interface 화면 오른쪽 위 메뉴에서 Check for updates를 누르세요.', skinOpenApp:'Decaid 앱 열기', autoUpdViaApp:'자동 업데이트는 Decaid 앱의 설정에서 켤 수 있습니다.', skinUpToDate:'스킨이 최신입니다.',
     skinNewer:'v{v}를 사용할 수 있습니다.', skinNewsFail:'업데이트 내역을 불러오지 못했습니다.',
     skinInstalledTag:'사용 중', skinAll:'전체 릴리스',
     skinStale:'v{v}가 설치되었지만 이 화면은 아직 v{r}입니다. 새로고침하면 적용됩니다.', skinReload:'새로고침',
@@ -4455,7 +4504,9 @@ var I18N={
     dose:'도징', yield:'추출량', ratio:'추출 비율', time:'시간', peak:'최고', volume:'용량',
     camStream:'카메라', camStreamDesc:'프로파일 앨범 자리에 카메라를 보여줍니다. 거기 뜨는 QR을 폰으로 스캔하면 폰 카메라를 보내거나 IP 카메라 앱 주소를 넣을 수 있습니다.',
     camUrlName:'스트리밍 주소', camUrlDesc:'IP 카메라 앱 방식용 주소입니다. 같은 네트워크의 MJPEG 주소로, 보통 /video 로 끝납니다. 폰 카메라를 직접 보내는 경우에는 쓰지 않습니다.',
-    fx:'화면 효과', fxDesc:'터치할 때 퍼지는 물결, 로드된 프로파일 위를 지나가는 빛, 유리 뒤의 블러. 화면이 끊기면 끄세요.',
+    fpsMeter:'프레임 표시', fpsMeterDesc:'화면 구석에 초당 프레임 수와 애니메이션이 쓰는 시간을 보여 줍니다. 이 태블릿에서 화면이 얼마나 부드럽게 도는지 확인할 때 켜세요. 누르면 느린 프레임 기록이 나옵니다.',
+    fpsLogHint:'34ms보다 느린 프레임과 그때 실행된 일', fpsLogClear:'지우기', fpsLogCopy:'복사', fpsLogCopied:'기록을 복사했습니다', fpsLogEmpty:'아직 느린 프레임이 없습니다.',
+    fx:'화면 효과', fxDesc:'탱크, 그래프, 로드된 프로파일 커버에서 움직이는 물, 터치할 때 퍼지는 물결, 유리 뒤의 블러. 화면이 끊기면 끄세요.',
     camRotate:'화면 회전', camRotateDesc:'폰을 누이거나 거꾸로 물렸을 때.',
     camFit:'여백 없이 채우기', camFitDesc:'상하 좌우 여백 대신 가장자리를 잘라 채웁니다.',
     camZoom:'확대', camZoomDesc:'화면 가운데를 당겨 보여줍니다.',
@@ -4579,7 +4630,7 @@ var I18N={
     connFind:'찾기', connStUp:'연결됨', connStWorking:'처리 중',
     connStSeen:'찾음', connStAway:'기억됨, 범위 밖',
     connViaPlugin:'플러그인', connOwned:'머신이 가진 기기',
-    thermo:'온도계', milkTempNow:'우유 온도', milkStop:'우유 목표', milkStopOff:'끔',
+    thermo:'온도계', doser:'원두 계량기', dzTitle:'원두 배출', dzBeanTab:'원두', dzAllAsk:'모든 모듈에서 총 {g} g을 배출할까요?', dzXTab:'XDOSING', dzPick:'선택', dzInUse:'사용 중', dzSlot:'도징 {n}', dzNoBean:'원두 없음', dzGo:'원두 배출', dzDispense:'배출', dzAll:'모두 배출 · {g} g', dzNone:'연결된 계량 모듈이 없습니다', dzBusy:'배출 중…', dzOk:'{g} g 배출함', dzFailed:'실패 — {e}', dzUncertain:'배출됐을 수 있음 — 컵을 확인하세요', dzUncertainAsk:'{n}이(가) 이미 배출했을 수 있습니다. 다시 배출할까요?', dzMax:'모듈은 한 번에 {n}개까지 연결됩니다', tDzOk:'{n}: {g} g 배출', tDzFailed:'{n}: 배출 실패', tDzUncertain:'{n}: 배출됐을 수 있습니다 — 다시 하기 전에 컵을 확인하세요', tDzBean:'샷은 {b}(으)로 저장됩니다', milkTempNow:'우유 온도', milkStop:'우유 목표', milkStopOff:'끔',
     thermoNone:'온도계 없음', tMilkReached:'우유 {v}° 도달 — 스팀을 멈췄습니다',
     connJoin:'연결', connDrop:'해제', connForget:'잊기',
     cnRecord:'목록: {g}', cnUse:'사용', cnNotUsed:'사용 안 함 · 지금 {g} 사용 중', cnNoGrinder:'그라인더 없음',
@@ -4702,8 +4753,8 @@ var I18N={
     wfWaterNote:'온수 설정대로 {t}°로 내립니다.',
     wfStage_espresso:'에스프레소', wfStage_water:'온수', wfStage_steam:'스팀',
     wfSaved:'완료', wfRecent:'최근 워크플로우', wfLoaded:'불러왔습니다', wfAll:'전체', wfHistEmpty:'해당하는 기록이 없습니다', wfStartWhere:'위 내용은 이미 머신에 저장됐습니다. 상단의 추출 버튼이나 그룹헤드로 시작하세요.',
-    rsTitle:'추출 피드백', rsVRanOut:'목표 무게 전에 프로파일이 끝났습니다', rsMore:'자세히', rsRanOut:'프로파일 시간이 끝나 {y}g에서 멈췄습니다 (목표 {w}g, {p}%)', rsRanOutFix:'마지막 단계를 약 {n}초 늘리세요', rsRanOutWhy:'끝날 때 초당 약 {f}g씩 나오고 있었으니 {n}초를 더 주면 목표에 닿습니다.', rsRanOutTight:'압력이 상한에 걸려 물이 프로파일 요구만큼 나오지 못했습니다. 먼저 분쇄를 바꿔 보고, 그래도 모자라면 마지막 단계를 늘리세요.', rsRanOutYield:'또는 맛이 좋았다면 추출량을 {y}g으로', rsRanOutYieldWhy:'이 프로파일이 정해진 시간에 내리는 양입니다.', cutElseTime:'다른 방법은 프로파일 편집에서 마지막 단계의 시간을 늘리는 것입니다.', cutElseStep:'다른 방법은 프로파일 편집에서 마지막 단계의 무게 조건을 올리는 것입니다. 그러면 레시피는 그대로 둡니다.', cutElseVolume:'저울을 연결하면 부피 대신 무게로 멈춥니다.', rsSetting:'추출 후 분석', rsSettingDesc:'샷이 끝나면 압력·유량·무게 기록을 이 기기에서 바로 분석합니다(AI·인터넷을 쓰지 않음). 바로 띄우거나 샷 카드에 ! 표시만 해 둘 수 있습니다.',
-    rsModeModal:'바로 띄우기', rsModeIcon:'느낌표만', rsModeOff:'사용 안 함',
+    rsTitle:'추출 피드백', rsVRanOut:'목표 무게 전에 프로파일이 끝났습니다', rsMore:'자세히', rsRanOut:'프로파일 시간이 끝나 {y}g에서 멈췄습니다 (목표 {w}g, {p}%)', rsRanOutFix:'마지막 단계를 약 {n}초 늘리세요', rsRanOutWhy:'끝날 때 초당 약 {f}g씩 나오고 있었으니 {n}초를 더 주면 목표에 닿습니다.', rsRanOutTight:'압력이 상한에 걸려 물이 프로파일 요구만큼 나오지 못했습니다. 먼저 분쇄를 바꿔 보고, 그래도 모자라면 마지막 단계를 늘리세요.', rsRanOutYield:'또는 맛이 좋았다면 추출량을 {y}g으로', rsRanOutYieldWhy:'이 프로파일이 정해진 시간에 내리는 양입니다.', cutElseTime:'다른 방법은 프로파일 편집에서 마지막 단계의 시간을 늘리는 것입니다.', cutElseStep:'다른 방법은 프로파일 편집에서 마지막 단계의 무게 조건을 올리는 것입니다. 그러면 레시피는 그대로 둡니다.', cutElseVolume:'저울을 연결하면 부피 대신 무게로 멈춥니다.', rsSetting:'추출 후 분석', rsSettingDesc:'샷이 끝나면 압력·유량·무게 기록을 이 기기에서 바로 분석합니다(AI·인터넷을 쓰지 않음). 볼 내용이 있으면 샷 카드에 ! 표시가 나오고, 누르면 열립니다.',
+    rsModeIcon:'사용', rsModeOff:'사용 안 함',
     cutTitle:'프로파일이 먼저 멈춥니다', cutMayTitle:'추출 타겟에 못 미칠 수 있습니다', cutTight:'이 프로파일이 정해진 시간 안에 낼 수 있는 양은 약 {a}g으로, 목표 {b}g와 딱 같고 여유가 없습니다. 유량이 조금만 못 나와도 닿지 못합니다.', cutTime:'이 프로파일은 정해진 시간 안에 많아야 약 {a}g까지 낼 수 있습니다. 카드는 {b}g를 요청하고 있습니다.', cutPast:'이 프로파일로 뽑은 최근 {n}번이 목표에 닿기 전에 끝났습니다. 카드의 {b}g에도 못 미칠 수 있습니다.', cutVolume:'이 프로파일은 {a}ml에서 스스로 멈춥니다. 카드는 {b}g를 요청하고 있어 거기까지 가지 못합니다.', cutStep:'이 프로파일의 마지막 단계가 {a}g에서 끝나도록 되어 있습니다. 카드는 {b}g를 요청하고 있어 거기까지 가지 못합니다.', cutClock:'이 프로파일에는 무게로 멈추는 장치가 없어 시간으로 끝납니다. 약 {n}초에 멈추므로 그 안에 {b}g가 안 나올 수 있습니다.', cutFix:'추출량을 {a}g로', cutElse:'다른 방법은 프로파일 편집에서 프로파일 자신의 목표를 올리는 것입니다. 그러면 레시피는 그대로 둡니다.', tRecipeMatched:'추출량을 프로파일에 맞췄습니다',
     rsYield:'추출량 {y}g (목표 {w}g)', rsYieldOnly:'추출량 {y}g', rsStopOther:'샷이 도중에 멈춰({r}) 이번 무게로는 분쇄를 판단할 수 없습니다', rsVShort:'목표보다 적게 나왔습니다',
     rsResist:'퍽 저항 {r} (보통 3~6.5, 높을수록 촘촘함)', rsNoScale:'저울 기록이 없어 추출량과 비율은 판단하지 않았습니다', rsEy:'추출 수율 {e}%', rsEyLow:'추출 수율 {e}% · 낮음 (덜 우러남)', rsEyHigh:'추출 수율 {e}% · 높음 (많이 우러남)', rsYieldShort:'목표 추출량의 {p}%에서 멈췄습니다', rsYieldOver:'목표보다 {g}g 더 나왔습니다',
@@ -4985,6 +5036,7 @@ function fitStage(){
   // backdrop every frame, so the glass gives up its blur exactly where it costs.
   b.classList.toggle('scaled',scaled); }
 document.addEventListener('visibilitychange',function(){
+  if(!document.hidden&&typeof fxKick==='function') fxKick();
   if(!document.hidden&&typeof maybeAutoScanDosing==='function') maybeAutoScanDosing(); });
 var RESUME_AFTER=15000, RESUME_THROTTLE=20000, _hiddenAt=0, _lastResume=0;
 function maybeResume(force){
@@ -5038,7 +5090,7 @@ var state={ machine:{state:'idle',substate:'idle'}, pressure:0, flow:0, mixTemp:
   connected:false, scaleWeight:null, scaleConnected:false, dosingWeight:null, dosingConnected:false, devices:[], shotRunning:false, shotActive:false, steamRunning:false, waterRunning:false, shotStart:null, shotTick:null, shotPourEnd:null,
   flushRunning:false, snapTime:null, water:{current:0,refill:0}, ghc:false, battery:null, lastShotId:null, machineName:null, scaleName:null, targetGroupTemp:0, targetMixTemp:0, targetFlow:0, targetPressure:0 };
 var settings={ groupTemp:93.0, doseIn:18.0, doseOut:36.0, steamTemp:150, steamDur:50, steamFlow:0.8, milkStop:0, flushTemp:88, flushDur:10, flushFlow:6.0, waterTemp:75, waterVol:200, waterDur:30, waterFlow:10.0 };
-var chart={ pressure:[], flow:[], weight:[], wflow:[], frame:[], steamTemp:[], waterTemp:[],
+var chart={ pressure:[], flow:[], weight:[], wflow:[], frame:[], steamTemp:[], waterTemp:[], milkTemp:[],
   groupTemp:[], mixTemp:[], targetGroup:[], targetMix:[], targetFlow:[], targetPressure:[],
   t:[], wt:[], mode:'espresso', max:600 };
 // The shot chart people read elsewhere uses one convention: a solid line for
@@ -5051,7 +5103,8 @@ var SERIES={ pressure:'#1fbfa8', pressureGoal:'#0e7c6b',
              mix:'#d6402b',      mixGoal:'#9c4a9c',
              // steam and hot-water temperature read in the same red the
              // espresso mix temperature does -- one colour means one thing
-             steam:'#d6402b',    water:'#d6402b' };
+             steam:'#d6402b',    water:'#d6402b',
+             milk:'#d99a2b' };
 var GOAL_DASH=[5,4];
 // The scrub guide is not a series -- it marks a moment, so it takes the
 // interface accent rather than any line's colour.
@@ -5124,7 +5177,9 @@ function openWs(name,path,onMsg,opts){ var url=GATEWAY.ws+path;
     ws.onopen=function(){ everOpened=true; misses=0;
       if(name==='display'){ _wakeHeld=null; syncWakeLock(); } };
     ws.onmessage=function(e){ _wsSeen[name]=Date.now();
-      try{ onMsg(JSON.parse(e.data)); }catch(_){} };
+      var t0=prefs.fpsMeter?performance.now():0;
+      try{ onMsg(JSON.parse(e.data)); }catch(_){}
+      if(t0) flogWs(name,performance.now()-t0,e.data&&e.data.length||0); };
     // The reconnect is what keeps a dropped socket alive, so parking has to be
     // checked here too or a socket closed for sleep would come straight back.
     ws.onclose=function(){ if(_wsParked[name]) return;
@@ -5201,6 +5256,7 @@ function initWebSockets(){
     syncDosing();
     updateShotBtn(); });
   openWs('grinder','/ws/v1/grinder/snapshot',grinderFrame);
+  openWs('shotState','/ws/v1/machine/shotState',shotStateFrame,{optional:true});
   openWs('display','/ws/v1/display',function(d){ if(d&&d.brightness!==undefined) displayState=d; });
   openWs('update','/ws/v1/update',function(m){
     if(m&&m.error){
@@ -5319,7 +5375,7 @@ function onMachineState(ms,prev){
   // would draw nothing at all, which is worse than drawing the brackets.
   var phased=(sub==='preparingForShot'||sub==='preinfusion'||sub==='pouring'||sub==='pouringDone');
   var pouringNow=(!phased)||(sub==='pouring'||sub==='preinfusion');
-  function resetChart(mode){ chart.mode=mode; chartReviewing=false; chartReviewLabel=null; reviewProfile=null; _chartLegendMode=null; _guideKey=null; resetWeightFlow(); chart.pressure=[];chart.flow=[];chart.weight=[];chart.wflow=[];chart.frame=[];chart.steamTemp=[];chart.waterTemp=[];chart.groupTemp=[];chart.mixTemp=[];chart.targetGroup=[];chart.targetMix=[];chart.targetFlow=[];chart.targetPressure=[];chart.t=[];chart.wt=[];_axisSpan=0; }
+  function resetChart(mode){ chart.mode=mode; chartReviewing=false; chartReviewLabel=null; reviewProfile=null; _chartLegendMode=null; _guideKey=null; resetWeightFlow(); chart.pressure=[];chart.flow=[];chart.weight=[];chart.wflow=[];chart.frame=[];chart.steamTemp=[];chart.milkTemp=[];chart.waterTemp=[];chart.groupTemp=[];chart.mixTemp=[];chart.targetGroup=[];chart.targetMix=[];chart.targetFlow=[];chart.targetPressure=[];chart.t=[];chart.wt=[];_axisSpan=0; _chartOff=null; }
   // Espresso session: the graph starts when actual extraction begins (first
   // preinfusion/pouring sample), not during prep. DYE fires when the whole
   // espresso state ends (after pouringDone returns to idle).
@@ -5339,6 +5395,7 @@ function onMachineState(ms,prev){
   if(ms.state!==prev){
     syncRecipeMode(ms,prev);
     if(prev==='sleeping') maybeAutoScanDosing(); }
+  if(inEspresso&&!state.shotActive) primeShotDialog(true);
   state.shotActive=inEspresso;
   // Steam session lifecycle (records flow/pressure/steam temp; no DYE)
   if(steaming&&!state.steamRunning){ startTimer(); resetChart('steam'); }
@@ -5358,21 +5415,95 @@ function onMachineState(ms,prev){
   syncAuxPanel();
   monitorOnState(ms.state,prev||'');
 
-  if(extracting){ chart.t.push(state.snapTime||Date.now()); chart.pressure.push(state.pressure); chart.flow.push(state.flow); chart.frame.push(state.profileFrame||0); chart.groupTemp.push(state.groupTemp); chart.mixTemp.push(state.mixTemp); chart.targetGroup.push(state.targetGroupTemp||0); chart.targetMix.push(state.targetMixTemp||0); chart.targetFlow.push(state.targetFlow||0); chart.targetPressure.push(state.targetPressure||0);
+  if(extracting){ chart.t.push(state.snapTime||Date.now()); chartArrived(); chart.pressure.push(state.pressure); chart.flow.push(state.flow); chart.frame.push(state.profileFrame||0); chart.groupTemp.push(state.groupTemp); chart.mixTemp.push(state.mixTemp); chart.targetGroup.push(state.targetGroupTemp||0); chart.targetMix.push(state.targetMixTemp||0); chart.targetFlow.push(state.targetFlow||0); chart.targetPressure.push(state.targetPressure||0);
     if(chart.t.length>chart.max)chart.t.shift(); if(chart.pressure.length>chart.max)chart.pressure.shift(); if(chart.flow.length>chart.max)chart.flow.shift(); if(chart.frame.length>chart.max)chart.frame.shift(); if(chart.groupTemp.length>chart.max)chart.groupTemp.shift(); if(chart.mixTemp.length>chart.max)chart.mixTemp.shift(); ['targetGroup','targetMix','targetFlow','targetPressure'].forEach(function(k){ if(chart[k].length>chart.max) chart[k].shift(); }); drawChart(); }
   // The steam line is what the machine reports, not what it was set to. It used
   // to fall back to the configured flow whenever the reading sat near zero,
   // which draws a setting in the shape of a measurement -- the same fault as
   // showing a temperature the machine is not holding.
-  else if(steaming&&pouringNow){ chart.t.push(state.snapTime||Date.now()); chart.pressure.push(state.pressure); chart.flow.push(state.flow); chart.steamTemp.push(state.steamTemp);
-    if(chart.t.length>chart.max)chart.t.shift(); if(chart.pressure.length>chart.max)chart.pressure.shift(); if(chart.flow.length>chart.max)chart.flow.shift(); if(chart.steamTemp.length>chart.max)chart.steamTemp.shift(); drawChart(); }
-  else if((watering||flushing)&&pouringNow){ chart.t.push(state.snapTime||Date.now()); chart.pressure.push(state.pressure); chart.flow.push(state.flow); chart.waterTemp.push(state.mixTemp);
+  else if(steaming&&pouringNow){ chart.t.push(state.snapTime||Date.now()); chartArrived(); chart.pressure.push(state.pressure); chart.flow.push(state.flow); chart.steamTemp.push(state.steamTemp);
+    chart.milkTemp.push(milkChartValue());
+    if(chart.t.length>chart.max)chart.t.shift(); if(chart.pressure.length>chart.max)chart.pressure.shift(); if(chart.flow.length>chart.max)chart.flow.shift(); if(chart.steamTemp.length>chart.max)chart.steamTemp.shift(); if(chart.milkTemp.length>chart.max)chart.milkTemp.shift(); drawChart(); }
+  else if((watering||flushing)&&pouringNow){ chart.t.push(state.snapTime||Date.now()); chartArrived(); chart.pressure.push(state.pressure); chart.flow.push(state.flow); chart.waterTemp.push(state.mixTemp);
     chart.targetMix.push(state.targetMixTemp||0);
     if(chart.t.length>chart.max)chart.t.shift(); if(chart.pressure.length>chart.max)chart.pressure.shift(); if(chart.flow.length>chart.max)chart.flow.shift(); if(chart.waterTemp.length>chart.max)chart.waterTemp.shift(); if(chart.targetMix.length>chart.max)chart.targetMix.shift(); drawChart(); }
 }
-function afterShot(){ api('GET','/api/v1/shots/latest').then(function(s){
-  if(s){ state.lastShotId=s.id; stampGrinderLine(s); rememberGrind(s); if(prefs.autoDye) openDyeModal(); runShotRead(s.id); }
-  loadLastShot(); }).catch(function(){}); }
+// The gateway stores a shot once the scale has settled after the stop, which
+// can be seconds after the machine leaves espresso. Until then "latest" is the
+// shot before, so it is asked again until a shot from this pull is there.
+var AFTER_SHOT_WAIT=400, AFTER_SHOT_TRIES=30, SHOT_PREP_MAX=60000;
+// The shot feed names each shot by the id its record will have and says when
+// it has finished, so the record is asked for by that id straight away. The
+// machine leaving espresso stays the fallback for a gateway without the feed.
+var _shotWsId=null, _shotReadDone=null;
+function shotStateFrame(f){
+  if(!f) return Promise.resolve();
+  if(f.shotId) _shotWsId=f.shotId;
+  if(f.state==='finished'&&f.shotId) return afterShotById(f.shotId);
+  return Promise.resolve(); }
+function afterShotById(id){
+  var tries=0;
+  function ask(){
+    if(_shotReadDone===id) return Promise.resolve(null);
+    return api('GET','/api/v1/shots/'+encodeURIComponent(id)).catch(function(){ return null; }).then(function(s){
+      if(s&&s.id===id) return s;
+      if(++tries>=AFTER_SHOT_TRIES) return null;
+      return new Promise(function(r){ setTimeout(r,AFTER_SHOT_WAIT); }).then(ask); }); }
+  return ask().then(shotLanded); }
+// The log form a shot ends in is laid down unseen when the shot starts, so
+// the end of the shot only fades it in. Building a full-screen layer at that
+// moment, together with the reading and the shot card, is what cost the tablet
+// its frames; those wait until the form has finished appearing.
+var DYE_SETTLE=350, SHOT_DIALOGS=['dyeOverlay'];
+function shotDialogId(){ return prefs.autoDye?'dyeOverlay':null; }
+// The tablet is busiest the moment a shot is stored: the app saves it and its
+// plugins act on it while this page asks for the record, and the frame log
+// showed this page waiting most of a second with nothing of its own to run.
+// A dialog opened then stutters in, so it waits until frames come on time.
+var CALM_FRAMES=8, CALM_FRAME_MS=24, CALM_MAX=4000;
+function whenCalm(fn){
+  var good=0, last=performance.now(), done=false;
+  function go(){ if(done) return; done=true; clearTimeout(cap); fn(); }
+  var cap=setTimeout(go,CALM_MAX);
+  function f(now){ if(done) return;
+    good=(now-last<CALM_FRAME_MS)?good+1:0; last=now;
+    if(good>=CALM_FRAMES) go(); else requestAnimationFrame(f); }
+  requestAnimationFrame(f); }
+function primeShotDialog(on){ var want=on?shotDialogId():null;
+  SHOT_DIALOGS.forEach(function(id){ var o=document.getElementById(id);
+    if(o&&!o.classList.contains('show')) o.classList.toggle('primed',id===want); }); }
+function dropUnusedPrime(){
+  Array.prototype.forEach.call(document.querySelectorAll('.overlay.primed:not(.show)'),
+    function(o){ o.classList.remove('primed'); }); }
+function shotLanded(s){
+  if(!s){ primeShotDialog(false); return; }
+  if(_shotReadDone===s.id) return;
+  _shotReadDone=s.id;
+  state.lastShotId=s.id;
+  if(prefs.autoDye) whenCalm(function(){ openDyeModal(); setTimeout(function(){ afterLanding(s); },DYE_SETTLE); });
+  else afterLanding(s); }
+function afterLanding(s){ stampGrinderLine(s); rememberGrind(s);
+  Promise.resolve(runShotRead(s.id)).catch(function(){}).then(dropUnusedPrime);
+  loadLastShot(); }
+function noteShotBefore(){
+  state.shotBefore=undefined;
+  return api('GET','/api/v1/shots/latest').then(function(s){ state.shotBefore=(s&&s.id)||null; })
+    .catch(function(){}); }
+function shotIsThisPull(s){
+  if(!s||!s.id||s.id===state.lastShotId) return false;
+  if(state.shotBefore!==undefined) return s.id!==state.shotBefore;
+  var at=Date.parse(s.timestamp);
+  return !(state.shotStart&&isFinite(at)&&at<state.shotStart-SHOT_PREP_MAX); }
+function afterShot(){
+  if(_shotWsId&&_shotWsId!==state.shotBefore&&_shotWsId!==state.lastShotId) return afterShotById(_shotWsId);
+  var tries=0;
+  function ask(){
+    return api('GET','/api/v1/shots/latest').catch(function(){ return null; }).then(function(s){
+      if(shotIsThisPull(s)) return s;
+      if(++tries>=AFTER_SHOT_TRIES) return null;
+      return new Promise(function(r){ setTimeout(r,AFTER_SHOT_WAIT); }).then(ask); }); }
+  return ask().then(function(s){
+    if(s) shotLanded(s); else { primeShotDialog(false); loadLastShot(); } }).catch(function(){}); }
 
 // ── UI ──────────────────────────────────────────────────────────────
 // A pressure step targets its own pressure, and a flow step's limiter is the
@@ -5469,8 +5600,7 @@ function gsBody(pfx,viz,lvl,col,kind,scale){
   if(!lvl) return '<path class="gs-liq" d="'+gsCrest(GS_AMP)+'"'+fill+'/>';
   // flow runs: the crest travels, and the faster the flow the faster it goes
   var tdur=(3.4-lvl*0.55).toFixed(2);
-  return '<g><path class="gs-liq" d="'+gsCrest(GS_AMP)+'"'+fill+'/>'
-    +'<animateTransform attributeName="transform" type="translate" values="0 0;100 0" dur="'+tdur+'s" repeatCount="indefinite"/></g>'; }
+  return '<g class="gs-flow" data-dur="'+tdur+'"><path class="gs-liq" d="'+gsCrest(GS_AMP)+'"'+fill+'/></g>'; }
 // A step of level rebuilds the surface, which restarts its animation. Sitting
 // exactly on a boundary while the reading wobbles would do that several times a
 // second, so a step only counts once the value is clear of the boundary.
@@ -5487,7 +5617,7 @@ function gsLevelOf(pfx,viz,v){
 // fall runs at one speed rather than lurching once per report. Measured on a
 // 9 bar fall reported at 4.4/s: the largest move between frames is 0.8% of the
 // tile against 1.7% for an exponential follow, and the speed varies half as much.
-var _gsCache={}, _gsLvl={}, _gsSeg={}, _gsRAF=null;
+var _gsCache={}, _gsLvl={}, _gsSeg={};
 function gsPlace(pfx,v){
   var sv=document.getElementById(pfx+'Scene'); if(!sv) return;
   var g=_gsSeg[pfx];
@@ -5499,14 +5629,15 @@ function gsPlace(pfx,v){
   var body=sv.firstChild; if(!body||!body.style) return;
   body.style.transform='translateY('+((1-v)*GS_BOX-GS_AMP).toFixed(2)+'px)'; }
 function gsTick(){
-  _gsRAF=null; if(_asleep) return;
+  if(_asleep) return false;
   var now=Date.now(), busy=false;
   for(var pfx in _gsSeg){ var g=_gsSeg[pfx];
     if(g.at===g.to) continue;
     var pr=g.dur>0?Math.min(1,(now-g.t0)/g.dur):1;
     g.at=pr>=1?g.to:(g.from+(g.to-g.from)*pr);
     gsPlace(pfx,g.at); if(pr<1) busy=true; }
-  if(busy) _gsRAF=requestAnimationFrame(gsTick); }
+  return busy; }
+var NEEDLE_TASK={name:'needle',hz:60,draw:function(){ return gsTick(); }};
 function setGaugeScene(pfx,viz,raw,frac,scale,kind){
   var sv=document.getElementById(pfx+'Scene'); if(!sv) return;
   var lvl=prefs.fx?gsLevelOf(pfx,viz,raw):0;
@@ -5521,7 +5652,8 @@ function setGaugeScene(pfx,viz,raw,frac,scale,kind){
     if(tile){ tile.classList.toggle('dial',dial);
       tile.classList.toggle('m-pressure',viz==='pressure');
       tile.classList.toggle('m-flow',viz==='flow'); }
-    sv.innerHTML='<g class="gs-body">'+gsBody(pfx,viz,lvl,col,kind,scale)+'</g>'; }
+    sv.innerHTML='<g class="gs-body">'+gsBody(pfx,viz,lvl,col,kind,scale)+'</g>';
+    if(lvl&&!dial) fxRun(GS_TASK); }
   var to=Math.max(0,Math.min(frac,1)), now=Date.now(), g=_gsSeg[pfx];
   if(!g||g.viz!==viz||!prefs.fx){ _gsSeg[pfx]=g={at:to,to:to,from:to,t0:now,dur:0,last:now,viz:viz}; gsPlace(pfx,to); return; }
   if(to!==g.to){
@@ -5530,7 +5662,7 @@ function setGaugeScene(pfx,viz,raw,frac,scale,kind){
     g.from=g.at; g.to=to; g.t0=now; g.dur=ivl; }
   g.last=now;
   if(rebuilt) gsPlace(pfx,g.at);
-  if(g.at!==g.to) { if(_gsRAF==null&&!_asleep) _gsRAF=requestAnimationFrame(gsTick); } }
+  if(g.at!==g.to) fxRun(NEEDLE_TASK); }
 // Under the band, in it, or over it -- or -1 when this reading has no band
 // (steam, hot water, or no profile loaded).
 function gaugeZoneIndex(kind,scale,frac){
@@ -5640,23 +5772,243 @@ function bubbleSeeds(level){
     out.push([TANK_BUBBLE_X[i],4+(i%3),(dur+(i%4)*0.35).toFixed(2),TANK_BUBBLE_DELAY[i]]); }
   return out; }
 function setTankBubbles(on,level){
-  var fill=document.getElementById('waterFill'); if(!fill) return;
-  if(on===_bubblesOn && level===_bubbleLevel && !!fill.querySelector('.bubbles')===on) return;
-  _bubblesOn=on; _bubbleLevel=on?level:-1;
-  var had=fill.querySelector('.bubbles');
-  if(had) had.parentNode.removeChild(had);
-  if(!on) return;
-  var svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
-  svg.setAttribute('class','bubbles');
-  svg.setAttribute('viewBox','0 0 1280 100');
-  svg.setAttribute('preserveAspectRatio','none');
-  svg.innerHTML=bubbleSeeds(level).map(function(b){
-    var cx=b[0], r=b[1], dur=b[2]+'s', beg=b[3]+'s';
-    return '<circle cx="'+cx+'" cy="110" r="'+r+'" fill="rgba(255,255,255,.85)">'
-      +'<animate attributeName="cy" values="110;-12" dur="'+dur+'" begin="'+beg+'" repeatCount="indefinite"/>'
-      +'<animate attributeName="opacity" values="0;.9;.9;0" keyTimes="0;.12;.72;1" dur="'+dur+'" begin="'+beg+'" repeatCount="indefinite"/>'
-      +'</circle>'; }).join('');
-  fill.appendChild(svg); }
+  _bubblesOn=on; _bubbleLevel=on?level:-1; _tank.bubbles=_bubbleLevel; }
+// ── Motion clock ────────────────────────────────────────────────────
+// One requestAnimationFrame loop draws everything that moves: the live graph,
+// the tank and the flowing gauge. Each task keeps its own rate, and the loop
+// stops whenever nobody can see it -- asleep, hidden, or behind a page.
+var FX={tasks:[],raf:null,cost:0};
+function fxIdle(){ return _asleep||document.hidden||(_pageOpen&&!_monOpen)||_ovOpen; }
+// What moves behind a dialog is barely seen under the dim, so the clock rests
+// while one is open. Nothing else changes: unblurring the glass or hiding the
+// screen at that moment restyles and repaints it all mid-fade, which measured
+// as more dropped frames, not fewer.
+var _ovOpen=false;
+function ovSync(){
+  var on=!!document.querySelector('.overlay.show,.pic-ov.show');
+  if(on===_ovOpen) return;
+  _ovOpen=on;
+  if(prefs.fpsMeter) flog({k:'ov',n:on?'open':'closed'});
+  if(!on) fxKick(); }
+(function(){
+  if(typeof MutationObserver!=='function') return;
+  var mo=new MutationObserver(ovSync);
+  function watch(){ Array.prototype.forEach.call(document.querySelectorAll('.overlay,.pic-ov'),function(el){
+    if(el._ovWatched) return; el._ovWatched=true;
+    mo.observe(el,{attributes:true,attributeFilter:['class']}); }); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',watch); else watch();
+  setInterval(watch,5000); })();
+setInterval(ovSync,300);
+function fxHas(k){ return FX.tasks.indexOf(k)>=0; }
+function fxRun(k){ if(!fxHas(k)) FX.tasks.push(k); fxKick(); }
+function fxStop(k){ var i=FX.tasks.indexOf(k); if(i>=0) FX.tasks.splice(i,1); }
+function fxKick(){ if(FX.raf==null&&FX.tasks.length&&!fxIdle()) FX.raf=requestAnimationFrame(fxFrame); }
+function fxFrame(now){
+  FX.raf=null; if(fxIdle()) return;
+  var t0=performance.now();
+  FX.tasks.slice().forEach(function(k){
+    if(now-(k.at||0)<1000/(k.hz||30)-4) return;
+    k.at=now; var keep=false, s0=performance.now();
+    try{ keep=k.draw(now)!==false; }catch(e){ keep=false; }
+    var ms=performance.now()-s0;
+    k.cost=(k.cost==null)?ms:k.cost*0.9+ms*0.1; k.frames=(k.frames||0)+1;
+    if(!keep) fxStop(k); });
+  FX.cost=FX.cost*0.9+(performance.now()-t0)*0.1;
+  fxKick(); }
+// The tank is two waves over a body of water, drawn on one canvas. The level
+// eases toward the reading, the surface swells while water is being drawn
+// off, and a hot tank bubbles.
+var TANK_AMP_REST=7, TANK_AMP_RUN=10, TANK_COOL_BUBBLES=3;
+// The water moves faster the more of it is flowing: at rest it keeps its own
+// pace, and at a full pour it runs about two and a half times as fast. Its
+// phase is a clock of its own that speed is added to, so a change of pace
+// never jumps the surface.
+var TANK_FLOW_FULL=8, TANK_FLOW_GAIN=1.5;
+var _tank={lvl:-1,target:0,color:[56,189,248],bubbles:-1,amp:TANK_AMP_REST,at:0,spd:1,wt:0};
+function tankPace(){
+  var run=state.shotRunning||state.steamRunning||state.waterRunning||state.flushRunning;
+  var f=run?Math.max(0,Math.min(+state.flow||0,TANK_FLOW_FULL)):0;
+  return 1+TANK_FLOW_GAIN*f/TANK_FLOW_FULL; }
+var TANK_TASK={name:'tank',hz:30,draw:function(now){ drawTank(now); return !!prefs.fx; }};
+function tankLevel(pct,snap){
+  _tank.target=Math.max(0,Math.min(pct,100))*0.9;
+  if(snap||_tank.lvl<0) _tank.lvl=_tank.target;
+  tankWake(); }
+function tankWake(){
+  if(prefs.fx&&!_asleep) fxRun(TANK_TASK);
+  else { fxStop(TANK_TASK); if(!_asleep) drawTank(performance.now()); } }
+function tankBubbleCount(){ if(!prefs.fx) return 0; return _tank.bubbles<0?TANK_COOL_BUBBLES:4+_tank.bubbles; }
+function drawTank(now){
+  var cv=document.getElementById('tankFx'); if(!cv) return;
+  var r=cv.getBoundingClientRect(); if(!r.width||!r.height) return;
+  var dpr=Math.min(window.devicePixelRatio||1,2), w=Math.round(r.width*dpr), h=Math.round(r.height*dpr);
+  if(cv.width!==w||cv.height!==h){ cv.width=w; cv.height=h; }
+  var ctx=cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
+  var W=r.width, H=r.height, fx=!!prefs.fx;
+  var dt=(fx&&_tank.at)?Math.min(0.1,Math.max(0,(now-_tank.at)/1000)):1; _tank.at=now;
+  if(_tank.lvl<0) _tank.lvl=_tank.target;
+  _tank.lvl+=(_tank.target-_tank.lvl)*Math.min(1,dt*2.5);
+  var run=state.shotRunning||state.steamRunning||state.waterRunning||state.flushRunning;
+  _tank.amp+=((run?TANK_AMP_RUN:TANK_AMP_REST)-_tank.amp)*Math.min(1,dt*1.5);
+  _tank.spd+=(tankPace()-_tank.spd)*Math.min(1,dt*1.2);
+  if(fx) _tank.wt+=dt*_tank.spd;
+  ctx.clearRect(0,0,W,H);
+  if(_tank.lvl<=0.2) return;
+  var c=_tank.color, t=fx?now/1000:0, wt=_tank.wt, A=_tank.amp;
+  var top=H*(1-_tank.lvl/100)+(fx?1.6*Math.sin(t*0.9):0);
+  function rgba(a){ return 'rgba('+c[0]+','+c[1]+','+c[2]+','+a+')'; }
+  function surface(amp,len,speed,ph){
+    ctx.beginPath(); ctx.moveTo(0,H);
+    for(var x=0;x<=W+6;x+=6) ctx.lineTo(x,top+amp*Math.sin(x/len*Math.PI*2+wt*speed+ph));
+    ctx.lineTo(W,H); ctx.closePath(); }
+  surface(A*0.8,W/2.2,-1.7,1.7); ctx.fillStyle=rgba(.22); ctx.fill();
+  surface(A,W/3,2.3,0);
+  var g=ctx.createLinearGradient(0,top-A,0,H); g.addColorStop(0,rgba(.36)); g.addColorStop(1,rgba(.55));
+  ctx.fillStyle=g; ctx.fill();
+  ctx.beginPath();
+  for(var x=0;x<=W+6;x+=6){ var y=top+A*Math.sin(x/(W/3)*Math.PI*2+wt*2.3); if(x) ctx.lineTo(x,y); else ctx.moveTo(x,y); }
+  ctx.strokeStyle='rgba(255,255,255,.45)'; ctx.lineWidth=1.3; ctx.stroke();
+  var n=tankBubbleCount(), heat=_tank.bubbles<0?-2:_tank.bubbles;
+  for(var j=0;j<n;j++){
+    var i=heat<0?[1,4,7][j]:j;
+    var dur=5.8-heat*0.5+(i%4)*0.35, ph=((wt+TANK_BUBBLE_DELAY[i])/dur)%1;
+    var bx=TANK_BUBBLE_X[i]/1280*W+Math.sin(wt*2.2+i)*3, by=H+4-ph*(H+4-top);
+    var a=0.85*Math.min(1,ph/0.12)*Math.min(1,(1-ph)/0.28);
+    ctx.beginPath(); ctx.arc(bx,by,(5+(i%3))/2,0,Math.PI*2);
+    ctx.fillStyle='rgba(255,255,255,'+a.toFixed(3)+')'; ctx.fill(); } }
+// A flowing gauge crest travels at a rate set by its level. Its phase comes
+// from the clock rather than from when the surface was built, so a rebuild
+// does not jerk it back to the start.
+var GS_TASK={name:'gauge',hz:30,draw:function(now){ return gsFlowTick(now)>0&&!!prefs.fx; }};
+function gsFlowTick(now){
+  var list=document.querySelectorAll('.app .gs-flow');
+  for(var i=0;i<list.length;i++){ var g=list[i], d=parseFloat(g.getAttribute('data-dur'))||3;
+    g.setAttribute('transform','translate('+(((now/1000)/d%1)*100).toFixed(2)+' 0)'); }
+  return list.length; }
+// A corner readout of frames per second and of what the clock spends per
+// frame, for judging a tablet rather than guessing.
+var _fpsN=0, _fpsAt=0, _fpsRaf=null, _fpsLast=0;
+function setFpsMeter(on){ prefs.fpsMeter=!!on; savePrefs(); applyFpsMeter(); }
+function applyFpsMeter(){
+  var el=document.getElementById('fpsMeter');
+  if(prefs.fpsMeter){
+    if(!el){ el=document.createElement('div'); el.id='fpsMeter'; el.className='fps-meter';
+      el.onclick=function(){ flogToggle(); }; document.body.appendChild(el); }
+    el.hidden=false; flogWrap(); flogObserve(true);
+    if(_fpsRaf==null){ _fpsAt=_fpsLast=performance.now(); _fpsN=0; _fpsRaf=requestAnimationFrame(fpsTick); } }
+  else { if(el) el.hidden=true; flogObserve(false); flogShow(false);
+    if(_fpsRaf!=null){ cancelAnimationFrame(_fpsRaf); _fpsRaf=null; } } }
+function fpsTick(now){
+  _fpsRaf=null; if(!prefs.fpsMeter) return;
+  _fpsN++;
+  var gap=now-_fpsLast; _fpsLast=now;
+  if(gap>FLOG_SLOW&&gap<3000&&!document.hidden) flog({k:'frame',ms:gap},now-gap);
+  if(now-_fpsAt>=1000){ var el=document.getElementById('fpsMeter'), fps=Math.round(_fpsN*1000/(now-_fpsAt));
+    if(el) el.textContent=fps+' fps · '+FX.cost.toFixed(1)+' ms';
+    if(fps<45&&!document.hidden) flog({k:'fps',n:fps+' fps'+flogHeap()},_fpsAt);
+    _fpsN=0; _fpsAt=now; if(_flogOpen) renderFlog(); }
+  _fpsRaf=requestAnimationFrame(fpsTick); }
+// A log behind the meter, opened by tapping it: the frames that came late and
+// what the skin was doing around them. A late frame with no script, style or
+// layout of its own went on drawing, which only the tablet itself can show.
+var _flogImg=null, FLOG=[], FLOG_MAX=200, FLOG_SLOW=34, FLOG_GPU=60, _flogObs=null, _flogWrapped=false, _flogOpen=false, _flogState='';
+var FLOG_FNS=['afterShot','shotLanded','afterLanding','openDyeModal','primeShotDialog','dropUnusedPrime','openAiGuide','runShotRead','loadLastShot',
+  'syncCarouselLock','renderCarousel','drawSimCurve','stopTimer','startTimer','stampGrinderLine','rememberGrind','syncShotRead','syncProfileCut'];
+var FLOG_QUIET={drawSimCurve:4, renderCarousel:4};
+function flog(e,at){ e.at=(at==null)?performance.now():at; e.wall=Date.now()-(performance.now()-e.at);
+  FLOG.push(e); if(FLOG.length>FLOG_MAX) FLOG.shift(); }
+function flogWrap(){
+  if(_flogWrapped) return; _flogWrapped=true;
+  FLOG_FNS.forEach(function(n){ var f=window[n]; if(typeof f!=='function') return;
+    window[n]=function(){ var s=performance.now(), r=f.apply(this,arguments), d=performance.now()-s;
+      if(prefs.fpsMeter&&d>=(FLOG_QUIET[n]||0)) flog({k:'fn',n:n,ms:d},s);
+      return r; }; });
+  var oms=window.onMachineState;
+  window.onMachineState=function(ms){ var r=oms.apply(this,arguments);
+    var key=ms?(ms.state+'/'+(ms.substate||'')):'';
+    if(prefs.fpsMeter&&key!==_flogState){ _flogState=key; flog({k:'state',n:key}); }
+    return r; }; }
+function flogObserve(on){
+  if(!on){ if(_flogObs){ _flogObs.disconnect(); _flogObs=null; } if(_flogImg){ _flogImg.disconnect(); _flogImg=null; } return; }
+  if(_flogObs||!window.PerformanceObserver) return;
+  function seen(l){ l.getEntries().forEach(function(e){
+    var js=0, top=null;
+    (e.scripts||[]).forEach(function(x){ js+=x.duration; if(!top||x.duration>top.duration) top=x; });
+    var end=e.startTime+e.duration;
+    var render=e.renderStart?end-e.renderStart:0, draw=e.styleAndLayoutStart?end-e.styleAndLayoutStart:null;
+    flog({k:'main',ms:e.duration,js:js,other:Math.max(0,e.duration-js-render),raf:draw!=null?Math.max(0,render-draw):null,lay:draw,
+      top:top?(top.sourceFunctionName||top.invoker||''):''},e.startTime); }); }
+  try{ _flogImg=new PerformanceObserver(function(l){ l.getEntries().forEach(function(e){
+      var kb=Math.round((e.encodedBodySize||e.transferSize||0)/1024);
+      if(e.initiatorType==='fetch'||e.initiatorType==='xmlhttprequest'){
+        var dkb=Math.round((e.decodedBodySize||0)/1024);
+        if(dkb>=20||e.duration>=500) flog({k:'net',n:String(e.name).replace(/^https?:\/\/[^\/]+/,'').slice(0,60)+' '+dkb+'KB '+Math.round(e.duration)+'ms'},e.responseEnd||e.startTime);
+        return; }
+      if(e.initiatorType!=='img'&&e.initiatorType!=='css') return;
+      flog({k:'img',n:(String(e.name).split('/').pop()||'').slice(0,40)+(kb?' '+kb+'KB':'')},e.responseEnd||e.startTime); }); });
+    _flogImg.observe({type:'resource'}); }catch(_){ _flogImg=null; }
+  try{ _flogObs=new PerformanceObserver(seen); _flogObs.observe({type:'long-animation-frame'}); }
+  catch(_){ try{ _flogObs=new PerformanceObserver(seen); _flogObs.observe({entryTypes:['longtask']}); }catch(__){ _flogObs=null; } } }
+// Socket messages are each too short to be named as script, so they are added
+// up per second and only listed when they come in a crowd or take real time.
+var _flogWs={}, _flogWsT=null, FLOG_WS_MS=30, FLOG_WS_N=40;
+function flogWs(name,ms,len){
+  var w=_flogWs[name]||(_flogWs[name]={n:0,ms:0,kb:0,at:performance.now()-ms});
+  w.n++; w.ms+=ms; w.kb+=len/1024;
+  if(ms>=20) flog({k:'ws',n:name+' 1 msg '+Math.round(ms)+'ms '+Math.round(len/1024)+'KB'},performance.now()-ms);
+  if(_flogWsT) return;
+  _flogWsT=setTimeout(function(){ _flogWsT=null;
+    Object.keys(_flogWs).forEach(function(k){ var x=_flogWs[k];
+      if(x.ms>=FLOG_WS_MS||x.n>=FLOG_WS_N) flog({k:'ws',n:k+' '+x.n+' msgs '+Math.round(x.ms)+'ms '+Math.round(x.kb)+'KB /1s'},x.at); });
+    _flogWs={}; },1000); }
+function flogHeap(){ var m=performance.memory; return m&&m.usedJSHeapSize?' · heap '+Math.round(m.usedJSHeapSize/1048576)+'MB':''; }
+var _flogCnt={}, _flogCntT=null;
+function flogCount(n){ _flogCnt[n]=(_flogCnt[n]||0)+1;
+  if(_flogCntT) return;
+  _flogCntT=setTimeout(function(){ _flogCntT=null;
+    Object.keys(_flogCnt).forEach(function(k){ flog({k:'count',n:k+' x'+_flogCnt[k]}); }); _flogCnt={}; },0); }
+function flogText(){ return FLOG.slice().sort(function(a,b){ return a.at-b.at; })
+  .map(function(e,i,all){ return flogClock(e.wall)+'  '+flogLine(e,all); }).join('\n'); }
+function flogCopy(){ var txt=flogText();
+  function done(){ toast(t('fpsLogCopied'),'ok'); }
+  function fallback(){ var ta=document.createElement('textarea'); ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); done(); }catch(_){} ta.remove(); }
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done,fallback); else fallback(); }
+function flogToggle(){ flogShow(!_flogOpen); }
+function flogShow(on){
+  _flogOpen=!!on; var box=document.getElementById('fpsLog');
+  if(!_flogOpen){ if(box) box.hidden=true; return; }
+  if(!box){ box=document.createElement('div'); box.id='fpsLog'; box.className='fps-log'; document.body.appendChild(box); }
+  box.hidden=false; renderFlog(); }
+function flogClear(){ FLOG=[]; renderFlog(); }
+function flogClock(w){ var d=new Date(w);
+  return [d.getHours(),d.getMinutes(),d.getSeconds()].map(function(x){ return (x<10?'0':'')+x; }).join(':')
+    +'.'+String(Math.floor(d.getMilliseconds()/100)); }
+function flogLine(e,all){
+  var ms=function(v){ return Math.round(v)+'ms'; };
+  if(e.k==='state') return 'state  '+e.n;
+  if(e.k==='ov') return 'dialog '+e.n;
+  if(e.k==='fps') return 'meter  '+e.n;
+  if(e.k==='ws') return '  ws   '+e.n;
+  if(e.k==='net') return '  net  '+e.n;
+  if(e.k==='count') return '  ui   '+e.n;
+  if(e.k==='img') return '  img  '+e.n;
+  if(e.k==='fn') return '  fn   '+e.n+' '+ms(e.ms);
+  if(e.k==='main') return '  main '+ms(e.ms)+' (script '+ms(e.js)
+    +(e.other!=null?', other '+ms(e.other):'')+(e.raf!=null?', rAF '+ms(e.raf):'')
+    +(e.lay!=null?', style/layout/paint '+ms(e.lay):'')+')'+(e.top?' '+e.top:'');
+  if(e.k==='frame'){ var busy=all.some(function(m){ return m.k==='main'&&m.at<e.at+e.ms&&m.at+m.ms>e.at; });
+    return 'SLOW   '+ms(e.ms)+(e.ms>=FLOG_GPU&&!busy?'  no main-thread work: drawing (GPU)':''); }
+  return ''; }
+function renderFlog(){
+  var box=document.getElementById('fpsLog'); if(!box||box.hidden) return;
+  var all=FLOG.slice().sort(function(a,b){ return b.at-a.at; });
+  var lines=all.map(function(e){ return flogClock(e.wall)+'  '+flogLine(e,all); });
+  box.innerHTML='<div class="fl-head"><span>'+escapeHtml(t('fpsLogHint'))+'</span>'
+    +'<button onclick="flogCopy()">'+escapeHtml(t('fpsLogCopy'))+'</button>'
+    +'<button onclick="flogClear()">'+escapeHtml(t('fpsLogClear'))+'</button>'
+    +'<button onclick="flogShow(false)">×</button></div>'
+    +'<pre>'+escapeHtml(lines.join('\n')||t('fpsLogEmpty'))+'</pre>'; }
 function updateWaterVisual(){ if(_asleep) return; var pct=tankPercent(state.water.current);
   var low=!plumbed()&&(state.water.current<=state.water.refill||pct<15);
   // Mix (brew water) temperature is the meaningful reference during a shot; the
@@ -5665,12 +6017,10 @@ function updateWaterVisual(){ if(_asleep) return; var pct=tankPercent(state.wate
   if(!_dispColor){ _dispColor=target.slice(); }
   else { var k=0.18; for(var i=0;i<3;i++){ _dispColor[i]+= (target[i]-_dispColor[i])*k; } }
   var c=[Math.round(_dispColor[0]),Math.round(_dispColor[1]),Math.round(_dispColor[2])];
-  var fill=document.getElementById('waterFill'); if(!fill) return;
-  fill.style.background='linear-gradient(180deg,rgba('+c[0]+','+c[1]+','+c[2]+',.30),rgba('+c[0]+','+c[1]+','+c[2]+',.48))';
-  var wp=fill.querySelector('.wave-path'); if(wp) wp.style.fill='rgba('+c[0]+','+c[1]+','+c[2]+',.5)';
-  var wp2=fill.querySelector('.wave-path2'); if(wp2) wp2.style.fill='rgba('+c[0]+','+c[1]+','+c[2]+',.32)';
-  var want=(t >= (_bubblesOn?TANK_BUBBLE_OFF:TANK_BUBBLE_ON));
+  _tank.color=c;
+  var want=!!prefs.fx&&(t >= (_bubblesOn?TANK_BUBBLE_OFF:TANK_BUBBLE_ON));
   setTankBubbles(want, want?bubbleLevel(t):-1);
+  tankWake();
 }
 function updateWaterUI(){ if(_asleep) return; var pct=tankPercent(state.water.current);
   // Out of water is the machine's own needsWater state and nothing else. The
@@ -5682,9 +6032,9 @@ function updateWaterUI(){ if(_asleep) return; var pct=tankPercent(state.water.cu
   if(lbl) lbl.textContent=dry?t('needsWater'):t('tank');
   // Refill kit ON = plumbed supply, tank is effectively always full.
   if(plumbed()&&!dry){
-    document.getElementById('waterPct').textContent=100; document.getElementById('waterFill').style.height=fillHeight(100);
+    document.getElementById('waterPct').textContent=100; document.getElementById('waterFill').style.height=fillHeight(100); tankLevel(100);
     document.getElementById('waterWarn').style.display='none'; updateWaterVisual(); return; }
-  document.getElementById('waterPct').textContent=Math.round(pct); document.getElementById('waterFill').style.height=fillHeight(pct);
+  document.getElementById('waterPct').textContent=Math.round(pct); document.getElementById('waterFill').style.height=fillHeight(pct); tankLevel(pct);
   document.getElementById('waterWarn').style.display=(dry||state.water.current<=state.water.refill||pct<15)?'inline':'none';
   updateWaterVisual(); }
 // Map a 0-100% tank level to a visual fill height. Full (100%) fills to 90% so the
@@ -5723,10 +6073,22 @@ function updateConnUI(s){ var btn=document.getElementById('btnConnect');
     t('machine')+(state.machineName?(' \u2014 '+state.machineName):''));
   cglyph('cgScale',state.scaleConnected?'up':'',
     t('scale')+(state.scaleName?(' \u2014 '+state.scaleName):''));
-  syncConnDosing(); syncConnGrinder(); syncDevNames(); bindGrindSrc();
+  syncConnDosing(); syncConnGrinder(); syncConnExtras(); syncDevNames(); bindGrindSrc();
   // The sheet is a view of the same list the glyphs read, so a device that
   // appears mid-scan appears there too, without being asked for again.
   if(connOpen()) renderConnModal(); }
+// The thermometer and the bean doser join the button only while their plugin
+// is in use, and the button goes to three columns to hold them.
+function syncConnExtras(){
+  var th=document.getElementById('cgThermo'), dz=document.getElementById('cgDoser');
+  if(!th||!dz) return;
+  var thOn=thermoOn(), dzOn=_doserOn;
+  th.hidden=!thOn; dz.hidden=!dzOn;
+  if(thOn){ var d=thermoDevice();
+    cglyph('cgThermo',d?'up':'',t('thermo')+(d&&d.name?(' — '+d.name):'')); }
+  if(dzOn){ var n=doserUp().length;
+    cglyph('cgDoser',n?'up':'',t('doser')+' — '+n); }
+  var g=th.parentElement; if(g) g.classList.toggle('c3',thOn||dzOn); }
 function grinderDevice(){
   return (state.devices||[]).filter(function(d){ return d.type==='grinder'; })
     .sort(function(a,b){ return (b.state==='connected')-(a.state==='connected'); })[0]||null; }
@@ -5894,7 +6256,7 @@ function syncConnDosing(){
     t('dosingScale')+((d&&d.name)?(' \u2014 '+d.name):'')); }
 
 // ── Timer & chart ───────────────────────────────────────────────────
-function startTimer(){ state.shotStart=Date.now(); state.shotPourEnd=null; _auxStopSent=false; _milkStopSent=false; if(state.shotTick) clearInterval(state.shotTick); state.shotTick=setInterval(tick,100); document.getElementById('timerBig').className='timer-big run'; }
+function startTimer(){ state.shotStart=Date.now(); state.shotPourEnd=null; noteShotBefore(); _auxStopSent=false; _milkStopSent=false; if(state.shotTick) clearInterval(state.shotTick); state.shotTick=setInterval(tick,100); document.getElementById('timerBig').className='timer-big run'; }
 function stopTimer(){ if(state.shotTick){ clearInterval(state.shotTick); state.shotTick=null; } document.getElementById('timerBig').className='timer-big'; }
 function mmss(s){ s=Math.max(0,Math.round(s)); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
 // Hot water ends on its volume or the scale, never on a clock the skin keeps.
@@ -5924,7 +6286,84 @@ function tick(){ if(!state.shotStart) return;
 var _chartRAF=null;
 // The monitor is a full-screen page, but it is the one page that exists to show
 // the graph, so it does not suppress drawing the way the others do.
+// While something pours, the graph is drawn a sample behind the socket and
+// every line is read at that one moment, so the trace grows continuously
+// instead of jumping once per report. The machine's clock is mapped onto this
+// one by the quickest arrival seen, which a slow frame cannot drag around.
+var _chartOff=null;
+// Thirty frames a second, or twenty on a tablet where one frame of the graph
+// takes more than five milliseconds. The temperatures under it move slowly and
+// are drawn on every other frame.
+var CHART_TASK={name:'chart',hz:30,n:0,draw:function(){
+  if(chartDispTime()===Infinity){ _drawChartNow(); drawTempChart(); return false; }
+  _drawChartNow();
+  if(!(this.n++%2)) drawTempChart();
+  this.hz=(this.cost>5)?20:30;
+  return true; }};
+function chartLive(){ return !!prefs.fx&&!!(state.shotRunning||state.steamRunning||state.waterRunning)&&chart.t.length>1&&_chartOff!=null; }
+function chartLag(){ var t=chart.t, n=t.length; if(n<2) return 0;
+  var k=Math.min(5,n-1); return Math.max(80,Math.min(600,(t[n-1]-t[n-1-k])/k)); }
+function chartDispTime(){ return chartLive()?Date.now()-_chartOff-chartLag():Infinity; }
+function chartArrived(){
+  var off=Date.now()-chart.t[chart.t.length-1];
+  _chartOff=(_chartOff==null)?off:Math.min(_chartOff,off);
+  if(chartLive()) fxRun(CHART_TASK); }
+// A monotone cubic through every sample: the corners round off, and no curve
+// swings above or below the two samples it joins.
+function smoothPath(ctx,xs,ys){
+  var n=xs.length; if(!n) return;
+  ctx.moveTo(xs[0],ys[0]);
+  if(n<3){ for(var j=1;j<n;j++) ctx.lineTo(xs[j],ys[j]); return; }
+  var d=[], m=[], i;
+  for(i=0;i<n-1;i++){ var dx=xs[i+1]-xs[i]; d[i]=dx>0?(ys[i+1]-ys[i])/dx:0; }
+  m[0]=d[0]; m[n-1]=d[n-2];
+  for(i=1;i<n-1;i++) m[i]=(d[i-1]*d[i]<=0)?0:(d[i-1]+d[i])/2;
+  for(i=0;i<n-1;i++){
+    if(d[i]===0){ m[i]=0; m[i+1]=0; continue; }
+    var a=m[i]/d[i], b=m[i+1]/d[i], q=a*a+b*b;
+    if(q>9){ var k=3/Math.sqrt(q); m[i]=k*a*d[i]; m[i+1]=k*b*d[i]; } }
+  for(i=0;i<n-1;i++){ var h=(xs[i+1]-xs[i])/3;
+    ctx.bezierCurveTo(xs[i]+h,ys[i]+m[i]*h,xs[i+1]-h,ys[i+1]-m[i+1]*h,xs[i+1],ys[i+1]); } }
+function livePts(d,ts,disp,xi,xt,yv){
+  var useT=disp<Infinity&&ts&&ts.length===d.length&&d.length>1, xs=[], ys=[];
+  for(var i=0;i<d.length;i++){
+    if(useT&&ts[i]>disp){
+      if(i>0){ var f=(disp-ts[i-1])/Math.max(1,ts[i]-ts[i-1]);
+        xs.push(xt(disp)); ys.push(yv(d[i-1]+(d[i]-d[i-1])*f)); }
+      break; }
+    xs.push(xi(i)); ys.push(yv(d[i])); }
+  return {xs:xs,ys:ys}; }
+function liveVal(d,ts,disp){
+  if(!d||!d.length) return null;
+  var n=d.length;
+  if(!(disp<Infinity)||!ts||ts.length!==n) return d[n-1];
+  for(var i=0;i<n;i++) if(ts[i]>disp)
+    return i?d[i-1]+(d[i]-d[i-1])*((disp-ts[i-1])/Math.max(1,ts[i]-ts[i-1])):d[0];
+  return d[n-1]; }
+function hexRgba(hex,a){ if(Array.isArray(hex)) return 'rgba('+hex[0]+','+hex[1]+','+hex[2]+','+a+')';
+  var h=hex.replace('#','');
+  return 'rgba('+parseInt(h.substr(0,2),16)+','+parseInt(h.substr(2,2),16)+','+parseInt(h.substr(4,2),16)+','+a+')'; }
+// Water under a line: a gradient that deepens toward the curve, and while the
+// shot runs a few ripples drifting through it.
+function waterArea(ctx,p,color,base,alpha,live){
+  var n=p.xs.length; if(n<2) return;
+  var top=base; for(var i=0;i<n;i++) if(p.ys[i]<top) top=p.ys[i];
+  ctx.save(); ctx.beginPath(); smoothPath(ctx,p.xs,p.ys);
+  ctx.lineTo(p.xs[n-1],base); ctx.lineTo(p.xs[0],base); ctx.closePath();
+  var g=ctx.createLinearGradient(0,top,0,base);
+  g.addColorStop(0,hexRgba(color,alpha)); g.addColorStop(1,hexRgba(color,alpha*0.12));
+  ctx.fillStyle=g; ctx.fill();
+  if(live){ ctx.clip(); var tt=Date.now()/1000, x0=p.xs[0], x1=p.xs[n-1];
+    ctx.strokeStyle=document.body.classList.contains('night')?'rgba(255,255,255,.10)':'rgba(255,255,255,.38)';
+    ctx.lineWidth=1.3;
+    for(var r=0;r<3;r++){ var yb=top+(base-top)*(0.28+0.24*r);
+      ctx.beginPath();
+      for(var x=x0;x<=x1+5;x+=5){ var y=yb+2.2*Math.sin((x-x0)/24+tt*(1.4+r*0.35)+r*2.1);
+        if(x===x0) ctx.moveTo(x,y); else ctx.lineTo(x,y); }
+      ctx.stroke(); } }
+  ctx.restore(); }
 function drawChart(){ if(_asleep||(_pageOpen&&!_monOpen)||_chartRAF) return;
+  if(fxHas(CHART_TASK)&&chartLive()) return;
   _chartRAF=requestAnimationFrame(function(){ _chartRAF=null; _drawChartNow();
     drawTempChart(); }); }
 var _chartDims={w:0,h:0}; var _chartLegendMode=null; var _chartBg=null, _chartBgKey=null;
@@ -5974,7 +6413,7 @@ function _drawChartNow(){ var cv=document.getElementById(_monOpen?'monChart':'ch
         +lt('flow',SERIES.flow,t('flow'))+ltg('flowGoal',SERIES.flowGoal,t('flowGoal'))
         +lt('weight',SERIES.weight,t('legWeight'))+lt('wflow',SERIES.wflow,t('legWeightFlow'))
         +(hasTempAxis?lt('basket',SERIES.basket,t('tempBasket'))+lt('mix',SERIES.mix,t('tempMix')):'');
-    var tHtml=isSteam?lt('steam',SERIES.steam,t('steam')+' °')
+    var tHtml=isSteam?lt('steam',SERIES.steam,t('steam')+' °')+((thermoOn()||milkCharted())?lt('milk',SERIES.milk,t('milkLbl')+' °'):'')
       :isWater?lt('water',SERIES.water,t('water')+' °')+ltg('mixGoal',SERIES.mixGoal,t('mixGoal'))
       :lt('basket',SERIES.basket,t('tempBasket'))+ltg('basketGoal',SERIES.basketGoal,t('basketGoal'))
        +lt('mix',SERIES.mix,t('tempMix'))+ltg('mixGoal',SERIES.mixGoal,t('mixGoal'));
@@ -5998,8 +6437,9 @@ function _drawChartNow(){ var cv=document.getElementById(_monOpen?'monChart':'ch
   // index. Counting samples as tenths of a second ran the trace slow whenever
   // the link delivered fewer than ten a second.
   var T0=chart.t.length?chart.t[0]:0;
-  var ELAPSED=(chart.t.length===N&&N>1)?(chart.t[N-1]-T0)/1000:0;
-  var timed=ELAPSED>0.05;
+  var DISP=chartDispTime(), LIVE=DISP<Infinity;
+  var ELAPSED=(chart.t.length===N&&N>1)?(Math.min(chart.t[N-1],DISP)-T0)/1000:0;
+  var timed=ELAPSED>0.05||(chart.t.length===N&&N>1&&chart.t[N-1]-T0>50);
   var SPAN=axisSpan(guide?Math.max(guide.total,timed?ELAPSED:N/10):(timed?ELAPSED:0),!chartReviewing);
   function pxAt(ms){ return X0+Math.max(0,Math.min(((ms-T0)/1000)/SPAN,1))*PW; }
   function px(i){ if(timed) return pxAt(chart.t[i]);
@@ -6089,24 +6529,32 @@ function _drawChartNow(){ var cv=document.getElementById(_monOpen?'monChart':'ch
     ctx.save(); ctx.setLineDash(GOAL_DASH); ctx.beginPath();
     var pen=false;
     for(var i=0;i<d.length;i++){
+      if(LIVE&&chart.t[i]>DISP) break;
       if(!(d[i]>0)){ pen=false; continue; }
       var x=pxOf(d,i), y=py(d[i],mx);
       if(pen) ctx.lineTo(x,y); else { ctx.moveTo(x,y); pen=true; } }
     ctx.strokeStyle=c; ctx.lineWidth=1.8; ctx.lineJoin='round'; ctx.stroke(); ctx.restore(); }
-  function line(d,c,mx,fill){ if(d.length<2) return; ctx.beginPath(); for(var i=0;i<d.length;i++){ if(i===0)ctx.moveTo(pxOf(d,i),py(d[i],mx));else ctx.lineTo(pxOf(d,i),py(d[i],mx)); } ctx.strokeStyle=c; ctx.lineWidth=2.5; ctx.lineJoin='round'; ctx.lineCap='round'; ctx.stroke(); if(fill){ ctx.lineTo(X0+PW,Y0+PH); ctx.lineTo(X0,Y0+PH); ctx.closePath(); var g=ctx.createLinearGradient(0,Y0,0,Y0+PH); g.addColorStop(0,fill); g.addColorStop(1,'rgba(255,255,255,0)'); ctx.fillStyle=g; ctx.fill(); } }
+  function tsOf(d){ return (d===chart.weight||d===chart.wflow)?chart.wt:chart.t; }
+  function vAt(d){ return liveVal(d,tsOf(d),DISP); }
+  function line(d,c,mx,fill){ if(d.length<2) return;
+    var p=livePts(d,tsOf(d),DISP,function(i){ return pxOf(d,i); },pxAt,function(v){ return py(v,mx); });
+    if(p.xs.length<2) return;
+    if(fill) waterArea(ctx,p,c,Y0+PH,fill,LIVE);
+    ctx.beginPath(); smoothPath(ctx,p.xs,p.ys);
+    ctx.strokeStyle=c; ctx.lineWidth=2.5; ctx.lineJoin='round'; ctx.lineCap='round'; ctx.stroke(); }
   if(isSteam){
-    if(hasTempAxis&&vis('steam')) line(chart.steamTemp,SERIES.steam,TMAX,'rgba(214,64,43,.15)'); // steam temp (right axis scale)
-    if(vis('flow')) line(chart.flow,SERIES.flow,FMAX,null);        // steam flow (small-range scale)
+    if(hasTempAxis&&vis('steam')) line(chart.steamTemp,SERIES.steam,TMAX,null); // steam temp (right axis scale)
+    if(vis('flow')) line(chart.flow,SERIES.flow,FMAX,.24);        // steam flow (small-range scale)
     if(vis('pressure')) line(chart.pressure,SERIES.pressure,PMAX,null); // steam pressure
   } else if(isWater){
-    if(hasTempAxis&&vis('water')) line(chart.waterTemp,SERIES.water,TMAX,'rgba(214,64,43,.15)');  // water temp (right axis scale)
-    if(vis('flow')) line(chart.flow,SERIES.flow,FMAX,null);        // water flow
+    if(hasTempAxis&&vis('water')) line(chart.waterTemp,SERIES.water,TMAX,null);  // water temp (right axis scale)
+    if(vis('flow')) line(chart.flow,SERIES.flow,FMAX,.24);        // water flow
   } else if(!hasTempAxis){
     drawGuide();
     if(vis('pressureGoal')) goal(chart.targetPressure,SERIES.pressureGoal,PMAX);
     if(vis('flowGoal')) goal(chart.targetFlow,SERIES.flowGoal,FMAX);
-    if(vis('pressure')) line(chart.pressure,SERIES.pressure,PMAX,'rgba(31,191,168,.15)');
-    if(vis('flow')) line(chart.flow,SERIES.flow,FMAX,null);
+    if(vis('pressure')) line(chart.pressure,SERIES.pressure,PMAX,.30);
+    if(vis('flow')) line(chart.flow,SERIES.flow,FMAX,.20);
     // the cumulative line is the default, so it is laid over the rate
     if(vis('wflow')) line(chart.wflow,SERIES.wflow,FMAX,null);
     if(vis('weight')) line(chart.weight,SERIES.weight,settings.doseOut*1.2,null);
@@ -6120,8 +6568,8 @@ function _drawChartNow(){ var cv=document.getElementById(_monOpen?'monChart':'ch
     if(vis('mix')) line(chart.mixTemp,SERIES.mix,TMAX,null);
     if(vis('pressureGoal')) goal(chart.targetPressure,SERIES.pressureGoal,PMAX);
     if(vis('flowGoal')) goal(chart.targetFlow,SERIES.flowGoal,FMAX);
-    if(vis('pressure')) line(chart.pressure,SERIES.pressure,PMAX,'rgba(31,191,168,.15)');
-    if(vis('flow')) line(chart.flow,SERIES.flow,FMAX,null);
+    if(vis('pressure')) line(chart.pressure,SERIES.pressure,PMAX,.30);
+    if(vis('flow')) line(chart.flow,SERIES.flow,FMAX,.20);
     // the cumulative line is the default, so it is laid over the rate
     if(vis('wflow')) line(chart.wflow,SERIES.wflow,FMAX,null);
     if(vis('weight')) line(chart.weight,SERIES.weight,settings.doseOut*1.2,null);
@@ -6130,7 +6578,7 @@ function _drawChartNow(){ var cv=document.getElementById(_monOpen?'monChart':'ch
   // live readouts at the leading edge
   var running=state.shotRunning||state.steamRunning||state.waterRunning;
   if(N>=1 && running){
-    var lx=px(N-1);
+    var lx=LIVE?pxAt(Math.min(DISP,chart.t[N-1])):px(N-1);
     // Four readouts on one edge run into each other and into the lines they
     // belong to. Lay them all out first: keep the dot on the true value, push
     // the labels apart, tether each back to its dot, and put them on a chip so
@@ -6139,19 +6587,19 @@ function _drawChartNow(){ var cv=document.getElementById(_monOpen?'monChart':'ch
     function tags(items){
       drawReadouts(ctx, items.map(function(it){
         return (it.v==null||isNaN(it.v))?null:{v:it.v,c:it.c,u:it.u,y:py(it.v,it.mx)}; }), lx, Y0, Y0+PH); }
-    if(isSteam){ tags([{v:(hasTempAxis&&vis('steam'))?chart.steamTemp[N-1]:null,mx:TMAX,c:SERIES.steam,u:U_TEMP},
-                       {v:vis('flow')?chart.flow[N-1]:null,mx:FMAX,c:SERIES.flow,u:U_FLOW},
-                       {v:vis('pressure')?chart.pressure[N-1]:null,mx:PMAX,c:SERIES.pressure,u:U_BAR}]); }
-    else if(isWater){ tags([{v:(hasTempAxis&&vis('water'))?chart.waterTemp[N-1]:null,mx:TMAX,c:SERIES.water,u:U_TEMP},
-                            {v:vis('flow')?chart.flow[N-1]:null,mx:FMAX,c:SERIES.flow,u:U_FLOW}]); }
+    if(isSteam){ tags([{v:(hasTempAxis&&vis('steam'))?vAt(chart.steamTemp):null,mx:TMAX,c:SERIES.steam,u:U_TEMP},
+                       {v:vis('flow')?vAt(chart.flow):null,mx:FMAX,c:SERIES.flow,u:U_FLOW},
+                       {v:vis('pressure')?vAt(chart.pressure):null,mx:PMAX,c:SERIES.pressure,u:U_BAR}]); }
+    else if(isWater){ tags([{v:(hasTempAxis&&vis('water'))?vAt(chart.waterTemp):null,mx:TMAX,c:SERIES.water,u:U_TEMP},
+                            {v:vis('flow')?vAt(chart.flow):null,mx:FMAX,c:SERIES.flow,u:U_FLOW}]); }
     else { var wN=chart.weight.length, fN=chart.wflow.length;
-           tags([{v:vis('pressure')?chart.pressure[N-1]:null,mx:PMAX,c:SERIES.pressure,u:U_BAR},
-                 {v:vis('flow')?chart.flow[N-1]:null,mx:FMAX,c:SERIES.flow,u:U_FLOW},
-                 {v:(vis('wflow')&&fN)?chart.wflow[fN-1]:null,mx:FMAX,c:SERIES.wflow,u:U_GS},
+           tags([{v:vis('pressure')?vAt(chart.pressure):null,mx:PMAX,c:SERIES.pressure,u:U_BAR},
+                 {v:vis('flow')?vAt(chart.flow):null,mx:FMAX,c:SERIES.flow,u:U_FLOW},
+                 {v:(vis('wflow')&&fN)?vAt(chart.wflow):null,mx:FMAX,c:SERIES.wflow,u:U_GS},
                  // the scale ticks on its own, so the weight reads from its own end
-                 {v:(vis('weight')&&wN)?chart.weight[wN-1]:null,mx:settings.doseOut*1.2,c:SERIES.weight,u:U_G},
-                 {v:(hasTempAxis&&vis('basket'))?chart.groupTemp[N-1]:null,mx:TMAX,c:SERIES.basket,u:U_TEMP},
-                 {v:(hasTempAxis&&vis('mix'))?chart.mixTemp[N-1]:null,mx:TMAX,c:SERIES.mix,u:U_TEMP}]); }
+                 {v:(vis('weight')&&wN)?vAt(chart.weight):null,mx:settings.doseOut*1.2,c:SERIES.weight,u:U_G},
+                 {v:(hasTempAxis&&vis('basket'))?vAt(chart.groupTemp):null,mx:TMAX,c:SERIES.basket,u:U_TEMP},
+                 {v:(hasTempAxis&&vis('mix'))?vAt(chart.mixTemp):null,mx:TMAX,c:SERIES.mix,u:U_TEMP}]); }
   }
 }
 
@@ -6523,9 +6971,7 @@ function tickHdrClock(){
 var _lockClockT=null; var _asleep=false; var _preSleepBrightness=null;
 // Nothing may be left running behind the sleep screen, and bubbles are only
 // worth having when someone is looking.
-function dropTankBubbles(){ _bubblesOn=false; _bubbleLevel=-1;
-  var fill=document.getElementById('waterFill'); if(!fill) return;
-  var b=fill.querySelector('.bubbles'); if(b) b.parentNode.removeChild(b); }
+function dropTankBubbles(){ _bubblesOn=false; _bubbleLevel=-1; _tank.bubbles=-1; }
 function pauseSvgAnimations(on){
   if(on) dropTankBubbles();
   var list=document.querySelectorAll('.app svg');
@@ -6568,7 +7014,7 @@ function endSleepUI(){ _asleep=false;
   // finished fading out, which is the crossfade the other direction wants.
   document.body.classList.remove('asleep'); document.body.classList.remove('asleep-settled');
   document.getElementById('lockScreen').classList.remove('show');
-  parkSockets(false); syncWakeLock(); pauseSvgAnimations(false);
+  parkSockets(false); syncWakeLock(); pauseSvgAnimations(false); fxKick(); tankWake(); albumWake();
   if(prefs.cam) camStart();
   if(_lockClockT){ clearTimeout(_lockClockT); _lockClockT=null; }
   ltStop();
@@ -6796,23 +7242,25 @@ function pickScaleFromModal(side,id){
 // Devices. One sheet for the four glyphs above it: each role says what is
 // holding it and what else could, and anything found but idle is one tap
 // from taking a job.
-// A thermometer is any sensor a loaded plugin drives. The plugin being on is
-// what puts it in the sheet and on the steam card; the gateway stops the steam
-// at the milk target itself, and the skin asks too in case the gateway reads
-// a different sensor than the one shown here.
+// A thermometer is any sensor a loaded plugin drives, other than the bean
+// doser's modules. The plugin being on is what puts it in the sheet and on the
+// steam card; the gateway stops the steam at the milk target itself.
 var _thermoPlugins=[], _thermoWs=null, _thermoWsId='';
 var MILK_STOP_MIN=30, MILK_STOP_MAX=90, _milkStopSent=false;
 function thermoPluginsFrom(list){
   return (Array.isArray(list)?list:[]).filter(function(p){
-    return p&&p.loaded!==false&&(p.drivers||[]).some(function(d){ return d&&d.type==='sensor'; }); })
+    return p&&p.id!==DOSER_PLUGIN&&p.loaded!==false&&(p.drivers||[]).some(function(d){ return d&&d.type==='sensor'; }); })
     .map(function(p){ return p.id; }); }
+function setPluginDevices(list){
+  setThermoPlugins(thermoPluginsFrom(list));
+  setDoserOn(doserOnFrom(list)); }
 function setThermoPlugins(ids){
   _thermoPlugins=ids||[];
-  syncMilkTemp();
+  syncMilkTemp(); syncConnExtras();
   if(connOpen()) renderConnModal(); }
 function loadThermoPlugins(){
   return api('GET','/api/v1/plugins').then(function(list){
-    if(Array.isArray(list)) setThermoPlugins(thermoPluginsFrom(list)); },function(){}); }
+    if(Array.isArray(list)) setPluginDevices(list); },function(){}); }
 function thermoOn(){ return _thermoPlugins.length>0; }
 function isThermo(d){
   return !!d&&d.type==='sensor'&&_thermoPlugins.some(function(id){
@@ -6820,6 +7268,17 @@ function isThermo(d){
 function thermoDevices(){ return (state.devices||[]).filter(isThermo); }
 function thermoDevice(){
   return thermoDevices().filter(function(d){ return d.state==='connected'; })[0]||null; }
+// The milk is charted beside the steam it is heated by, on the steam's own
+// temperature axis. A reading that drops out holds its last value rather than
+// breaking the line; before the first reading there is no line at all.
+function milkChartValue(){
+  if(state.milkTemp!=null&&isFinite(state.milkTemp)) return state.milkTemp;
+  var d=chart.milkTemp; return d.length?d[d.length-1]:null; }
+function milkCharted(){ return chart.milkTemp.some(function(v){ return v!=null; }); }
+function milkLiveVal(disp){
+  var d=chart.milkTemp, k=0; while(k<d.length&&d[k]==null) k++;
+  if(k>=d.length) return null;
+  return liveVal(d.slice(k),chart.t.length===d.length?chart.t.slice(k):null,disp); }
 function milkTempText(){
   return state.milkTemp==null?'':(state.milkTemp.toFixed(1)+'°'); }
 function milkStopTarget(){ return +settings.milkStop||0; }
@@ -6840,7 +7299,7 @@ function openThermoWs(id){
 function syncThermoWs(){
   var d=thermoDevice(), id=d?d.id:'';
   if(id!==_thermoWsId){
-    _thermoWsId=id; state.milkTemp=null;
+    _thermoWsId=id; state.milkTemp=null; _chartLegendMode=null;
     if(id) openThermoWs(id); else closeThermoWs(); }
   syncMilkTemp(); }
 function milkFrame(text){
@@ -6901,6 +7360,182 @@ function connState(d){
   // Remembered and out of range is not the same as switched on and waiting,
   // and only one of the two is worth walking over to the counter for.
   return d.available===false?t('connStAway'):t('connStSeen'); }
+// RedxKey dosing modules. Each module is a sensor the plugin drives with a
+// dispense command; several can be connected at once, up to the gateway's
+// four bindings per plugin. A dispense that failed after its start byte may
+// have poured, so it is never repeated without asking.
+var DOSER_PLUGIN='redxkey.reaplugin', DOSER_MAX=4, DOSER_G_MAX=25.5;
+var _doserOn=false, _doserStatus={};
+function doserOnFrom(list){
+  return (Array.isArray(list)?list:[]).some(function(p){
+    return p&&p.id===DOSER_PLUGIN&&p.loaded!==false; }); }
+function setDoserOn(on){
+  _doserOn=!!on;
+  syncDoser();
+  if(connOpen()) renderConnModal(); }
+function isDoser(d){
+  return !!d&&d.type==='sensor'&&String(d.id||'').indexOf('plugin:'+DOSER_PLUGIN+':')===0; }
+function doserDevices(){ return _doserOn?(state.devices||[]).filter(isDoser):[]; }
+function doserUp(){ return doserDevices().filter(function(d){ return d.state==='connected'; }); }
+function doserFull(){ return doserUp().length>=DOSER_MAX; }
+function doserClamp(g){
+  g=Math.round((parseFloat(g)||0)*10)/10;
+  return Math.max(0,Math.min(DOSER_G_MAX,g)); }
+function doserGrams(d){
+  if(!d) return 0;
+  var kept=(prefs.doserGrams||{})[d.name||d.id];
+  if(kept!=null) return doserClamp(kept);
+  return doserUp().length===1?doserClamp(settings.doseIn):0; }
+function setDoserGrams(id,g){
+  var d=deviceById(id); if(!d) return;
+  if(!prefs.doserGrams) prefs.doserGrams={};
+  prefs.doserGrams[d.name||d.id]=doserClamp(g);
+  savePrefs();
+  renderDoserTotal(); }
+function doserAdj(id,delta){
+  setDoserGrams(id,doserGrams(deviceById(id))+delta);
+  syncDoser(); }
+function doserKeypad(id){
+  var d=deviceById(id); if(!d) return;
+  openKeypadFor({ value:doserGrams(d), dp:1, unit:'g', title:dzTitle(d),
+    min:0, max:DOSER_G_MAX, onOk:function(v){ setDoserGrams(id,v); syncDoser(); } }); }
+function doserTotal(){
+  return Math.round(doserUp().reduce(function(a,d){ return a+doserGrams(d); },0)*10)/10; }
+function doserStatusText(id){
+  var s=_doserStatus[id]; if(!s) return '';
+  if(s.kind==='busy') return t('dzBusy');
+  if(s.kind==='ok') return t('dzOk').replace('{g}',s.grams.toFixed(1));
+  if(s.kind==='uncertain') return t('dzUncertain');
+  return t('dzFailed').replace('{e}',s.error||''); }
+// Each module is a hopper with a bean in it. The bean is kept by module name,
+// and the module's place among the connected ones is its doser number.
+function dzKey(d){ return d.name||d.id; }
+function dzBean(d){
+  var id=d&&(prefs.doserBeans||{})[dzKey(d)];
+  return id?(beans.filter(function(b){ return b.id===id; })[0]||null):null; }
+function setDoserBean(id,beanId){
+  var d=deviceById(id); if(!d) return;
+  if(!prefs.doserBeans) prefs.doserBeans={};
+  if(beanId) prefs.doserBeans[dzKey(d)]=beanId; else delete prefs.doserBeans[dzKey(d)];
+  savePrefs();
+  syncDoser(); }
+function dzSlot(d){
+  var up=doserUp();
+  for(var i=0;i<up.length;i++) if(up[i].id===d.id) return i+1;
+  return 0; }
+function dzBeanFull(b){ return b?[b.name,b.roaster].filter(Boolean).join(' \u00b7 '):''; }
+function dzTitle(d){
+  return [t('dzSlot').replace('{n}',dzSlot(d)),dzBeanFull(dzBean(d))].filter(Boolean).join(' \u00b7 '); }
+function dzBeanSelect(d){
+  var cur=dzBean(d), id=escapeArg(d.id);
+  var list=beans.filter(function(b){ return !b.archived||(cur&&b.id===cur.id); });
+  return '<select class="dz-bean" onchange="setDoserBean(\''+id+'\',this.value)">'
+    +'<option value="">'+escapeHtml(t('dzNoBean'))+'</option>'
+    +list.map(function(b){
+      return '<option value="'+escapeAttr(b.id)+'"'+(cur&&b.id===cur.id?' selected':'')+'>'
+        +escapeHtml(dzBeanFull(b))+'</option>'; }).join('')+'</select>'; }
+function dzInUse(d){
+  var b=dzBean(d);
+  return !!(b&&b.name&&context.coffeeName===b.name&&(context.coffeeRoaster||null)===(b.roaster||null)); }
+function doserPick(id){
+  var d=deviceById(id); if(!d) return Promise.resolve();
+  if(!dzBean(d)){ toast(t('dzNoBean'),'err'); return Promise.resolve(); }
+  return doserUseBean(d); }
+function doserRow(d){
+  var id=escapeArg(d.id), s=_doserStatus[d.id]||{}, busy=s.kind==='busy', use=dzInUse(d);
+  var st=doserStatusText(d.id);
+  return '<div class="dz-row" data-id="'+escapeAttr(d.id)+'" title="'+escapeAttr((d.name||d.id)+(st?' \u00b7 '+st:''))+'">'
+    +'<b class="dz-num'+(s.kind?' '+s.kind:'')+'">'+dzSlot(d)+'</b>'
+    +'<div class="dz-name">'+dzBeanSelect(d)+'</div>'
+    +'<button class="ms-btn" onclick="doserAdj(\''+id+'\',-0.1)">−</button>'
+    +'<button class="dz-g" onclick="doserKeypad(\''+id+'\')">'+doserGrams(d).toFixed(1)+'</button>'
+    +'<button class="ms-btn" onclick="doserAdj(\''+id+'\',0.1)">+</button>'
+    +'<button class="m-btn cn-btn" onclick="doserDispense(\''+id+'\')"'+(busy?' disabled':'')+'>'
+    +escapeHtml(t('dzDispense'))+'</button>'
+    +'<button class="m-btn cn-btn dz-pick'+(use?' on':'')+'" onclick="doserPick(\''+id+'\')"'
+    +(dzBean(d)?'':' disabled')+'>'+escapeHtml(t(use?'dzInUse':'dzPick'))+'</button></div>'; }
+function renderDoserTotal(){
+  var b=document.getElementById('doserAllBtn'); if(!b) return;
+  var up=doserUp(), total=doserTotal();
+  b.textContent=t('dzAll').replace('{g}',total.toFixed(1));
+  b.disabled=!up.length||!(total>0)||up.some(function(d){ return (_doserStatus[d.id]||{}).kind==='busy'; }); }
+function renderDoser(){
+  var box=document.getElementById('doserList'); if(!box) return;
+  var up=doserUp();
+  box.innerHTML=up.length?up.map(doserRow).join('')
+    :'<div class="cn-none">'+escapeHtml(t('dzNone'))+'</div>';
+  renderDoserTotal(); }
+// With a module connected the bean card has two tabs: the bean, and XDOSING,
+// which holds every connected module and the dispense of all of them.
+var _dzTab='';
+function doserOpen(){ return _dzTab==='x'&&doserUp().length>0; }
+function openDoser(){
+  var c=document.getElementById('connOverlay');
+  if(c&&c.classList.contains('show')) closeModal(null,'connOverlay');
+  pickDzTab('x'); }
+function dzTabKind(){
+  var k=doserUp().map(function(d){ return (_doserStatus[d.id]||{}).kind||''; });
+  if(k.indexOf('failed')>=0) return 'failed';
+  if(k.indexOf('uncertain')>=0) return 'uncertain';
+  return k.indexOf('ok')>=0?'ok':''; }
+function pickDzTab(id){ _dzTab=id?'x':''; renderDzTabs(); }
+function renderDzTabs(){
+  var tabs=document.getElementById('dzTabs'), panel=document.getElementById('dzPanel'),
+      info=document.getElementById('beanInfo');
+  if(!tabs||!panel||!info) return;
+  var n=doserUp().length, on=n>0;
+  if(!on) _dzTab='';
+  var open=_dzTab==='x', k=dzTabKind();
+  tabs.hidden=!on;
+  tabs.innerHTML=on?'<button class="dz-tab'+(open?'':' on')+'" onclick="pickDzTab(\'\')">'
+      +escapeHtml(t('dzBeanTab'))+'</button>'
+    +'<button class="dz-tab dz-xtab'+(open?' on':'')+(k?' '+k:'')+'" onclick="pickDzTab(\'x\')">'
+      +escapeHtml(t('dzXTab'))+' <b class="dz-num">'+n+'</b></button>'
+    +(open?'<button class="m-btn primary dz-all" id="doserAllBtn" onclick="doserDispenseAll()"></button>':''):'';
+  info.classList.toggle('dz-mod',open);
+  panel.hidden=!open;
+  if(open) renderDoser(); }
+function syncDoser(){ renderDzTabs(); syncConnExtras(); }
+// What was dispensed is what the next shot is made of, so the module's bean
+// becomes the recipe's bean and the shot is saved with it.
+function doserUseBean(d){
+  var b=dzBean(d); if(!b||!b.name) return Promise.resolve();
+  if(context.coffeeName===b.name&&(context.coffeeRoaster||null)===(b.roaster||null)) return Promise.resolve();
+  return beanCtx(b).then(function(r){
+    return bgApplyCtx(r.ctx).then(function(){
+      bgRefreshUse(); syncDoser(); toast(t('tDzBean').replace('{b}',dzBeanFull(b)),'ok'); }); })
+    .catch(function(){ toast(t('tFailed'),'err'); }); }
+function doserPoured(id){ var k=(_doserStatus[id]||{}).kind; return k==='ok'||k==='uncertain'; }
+function doserDispense(id,keepBean){
+  var d=deviceById(id), g=doserGrams(d), prev=_doserStatus[id]||{};
+  if(!d||!(g>0)||prev.kind==='busy') return Promise.resolve(null);
+  if(prev.kind==='uncertain'&&!confirm(t('dzUncertainAsk').replace('{n}',d.name||id)))
+    return Promise.resolve(null);
+  var name=d.name||id;
+  _doserStatus[id]={kind:'busy'}; syncDoser();
+  return api('POST','/api/v1/sensors/'+encodeURIComponent(id)+'/execute',
+      {commandId:'dispense',params:{grams:g}},15000)
+    .then(function(r){
+      var res=(r&&r.result)||{}, kind=(res.result==='ok'||res.result==='uncertain')?res.result:'failed';
+      _doserStatus[id]={kind:kind,grams:g,error:res.error||''};
+      if(kind==='ok') toast(t('tDzOk').replace('{n}',name).replace('{g}',g.toFixed(1)),'ok');
+      else if(kind==='uncertain') toast(t('tDzUncertain').replace('{n}',name),'err');
+      else toast(t('tDzFailed').replace('{n}',name)+(res.error?' — '+res.error:''),'err'); },
+      function(e){
+        _doserStatus[id]={kind:'failed',grams:g,error:apiErrorText(e)};
+        toast(t('tDzFailed').replace('{n}',name)+' — '+apiErrorText(e),'err'); })
+    .then(function(){ syncDoser();
+      if(!keepBean&&doserPoured(id)) return doserUseBean(d); })
+    .then(function(){ return _doserStatus[id]; }); }
+function doserDispenseAll(){
+  var go=doserUp().filter(function(d){ return doserGrams(d)>0; });
+  if(!go.length) return Promise.resolve([]);
+  var list=go.map(function(d){ return dzSlot(d)+'. '+(dzBeanFull(dzBean(d))||d.name||d.id)+' \u2014 '+doserGrams(d).toFixed(1)+' g'; });
+  if(!confirm(t('dzAllAsk').replace('{g}',doserTotal().toFixed(1))+'\n\n'+list.join('\n'))) return Promise.resolve([]);
+  return Promise.all(go.map(function(d){ return doserDispense(d.id,true); })).then(function(res){
+    var top=go.filter(function(d){ return doserPoured(d.id)&&dzBean(d); })
+      .sort(function(a,b){ return doserGrams(b)-doserGrams(a); })[0];
+    return (top?doserUseBean(top):Promise.resolve()).then(function(){ return res; }); }); }
 function connVia(d){ return /^plugin:/.test(d.id||'')?t('connViaPlugin'):''; }
 function connBtn(label,call,off){
   return '<button class="m-btn cn-btn"'+(off?' disabled':'')
@@ -6921,8 +7556,11 @@ var CONN_CELLS=[
   {key:'scaleBrew', glyph:'\u23f1\ufe0e'},
   {key:'dosingScale',glyph:'\u2696\ufe0e'},
   {key:'grinder',   glyph:'\u2699\ufe0e'}];
-var THERMO_CELL={key:'thermo',glyph:'\ud83c\udf21\ufe0e',wide:true};
-function connCells(){ return thermoOn()?CONN_CELLS.concat([THERMO_CELL]):CONN_CELLS; }
+var THERMO_CELL={key:'thermo',glyph:'🌡︎',wide:true};
+var DOSER_CELL={key:'doser',glyph:'⛁︎',wide:true};
+function connCells(){
+  var cells=thermoOn()?CONN_CELLS.concat([THERMO_CELL]):CONN_CELLS;
+  return _doserOn?cells.concat([DOSER_CELL]):cells; }
 function connCellNow(kind){
   if(kind==='machine') return connMachineUp();
   if(kind==='scaleBrew') return connBrewScale();
@@ -6934,6 +7572,7 @@ function connCellPool(kind){
   var list=(kind==='machine')?connDevices('machine')
           :(kind==='grinder')?connDevices('grinder')
           :(kind==='thermo')?thermoDevices()
+          :(kind==='doser')?doserDevices().filter(function(d){ return d.state!=='connected'; })
           :scaleDevices();
   return list.filter(function(d){ return !now||d.id!==now.id; }); }
 // What a device is already doing elsewhere, so a scale is never offered as
@@ -6955,21 +7594,33 @@ function connJoinCall(kind,id){
   if(kind==='grinder') return 'connJoinGrinder('+q+')';
   if(kind==='scaleBrew') return "connPick('brew',"+q+")";
   if(kind==='dosingScale') return "connPick('dosing',"+q+")";
-  if(kind==='thermo') return 'connSet(\'thermo\','+q+',true)';
+  if(kind==='thermo'||kind==='doser') return 'connSet(\''+kind+'\','+q+',true)';
   return 'connSet(\''+escapeArg(kind==='machine'?'machine':'grinder')+'\','+q+',true)'; }
 function connDropCall(kind,id){
   var q="'"+escapeArg(id)+"'";
   if(kind==='scaleBrew') return "connPick('brew','')";
   if(kind==='dosingScale') return "connPick('dosing','')";
-  if(kind==='thermo') return 'connSet(\'thermo\','+q+',false)';
+  if(kind==='thermo'||kind==='doser') return 'connSet(\''+kind+'\','+q+',false)';
   return 'connSet(\''+escapeArg(kind==='machine'?'machine':'grinder')+'\','+q+',false)'; }
 function connLine(d,sub,actions,on,rec){
   return '<div class="cn-line'+(on?' up':'')+'">'
-    +'<div class="cn-line-t"><div class="cn-name">'+escapeHtml(d.name||d.id)+'</div>'
+    +'<div class="cn-line-t"><div class="cn-name" title="'+escapeHtml(d.name||d.id)+'">'+escapeHtml(d.name||d.id)+'</div>'
     +'<div class="cn-sub">'+escapeHtml(sub)+'</div>'
     +(rec?'<div class="cn-rec">'+escapeHtml(rec)+'</div>':'')+'</div>'
     +'<div class="cn-acts">'+actions+'</div></div>'; }
+function doserNowBlock(){
+  var up=doserUp(), busy=connLocked();
+  var lines=up.map(function(d){
+    return connLine(d,[connState(d),connVia(d)].filter(Boolean).join(' · '),
+      connBtn(t('connDrop'),connDropCall('doser',d.id),busy),true,doserStatusText(d.id)); }).join('');
+  if(!up.length) lines='<div class="cn-none">'+escapeHtml(t('connNoneHeld'))+'</div>';
+  return '<div class="cn-held">'+lines+'</div>'; }
+function doserHeadExtra(){
+  var up=doserUp();
+  return (doserFull()?'<span class="dz-max">'+escapeHtml(t('dzMax').replace('{n}',DOSER_MAX))+'</span>':'')
+    +(up.length?connBtn(t('dzTitle'),'openDoser()',false):''); }
 function connNowBlock(kind){
+  if(kind==='doser') return doserNowBlock();
   var d=connCellNow(kind), busy=connLocked();
   if(!d) return '<div class="cn-none">'+escapeHtml(t('connNoneHeld'))+'</div>';
   var acts=connBtn(t('connDrop'),connDropCall(kind,d.id),busy), note='';
@@ -6985,20 +7636,24 @@ function connPoolBlock(kind){
   if(!pool.length) return '<div class="cn-list"><div class="cn-none">'
     +escapeHtml(t('connNothing'))+'</div></div>';
   return '<div class="cn-list">'+pool.map(function(d){
-    var a=connBtn(t('connJoin'),connJoinCall(kind,d.id),busy||d.available===false);
+    var a=connBtn(t('connJoin'),connJoinCall(kind,d.id),busy||d.available===false||(kind==='doser'&&doserFull()));
     if(d.state!=='connected'&&d.available===false)
       a+=connBtn(t('connForget'),"connForget('"+escapeArg(d.id)+"')",busy);
     return connLine(d,[connElsewhere(kind,d),connState(d),connVia(d)].filter(Boolean).join(' \u00b7 '),
       a,false,kind==='grinder'?connGrinderNote(d):''); }).join('')+'</div>'; }
 function connCell(c){
   return '<div class="cn-cell'+(c.wide?' wide':'')+'" data-cell="'+c.key+'"><div class="cn-sec-h"><span class="cn-sec-g">'+c.glyph+'</span>'
-    +escapeHtml(t(c.key))+'</div>'
+    +escapeHtml(t(c.key))
+    +(c.key==='doser'?'<span class="cn-sec-x">'+doserHeadExtra()+'</span>':'')+'</div>'
     +'<div class="cn-now-h">'+escapeHtml(t('connNowHeld'))+'</div>'
     +connNowBlock(c.key)+connPoolBlock(c.key)+'</div>'; }
 function renderConnModal(){
   var box=document.getElementById('connList'); if(!box) return;
-  var other=connDevices('other').filter(function(d){ return !isThermo(d); });
-  box.innerHTML='<div class="cn-grid">'+connCells().map(connCell).join('')+'</div>'
+  var other=connDevices('other').filter(function(d){ return !isThermo(d)&&!isDoser(d); });
+  var cells=connCells(), more=cells.length>CONN_CELLS.length;
+  var modal=box.closest('.modal'); if(modal) modal.classList.toggle('more',more);
+  var html=cells.map(connCell).join('');
+  box.innerHTML='<div class="cn-grid">'+html+'</div>'
     +(other.length?'<div class="cn-owned">'+escapeHtml(t('connOwned'))+': '
       +escapeHtml(other.map(function(d){ return d.name||d.id; }).join(' \u00b7 '))+'</div>':'');
   var b=document.getElementById('connScanBtn');
@@ -7015,17 +7670,17 @@ function connOpen(){ var o=document.getElementById('connOverlay');
 function refreshConnDevices(){
   return api('GET','/api/v1/devices').then(function(list){
     if(Array.isArray(list)) state.devices=list;
-  }).catch(function(){}).then(function(){ syncThermoWs();
+  }).catch(function(){}).then(function(){ syncThermoWs(); syncDoser();
     updateConnUI(); renderConnModal(); syncDosing(); renderDosingRow(); }); }
 // Discovery only. The gateway's connecting scan fills empty slots by itself,
 // which is the one thing nobody wants while standing in a sheet deciding by
 // hand which scale weighs the shot.
 function connScan(){
   if(connLocked()) return;
-  _dosingAutoScanAt=0; _dosingDiscoverAt=0;
+  _dosingAutoScanAt=0; _dosingDiscoverAt=0; _dosingMiss=0;
   _dosingScanning=true; renderConnModal(); syncConnDosing();
   var before=(state.devices||[]).length;
-  api('GET','/api/v1/devices/scan?connect=false',null,60000)
+  return api('GET','/api/v1/devices/scan?connect=false',null,60000)
     .then(function(list){ if(Array.isArray(list)) state.devices=list;
       var found=(state.devices||[]).length;
       toast(found>before?t('dosingScanFound').replace('{n}',found-before)
@@ -7179,8 +7834,7 @@ function setStopHotWaterAtWeight(on){
   api('POST','/api/v1/settings',{stopHotWaterAtWeight:on})
     .then(function(){ toast(t('saved'),'ok'); })
     .catch(function(){ toast(t('saveFailed'),'err'); syncWaterStop(); }); }
-function closeModal(e,id){ if(e&&e.target!==document.getElementById(id)) return; document.getElementById(id).classList.remove('show');
-  if(id==='dyeOverlay'&&_rsWaiting) showShotRead(); }
+function closeModal(e,id){ if(e&&e.target!==document.getElementById(id)) return; document.getElementById(id).classList.remove('show','primed'); ovSync(); }
 // Whoever is working the machine from the group head is done with the screen,
 // so starting or stopping from there puts away any dialog left open, the way a
 // tap outside it would.
@@ -7188,10 +7842,9 @@ var GHC_ACTIONS={espresso:1,steam:1,hotWater:1,flush:1};
 function dismissOverlay(el){
   if(el.id==='dupOverlay'&&_dupResolve){ dupChoose(null); return; }
   if(el.id==='plgOverlay'){ closePluginPanel(); return; }
-  if(el.id==='picOverlay'){ closePicBig(); return; }
-  el.classList.remove('show'); }
+  if(el.id==='picOverlay'){ closePicBig(); ovSync(); return; }
+  el.classList.remove('show','primed'); ovSync(); }
 function dismissAllOverlays(){
-  _rsWaiting=false;
   Array.prototype.forEach.call(document.querySelectorAll('.overlay.show,.pic-ov.show'),dismissOverlay); }
 
 // Presets (max 3 per kind), stored in localStorage.
@@ -7993,7 +8646,7 @@ function hydrateFromStore(){
       lsSet('aurora_rmachines',roastMachines); }
     else if(roastMachines) storePut('rmachines',roastMachines);
     if(changed){ applyNight(); applyI18n(); relocalizeDynamic(); syncRecipe(); syncAux();
-      updateBeanInfo(); applyCam(); applyFx(); if(carItems.length) buildCarousel(); }
+      updateBeanInfo(); applyCam(); applyFx(); syncDoser(); if(carItems.length) buildCarousel(); }
   }); }
 function applyPrefsObject(p){
   if(p.chartHide&&typeof p.chartHide==='object') prefs.chartHide=p.chartHide;
@@ -8051,6 +8704,8 @@ function applyPrefsObject(p){
   if(typeof p.camZoom==='number'&&p.camZoom>=1&&p.camZoom<=3) prefs.camZoom=p.camZoom;
   if(typeof p.camMirror==='boolean') prefs.camMirror=p.camMirror;
   if(typeof p.fx==='boolean') prefs.fx=p.fx;
+  if(p.doserBeans&&typeof p.doserBeans==='object'&&!Array.isArray(p.doserBeans)) prefs.doserBeans=p.doserBeans;
+  if(p.doserGrams&&typeof p.doserGrams==='object'&&!Array.isArray(p.doserGrams)) prefs.doserGrams=p.doserGrams;
 }
 
 // ── Grinder identity ────────────────────────────────────────────────
@@ -8361,7 +9016,7 @@ function kpConfirm(){ var v=parseFloat(KP.str); if(isNaN(v)){ closeModal(null,'k
   syncRecipe(); pushRecipe(); closeModal(null,'keypadOverlay'); }
 
 // ── Preferences & settings ──────────────────────────────────────────
-var prefs={ lockPics:true, lockMotion:'burst', lockOn:10, lockOff:50, autoDye:true, monClose:{}, night:false, nightAuto:false, geminiKey:'', claudeKey:'', openaiKey:'', aiProvider:'gemini', claudeModel:'claude-opus-5-5', shotRead:'modal', yieldHeadroom:true, wfKind:'', qrHost:'', lang:'auto', tempUnit:'C', weightUnit:'g', refillKitFull:'auto', monAuto:{espresso:true}, sleepDim:true, sleepBrightness:20,
+var prefs={ lockPics:true, lockMotion:'burst', lockOn:10, lockOff:50, autoDye:true, monClose:{}, night:false, nightAuto:false, geminiKey:'', claudeKey:'', openaiKey:'', aiProvider:'gemini', claudeModel:'claude-opus-5-5', shotRead:'icon', yieldHeadroom:true, wfKind:'', qrHost:'', lang:'auto', tempUnit:'C', weightUnit:'g', refillKitFull:'auto', monAuto:{espresso:true}, sleepDim:true, sleepBrightness:20,
   // Which scale this skin weighs a dose on. The gateway holds it open on request and attaches no meaning to it, so the choice lives here.
   dosingScaleId:'',
   // 'on' | 'off'. guideSrc is not chosen in settings: loading a profile makes
@@ -8491,7 +9146,9 @@ function savePrefs(){ _prefsTouchedAt=Date.now(); lsSet('aurora_prefs',prefs);
 function migratePrefs(){ _prefsBase={}; savePrefs(); }
 function isNightTime(){ var h=new Date().getHours(); return (NIGHT_START>NIGHT_END) ? (h>=NIGHT_START||h<NIGHT_END) : (h>=NIGHT_START&&h<NIGHT_END); }
 // When Auto is on, night follows the clock; otherwise it follows the manual toggle.
-function applyFx(){ document.body.classList.toggle('no-fx',!prefs.fx); _gsCache={}; if(!_asleep) updateMachineUI(); }
+function applyFx(){ document.body.classList.toggle('no-fx',!prefs.fx); _gsCache={}; if(!_asleep) updateMachineUI();
+  if(!prefs.fx){ fxStop(GS_TASK); fxStop(CHART_TASK); drawChart(); var acv=albumLiveCanvas(); fxStop(ALBUM_TASK); if(acv) drawSimCurve(acv,acv._prof,true); }
+  tankWake(); albumWake(); applyFpsMeter(); }
 function setFx(on){ prefs.fx=!!on; savePrefs(); applyFx(); }
 function applyNight(){ var on=prefs.nightAuto?isNightTime():prefs.night; document.body.classList.toggle('night',on); if(typeof drawChart==='function') drawChart(); redrawCardCurves(); }
 function saveGeminiKey(v){ prefs.geminiKey=(v||'').trim(); savePrefs(); }
@@ -8728,6 +9385,7 @@ function renderSpContent(){ var box=document.getElementById('spContent'); if(!bo
       h+=row('camMirror','camMirrorDesc',sw('setCamMirror',!!prefs.camMirror,'setCamMirror(this.checked)')); }
     var pCam=h; h=pScreen;
     h+=row('fx','fxDesc',sw('setFx',!!prefs.fx,'setFx(this.checked)'));
+    h+=row('fpsMeter','fpsMeterDesc',sw('setFpsMeter',!!prefs.fpsMeter,'setFpsMeter(this.checked)'));
     h+=row('lockPics','lockPicsDesc',sw('setLockPics',prefs.lockPics!==false,'setLockPics(this.checked)'));
     if(prefs.lockPics!==false){
       var lm=lockMotion();
@@ -8975,7 +9633,13 @@ function dosingWatchdog(){
   _dosingGreyAt=Date.now();
   reopenDosingWs(); }
 setInterval(dosingWatchdog,5000);
-var _dosingAutoScanAt=0, _dosingDiscoverAt=0;
+var _dosingAutoScanAt=0, _dosingDiscoverAt=0, _dosingMiss=0;
+// Every automatic scan shares the radio with the scales and modules already
+// held, so a dosing scale that stays away is looked for half as often each
+// time it is missed, up to a quarter of an hour.
+var DOSING_SCAN_CAP=900000;
+function dosingScanGap(base){
+  return Math.min(base*Math.pow(2,Math.min(_dosingMiss,10)),Math.max(base,DOSING_SCAN_CAP)); }
 function dosingPickable(){
   var brew=brewScaleId(), pref=(gwSettings&&gwSettings.preferredScaleId)||'';
   return scaleDevices().filter(function(d){
@@ -8988,25 +9652,28 @@ function autoPickDosing(){
   _dosingHoldAt=0; _dosingWaitAt=0;
   toast(t('dosingPicked').replace('{n}',c[0].name||c[0].id),'ok'); }
 function maybeAutoScanDosing(){
-  if(!dosingSupported()) return;
+  if(!dosingSupported()||document.hidden) return;
   if(state.shotRunning||_dosingScanning) return;
   if(brewScalePending()) return;
   var id=dosingId();
-  if(id&&deviceById(id)) return;
+  if(id&&deviceById(id)){ _dosingMiss=0; return; }
   // Nothing chosen yet is a hunt rather than a reunion: it needs the brewing
   // scale actually up, and it is worth far less often.
   if(!id&&!state.scaleConnected) return;
-  var gap=id?90000:600000;
+  var gap=dosingScanGap(id?90000:600000);
   if(Date.now()-(id?_dosingAutoScanAt:_dosingDiscoverAt)<gap) return;
   if(id) _dosingAutoScanAt=Date.now(); else _dosingDiscoverAt=Date.now();
   _dosingScanning=true; renderDosingRow(); syncConnDosing();
-  api('GET','/api/v1/devices/scan?connect=false',null,60000)
+  return api('GET','/api/v1/devices/scan?connect=false',null,60000)
     .then(function(list){ if(Array.isArray(list)) state.devices=list; },function(){})
     .then(function(){ _dosingScanning=false;
       if(!dosingId()) autoPickDosing();
+      var now=dosingId();
+      if(now&&deviceById(now)) _dosingMiss=0; else _dosingMiss++;
       renderDosingRow(); syncConnDosing(); syncDosing(); }); }
 function dosingScan(){
   if(_dosingScanning||state.shotRunning) return;
+  _dosingMiss=0;
   _dosingScanning=true; renderDosingRow(); syncConnDosing();
   var before=scaleDevices().length;
   api('GET','/api/v1/devices/scan?connect=false',null,60000)
@@ -9027,10 +9694,16 @@ function infoCell(k,v){ return '<div class="sp-info-cell"><div class="k">'+escap
 // Display settings
 function setBrightness(v,live){ document.getElementById('brVal').textContent=v; if(live) return; // only push on change (release)
   api('PUT','/api/v1/display/brightness',{brightness:parseInt(v,10)}).catch(function(){ toast(t('tBrightFailed'),'err'); }); }
+// Turning automatic updates on installs skins and plugins unattended, so
+// Decaid asks for a management token for it; turning them off needs none.
 function setAutoUpdateCheck(on){ gwSettings.automaticUpdateCheck=on;
-  api('POST','/api/v1/settings',{automaticUpdateCheck:on})
+  return api('POST','/api/v1/settings',{automaticUpdateCheck:on})
     .then(function(){ spSaved(); })
-    .catch(function(e){ spFailed(e); }); }
+    .catch(function(e){
+      if(on&&e&&(e.status===401||e.status===403)){
+        gwSettings.automaticUpdateCheck=false; toast(t('autoUpdViaApp'),'err');
+        if(spOpen()) renderSpContent(); return; }
+      spFailed(e); }); }
 // Leaving a skin is the host's to do, and it gives exactly one way to ask:
 // window.decentApp.exitToDashboard, injected into the page it serves. There is
 // no way to close the app itself from here and this is not that -- it puts the
@@ -9089,7 +9762,7 @@ function toggleMonAuto(k){
   savePrefs(); renderSpContent(); }
 function shotReadChips(){
   var cur=shotReadMode();
-  return '<div class="optset">'+[['modal','rsModeModal'],['icon','rsModeIcon'],['off','rsModeOff']]
+  return '<div class="optset">'+[['icon','rsModeIcon'],['off','rsModeOff']]
     .map(function(a){ var on=(cur===a[0]);
       return '<button class="optchip'+(on?' on':'')+'" role="switch" aria-checked="'+on+'"'
         +' onclick="setShotRead(\''+a[0]+'\')">'+escapeHtml(t(a[1]))+'</button>'; }).join('')+'</div>'; }
@@ -9507,7 +10180,7 @@ function renderAppUpdate(){ var box=document.getElementById('appBox'); if(!box) 
 // rather than assumed.
 var SKIN_ID='liquid-aqua-duo', SKIN_REPO='hyojin22c-cmyk/liquid-aqua-duo';
 var SKIN_NEWS_TTL=6*3600*1000;
-var skinInfo=null, skinNews=null, skinRunningVer=null, _skinNewsState='', _skinChecking=false;
+var skinInfo=null, skinNews=null, skinRunningVer=null, _skinNewsState='';
 function skinRepo(){
   var src=(skinInfo&&skinInfo.reaMetadata&&skinInfo.reaMetadata.sourceUrl)||'';
   var m=src.match(/^github_(?:release|branch):([^@\s]+)/);
@@ -9551,13 +10224,12 @@ function loadSkinNews(force){
       lsSet('aurora_skinnews',{repo:repo,at:Date.now(),list:skinNews}); })
     .catch(function(){ _skinNewsState=(skinNews&&skinNews.length)?'':'err'; })
     .then(function(){ skinBoxRefresh(); }); }
-function skinCheckUpdate(){
-  if(_skinChecking) return;
-  _skinChecking=true; skinBoxRefresh();
-  api('POST','/api/v1/webui/skins/update',null,90000)
-    .then(function(){ toast(t('skinChecked'),'ok'); })
-    .catch(function(e){ toast(apiErrorText(e),'err'); })
-    .then(function(){ _skinChecking=false; loadSkinNews(true); loadSkinInfo(); }); }
+// Decaid installs skin updates only for a caller holding a management token,
+// which a skin can neither mint nor safely keep, so the update is the app's to
+// do and this page says where.
+function skinViaAppHtml(){
+  return '<div class="set-desc">'+escapeHtml(t('skinViaApp'))+'</div>'
+    +(canExitToDashboard()?'<button class="m-btn tinted" onclick="exitToDashboard()">'+escapeHtml(t('skinOpenApp'))+'</button>':''); }
 // A release is titled "v1.96.0 - something", and the version is already its own
 // chip beside it, so the title keeps only the half that is not the version.
 function relTitle(r,v){
@@ -9594,12 +10266,10 @@ function renderPhSkin(){
   h+='<div class="set-desc" style="margin-bottom:10px">'
     +escapeHtml(t('installed'))+' '+(inst?('v'+escapeHtml(inst)):'\u2014')
     +' \u00b7 '+escapeHtml(t('available'))+' '+(latest?('v'+escapeHtml(latest)):'\u2014')+'</div>';
-  h+='<button class="m-btn primary mb-analyze" onclick="skinCheckUpdate()"'+(_skinChecking?' disabled':'')+'>'
-    +escapeHtml(t('skinCheck'))+'</button>';
+  h+='<div style="display:flex;flex-direction:column;gap:8px">'+skinViaAppHtml()+'</div>';
   if(stale) h+='<button class="m-btn mb-analyze" style="margin-top:8px" onclick="location.reload()">'
     +escapeHtml(t('skinReload'))+'</button>';
-  var note=_skinChecking?t('skinChecking')
-    :stale?t('skinStale').replace('{v}',inst).replace('{r}',running)
+  var note=stale?t('skinStale').replace('{v}',inst).replace('{r}',running)
     :(inst&&latest&&verCmp(latest,inst)>0)?t('skinNewer').replace('{v}',latest)
     :(inst&&latest)?t('skinUpToDate'):'';
   if(note) h+='<div class="set-desc" style="margin-top:10px">'+escapeHtml(note)+'</div>';
@@ -9610,8 +10280,7 @@ function renderSkinBox(){
   var h='<div class="sp-info-grid">'+infoCell(t('installed'),inst?('v'+inst):'\u2014')
     +infoCell(t('available'),latest?('v'+latest):'\u2014')+'</div>';
   h+='<div style="display:flex;align-items:center;gap:12px;margin-top:16px;flex-wrap:wrap">'
-    +'<button class="m-btn primary" onclick="skinCheckUpdate()"'+(_skinChecking?' disabled':'')+'>'
-      +escapeHtml(t('skinCheck'))+'</button>'
+    +skinViaAppHtml()
     +'<button class="m-btn tinted" onclick="window.open(\'https://github.com/'+escapeAttr(skinRepo())+'/releases\',\'_blank\')">'
       +escapeHtml(t('skinAll'))+' \u2197</button>';
   // What is on disk can be newer than what this page was loaded from, and only
@@ -9619,8 +10288,7 @@ function renderSkinBox(){
   var stale=!!(inst&&running&&verCmp(inst,running)>0);
   if(stale) h+='<button class="m-btn" onclick="location.reload()">'+escapeHtml(t('skinReload'))+'</button>';
   h+='</div>';
-  var note=_skinChecking?t('skinChecking')
-    :stale?t('skinStale').replace('{v}',inst).replace('{r}',running)
+  var note=stale?t('skinStale').replace('{v}',inst).replace('{r}',running)
     :(inst&&latest&&verCmp(latest,inst)>0)?t('skinNewer').replace('{v}',latest)
     :(inst&&latest)?t('skinUpToDate'):'';
   if(note) h+='<div class="set-desc" style="margin-top:8px">'+escapeHtml(note)+'</div>';
@@ -9633,7 +10301,7 @@ function renderSkinBox(){
 // ── Gateway plugins (list + enable/disable + open UI) ───────────────
 var pluginsCache=[];
 function loadPlugins(){ var box=document.getElementById('pluginList'); if(!box) return; box.innerHTML='<div class="ls-empty">'+t('loading')+'</div>';
-  api('GET','/api/v1/plugins').then(function(list){ pluginsCache=Array.isArray(list)?list:[]; setThermoPlugins(thermoPluginsFrom(pluginsCache)); renderPluginList(); renderGrinderPluginGuide(); })
+  api('GET','/api/v1/plugins').then(function(list){ pluginsCache=Array.isArray(list)?list:[]; setPluginDevices(pluginsCache); renderPluginList(); renderGrinderPluginGuide(); })
     .catch(function(){ box.innerHTML='<div class="ls-empty">'+t('noPlugins')+'</div>'; }); }
 function pluginHasUI(p){ var a=p.api; if(!a) return false; a=Array.isArray(a)?a:[a]; return a.some(function(e){ return e&&e.id==='ui'&&e.type==='http'; }); }
 function renderPluginList(){ var box=document.getElementById('pluginList'); if(!box) return; box.innerHTML='';
@@ -9667,6 +10335,9 @@ function grinderPluginGuideHtml(){
       +'<div class="plugin-author">'+escapeHtml(t(g.note))+'</div></div>'
       +'<div class="plugin-actions">'+status+'</div></div>'; }).join(''); }
 function renderGrinderPluginGuide(){ var box=document.getElementById('gpList'); if(box) box.innerHTML=grinderPluginGuideHtml(); }
+// Installing, switching and configuring plugins need a management token the
+// skin does not have; a refusal for that says where it can be done instead.
+function needsApp(e){ return !!e&&(e.status===401||e.status===403); }
 function installGrinderPlugin(id){
   var g=GRINDER_PLUGINS.filter(function(x){ return x.id===id; })[0];
   if(!g||_gpBusy[id]) return Promise.resolve();
@@ -9675,13 +10346,13 @@ function installGrinderPlugin(id){
     .then(function(r){ return (r&&r.loaded===false)
       ?api('POST','/api/v1/plugins/'+encodeURIComponent(id)+'/enable'):null; })
     .then(function(){ toast(t('gpInstalled').replace('{p}',g.name),'ok'); },
-      function(e){ toast(t('gpInstallFail').replace('{p}',g.name)+(e&&e.message?': '+e.message:''),'err'); })
+      function(e){ toast(needsApp(e)?t('pluginViaApp'):(t('gpInstallFail').replace('{p}',g.name)+(e&&e.message?': '+e.message:'')),'err'); })
     .then(function(){ delete _gpBusy[id];
-      return api('GET','/api/v1/plugins').then(function(list){ pluginsCache=Array.isArray(list)?list:pluginsCache; setThermoPlugins(thermoPluginsFrom(pluginsCache)); },function(){}); })
+      return api('GET','/api/v1/plugins').then(function(list){ pluginsCache=Array.isArray(list)?list:pluginsCache; setPluginDevices(pluginsCache); },function(){}); })
     .then(function(){ renderPluginList(); renderGrinderPluginGuide(); return ensurePluginGrinders(); }); }
-function togglePlugin(id,on,cb){ api('POST','/api/v1/plugins/'+encodeURIComponent(id)+'/'+(on?'enable':'disable'))
+function togglePlugin(id,on,cb){ return api('POST','/api/v1/plugins/'+encodeURIComponent(id)+'/'+(on?'enable':'disable'))
     .then(function(){ toast((on?t('enabled'):t('disabled'))+': '+id,'ok'); var p=pluginsCache.find(function(x){return x.id===id;}); if(p) p.loaded=on; })
-    .catch(function(e){ toast(t('tPluginToggleFailed'),'err'); if(cb) cb.checked=!on; }); }
+    .catch(function(e){ toast(needsApp(e)?t('pluginViaApp'):t('tPluginToggleFailed'),'err'); if(cb) cb.checked=!on; }); }
 // Schema-driven plugin settings form (covers Visualizer credentials, etc.)
 var pluginCfgId=null, pluginCfgSchema=null;
 function openPluginCfg(id){ var p=pluginsCache.find(function(x){return x.id===id;}); if(!p) return;
@@ -9713,9 +10384,9 @@ function savePluginCfg(){ if(!pluginCfgId) return; var patch={};
     else if(sec){ if(el.value!=='') patch[k]=el.value; /* blank = keep existing (omit) */ }
     else { patch[k]=el.value; } });
   var st=document.getElementById('pluginCfgStatus'); st.textContent='Saving…'; document.getElementById('pluginCfgSave').disabled=true;
-  api('POST','/api/v1/plugins/'+encodeURIComponent(pluginCfgId)+'/settings',patch)
+  return api('POST','/api/v1/plugins/'+encodeURIComponent(pluginCfgId)+'/settings',patch)
     .then(function(){ toast(t('tPluginSaved'),'ok'); closeModal(null,'pluginCfgOverlay'); loadPlugins(); })
-    .catch(function(e){ st.textContent='Failed: '+e.message; })
+    .catch(function(e){ st.textContent=needsApp(e)?t('pluginViaApp'):('Failed: '+e.message); })
     .then(function(){ document.getElementById('pluginCfgSave').disabled=false; }); }
 function toggleAutoDye(v){ prefs.autoDye=!!v; savePrefs(); }
 function toggleNight(v){ prefs.night=!!v; savePrefs(); applyNight(); }
@@ -9805,14 +10476,37 @@ function drawCardCurve(canvas,profile){
 function redrawCardCurves(){
   Array.prototype.forEach.call(document.querySelectorAll('#epList .ep-card:not(.bg-card) canvas'),function(cv){
     if(cv._drawn&&cv._profile) drawCardCurve(cv,cv._profile); }); }
-function drawSimCurve(canvas,profile,onColor){ var dpr=window.devicePixelRatio||1; var r=canvas.getBoundingClientRect(); if(r.width===0){ r={width:canvas.width||120,height:canvas.height||44}; }
-  canvas.width=r.width*dpr; canvas.height=r.height*dpr; var ctx=canvas.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); var W=r.width,H=r.height; ctx.clearRect(0,0,W,H);
-  var sim=simulateProfile(profile); if(sim.pts.length<2||sim.total<=0) return;
-  var pC=onColor?'rgba(255,255,255,.95)':'#6366f1', fC=onColor?'rgba(190,235,255,.9)':'#38bdf8', pFill=onColor?'rgba(255,255,255,.22)':'rgba(99,102,241,.15)';
-  var tC=onColor?'rgba(255,214,170,.85)':'#f97316'; // temperature line
-  function draw(field,color,mx,fill){ ctx.beginPath(); sim.pts.forEach(function(pt,i){ var x=(pt.t/sim.total)*W; var y=H-Math.min(pt[field]/mx,1)*(H-6)-3; if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y); }); ctx.strokeStyle=color; ctx.lineWidth=2; ctx.lineJoin='round'; ctx.stroke(); if(fill){ ctx.lineTo(W,H); ctx.lineTo(0,H); ctx.closePath(); var g=ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,fill); g.addColorStop(1,'rgba(255,255,255,0)'); ctx.fillStyle=g; ctx.fill(); } }
-  draw('temp',tC,110,null); // temperature (0-110C scale), drawn first (background)
-  draw('p',pC,12,pFill); draw('f',fC,12,null); }
+function drawSimCurve(canvas,profile,onColor,live){ var dpr=window.devicePixelRatio||1; var r=canvas.getBoundingClientRect(); if(r.width===0){ r={width:canvas.width||120,height:canvas.height||44}; }
+  var cw=Math.round(r.width*dpr), ch=Math.round(r.height*dpr);
+  if(canvas.width!==cw||canvas.height!==ch){ canvas.width=cw; canvas.height=ch; }
+  var ctx=canvas.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); var W=r.width,H=r.height; ctx.clearRect(0,0,W,H);
+  if(canvas._simOf!==profile){ canvas._simOf=profile; canvas._sim=simulateProfile(profile); }
+  var sim=canvas._sim; canvas._prof=profile; canvas._on=!!onColor;
+  if(sim.pts.length<2||sim.total<=0) return;
+  var pC=onColor?'rgba(255,255,255,.95)':'#6366f1', fC=onColor?'rgba(190,235,255,.9)':'#38bdf8';
+  var pBase=onColor?[255,255,255]:'#6366f1', fBase=onColor?[190,235,255]:'#38bdf8';
+  var tC=onColor?'rgba(255,214,170,.85)':'#f97316';
+  function pts(field,mx){ var xs=[],ys=[];
+    sim.pts.forEach(function(pt){ xs.push((pt.t/sim.total)*W); ys.push(H-Math.min(pt[field]/mx,1)*(H-6)-3); });
+    return {xs:xs,ys:ys}; }
+  function stroke(q,color){ ctx.beginPath(); smoothPath(ctx,q.xs,q.ys);
+    ctx.strokeStyle=color; ctx.lineWidth=2; ctx.lineJoin='round'; ctx.lineCap='round'; ctx.stroke(); }
+  stroke(pts('temp',110),tC);
+  var P=pts('p',12), F=pts('f',12);
+  waterArea(ctx,F,fBase,H,onColor?.16:.10,false);
+  waterArea(ctx,P,pBase,H,onColor?.34:.20,!!live);
+  stroke(P,pC); stroke(F,fC); }
+// The loaded profile's cover, when it is the one in the middle, carries the
+// same moving water as the live graph.
+var ALBUM_TASK={name:'album',hz:30,draw:function(now){
+  var cv=albumLiveCanvas();
+  if(!cv) return false;
+  if(!prefs.fx){ drawSimCurve(cv,cv._prof,true); return false; }
+  drawSimCurve(cv,cv._prof,true,true); return true; }};
+function albumLiveCanvas(){
+  var cv=document.querySelector('.album.center.loaded .al-curve canvas');
+  return (cv&&cv._prof)?cv:null; }
+function albumWake(){ if(prefs.fx&&albumLiveCanvas()) fxRun(ALBUM_TASK); }
 
 // ── The camera ──────────────────────────────────────────────────────
 // An <img> pointed at an MJPEG endpoint. The connection stays open for as long
@@ -10418,19 +11112,31 @@ function syncCarouselLock(){
 // The same idea as the tank: an SVG animation, so the one call that pauses every
 // svg under .app on sleep pauses this too, and document.getAnimations() -- which
 // the idle-screen rule is measured with -- never sees it.
+// A cover more than three places out is fully transparent anyway; not drawing
+// it keeps seventy-odd canvases from each being a layer the GPU carries every
+// frame. One that comes back is redrawn at the size it now has.
+function carDrawn(p,on){
+  if(!p._el||(p._drawnOn===on)) return;
+  p._drawnOn=on; p._el.style.display=on?'':'none';
+  if(on&&prefs.fpsMeter) flogCount('cover shown');
+  if(on&&p._curveCv) setTimeout(function(){ drawSimCurve(p._curveCv,p.profile,true); },0); }
 function renderCarousel(){
   var lock=brewLocked();
   carItems.forEach(function(p,i){ var off=i-carIndex-carDragSteps; var abs=Math.abs(off);
     if(lock){
       // one card, filling the space the neighbours and the strip gave up
-      var here=(i===carIndex);
-      // the centre one is given the box by CSS, so it is not scaled into it
-      p._el.style.transform=here?'none':'translateX(0) scale(1)';
-      p._el.style.opacity=here?1:0;
+      var here=(i===carIndex), near=!here&&abs<=2.4;
+      // The neighbours that come back when the shot ends wait faintly in their
+      // places behind it: one that was not drawn has to be drawn whole the
+      // moment it returns, and five at once cost the tablet a second.
+      var nsc=abs<=1?(1.12-abs*0.35):Math.max(0.7,0.77-(abs-1)*0.09);
+      p._el.style.transform=here?'none':(near?'translateX('+(off*CAR_STEP)+'px) scale('+nsc+')':'translateX(0) scale(1)');
+      p._el.style.opacity=here?1:(near?0.01:0);
       p._el.style.zIndex=here?100:0;
       p._el.style.pointerEvents='none';
       p._el.classList.toggle('center',here); p._el.classList.toggle('side',!here);
       p._el.classList.toggle('loaded',here);
+      carDrawn(p,here||near);
       return; }
     // One curve through the whole range rather than a centre case and a rest:
     // mid-drag a cover is genuinely between two places and has to look it.
@@ -10439,11 +11145,12 @@ function renderCarousel(){
     p._el.style.transform='translateX('+(off*CAR_STEP)+'px) scale('+sc+')';
     var op=abs>2.4?0:(abs<=1?(0.55+0.45*(1-abs)):0.55);
     p._el.style.opacity=op; p._el.style.zIndex=Math.round(100-abs*10); p._el.style.pointerEvents=abs>2.4?'none':'auto';
+    carDrawn(p,abs<=3.2);
     p._el.classList.toggle('center', abs<0.5); p._el.classList.toggle('side', abs>=0.5);
     var isLoaded=!!(curProfileObj&&curProfileObj.id===p.id);
     p._el.classList.toggle('loaded', isLoaded); });
   // redraw center curve crisp at its scaled size after transform applies
-  if(!_carDragging){ var ctr=carItems[carIndex]; if(ctr&&ctr._curveCv){ setTimeout(function(){ drawSimCurve(ctr._curveCv,ctr.profile,true); },400); }
+  if(!_carDragging){ var ctr=carItems[carIndex]; if(ctr&&ctr._curveCv){ setTimeout(function(){ drawSimCurve(ctr._curveCv,ctr.profile,true); albumWake(); },400); }
     if(prefs.cam) camPlace(); }
   var cur=carItems[carIndex]; if(cur){ var pr=cur.profile||{};
     var stc=splitTitle(pr.title||cur.id);
@@ -10538,20 +11245,27 @@ function toggleCurrentFav(){ var p=carItems[carIndex]; if(!p) return;
 function brewLocked(){ return state.machine.state==='espresso'; }
 // A profile is pulled at a recipe, and the one it was last pulled at is a
 // better answer than whatever the profile before it left behind. Nothing
-// recorded for it is nothing to say, so the recipe is left alone.
+// recorded for it is nothing to say, so the recipe is left alone. A profile
+// brings its dose and its ratio; the yield follows from the two, so neither a
+// scale's error nor a rounded target turns 1:2 into 1:1.98.
 function applyProfileRecipe(p){
   var title=String(((p&&p.profile)||{}).title||'').trim(); if(!title) return;
-  api('GET','/api/v1/shots?limit=50').then(function(r){
+  return api('GET','/api/v1/shots?limit=50').then(function(r){
     var items=(r&&(r.items||r.shots))||[];
     var sh=items.filter(function(x){
       var pr=(x.workflow&&x.workflow.profile)||{};
       return String(pr.title||'').trim()===title; })[0];
     if(!sh) return;
     var ctx=(sh.workflow&&sh.workflow.context)||{}, an=sh.annotations||{};
-    var d=usNum(an.actualDoseWeight!=null?an.actualDoseWeight:ctx.targetDoseWeight);
-    var y=usNum(an.actualYield!=null?an.actualYield:ctx.targetYield);
+    var d=usNum(ctx.targetDoseWeight!=null?ctx.targetDoseWeight:an.actualDoseWeight);
+    var td=usNum(ctx.targetDoseWeight), ty=usNum(ctx.targetYield);
+    var ratio=(td>0&&ty>0)?Math.round(ty/td*100)/100
+      :(settings.doseIn>0?settings.doseOut/settings.doseIn:null);
+    if(d!=null) d=Math.round(d*10)/10;
+    if(!(d!=null&&d>=1&&d<=60)) d=settings.doseIn;
+    var y=(ratio>0)?Math.round(d*ratio*10)/10:null;
     var moved=false;
-    if(d!=null&&d>=1&&d<=60&&Math.abs(d-settings.doseIn)>0.05){ settings.doseIn=d; moved=true; }
+    if(Math.abs(d-settings.doseIn)>0.05){ settings.doseIn=d; moved=true; }
     if(y!=null&&y>=1&&y<=200&&Math.abs(y-settings.doseOut)>0.05){ settings.doseOut=y; moved=true; }
     if(!moved) return;
     syncRecipe(); pushRecipe();
@@ -12402,7 +13116,7 @@ function applyUseSettings(){
   if(recipeTouched){ syncRecipe(); pushRecipe(); }
   if(Object.keys(ctxPatch).length){
     for(var k in ctxPatch) context[k]=ctxPatch[k];
-    updateBeanInfo(); updateGrindRow();
+    updateBeanInfo(); syncGrinder();
     api('PUT','/api/v1/workflow',{context:ctxPatch}).catch(function(){ toast(t('tFailed'),'err'); }); }
   // Temperature is per profile and writes the profile, so it goes last.
   if(picked.temp!=null) setBrewTempC(usNum(picked.temp));
@@ -12510,7 +13224,7 @@ function afterPageChange(){
     _pageOpen=open;
     document.body.classList.toggle('page-open', open);
     pauseSvgAnimations(open);
-    if(!open){ _chartBgKey=null; drawChart(); updateMachineUI(); updateWaterUI(); updateScaleUI(); } }); }
+    if(!open){ _chartBgKey=null; drawChart(); updateMachineUI(); updateWaterUI(); updateScaleUI(); fxKick(); } }); }
 // Two full-screen pages cross-fading and scaling at once is the jank you can see;
 // a swap is instant, an ordinary open or close still animates.
 function swapPage(fn){
@@ -13030,7 +13744,7 @@ function batchLabel(b){ var d=isoDay(b.roastDate);
 function loadBeansGrinders(){
   return Promise.all([ api('GET','/api/v1/beans?includeArchived=true').catch(function(){return[];}), api('GET','/api/v1/grinders').catch(function(){return[];}), loadBeanBatches() ])
     .then(function(res){ beansAll=res[0]||[]; beans=beansAll.filter(function(b){ return !b.archived; }); grinders=res[1]||[]; renderBgList(); if(bgSel&&bgSel.type==='bean'&&bgSel.obj.id) renderBgEditor();
-      ensurePluginGrinders(); });
+      ensurePluginGrinders(); syncDoser(); });
 }
 var bgTab='bean'; // which section is shown: 'bean' | 'grinder'
 function bgSetTab(t){ bgTab=t; renderBgList(); }
@@ -13223,7 +13937,7 @@ function bgEditItem(kind,id){
 var BEAN_KEYS=['coffeeName','coffeeRoaster','beanBatchId'], GRINDER_KEYS=['grinderId','grinderModel','grinderSetting'];
 function bgCtxSnap(keys){ var o={}; keys.forEach(function(k){ o[k]=(context[k]===undefined?null:context[k]); }); return o; }
 function bgApplyCtx(ctx){ Object.assign(context,ctx); return api('PUT','/api/v1/workflow',{context:ctx}); }
-function bgRefreshUse(){ updateBeanInfo(); updateGrindRow(); renderBgList(); }
+function bgRefreshUse(){ updateBeanInfo(); syncGrinder(); renderBgList(); }
 function bgAfterPick(prev,label,offer){
   bgRefreshUse();
   if(_bgFromMain) closeBeanPage();
@@ -13232,13 +13946,17 @@ function bgAfterPick(prev,label,offer){
   findLastShotOffer(offer).then(function(o){
     if(!o) return;
     toastActs(label,[{label:t('usOffer'),fn:function(){ showLastShotOffer(o,{name:offer.name}); }},undo]); }); }
-function bgPickBean(id){
-  var b=(beans||[]).filter(function(x){ return x.id===id; })[0]; if(!b) return Promise.resolve();
-  var prev=bgCtxSnap(BEAN_KEYS.concat(['grinderSetting']));
+function beanCtx(b){
   return pickBag(b).then(function(bag){
     var ctx={coffeeName:b.name,coffeeRoaster:b.roaster||null,beanBatchId:(bag&&bag.id)||null};
     var mem=grinderLive(context.grinderId)?null:grindFor(b.id,context.grinderId);
     if(mem!=null&&mem!==String(context.grinderSetting==null?'':context.grinderSetting)) ctx.grinderSetting=mem;
+    return {ctx:ctx,bag:bag}; }); }
+function bgPickBean(id){
+  var b=(beans||[]).filter(function(x){ return x.id===id; })[0]; if(!b) return Promise.resolve();
+  var prev=bgCtxSnap(BEAN_KEYS.concat(['grinderSetting']));
+  return beanCtx(b).then(function(r){
+    var ctx=r.ctx, bag=r.bag;
     return bgApplyCtx(ctx).then(function(){
       bgAfterPick(prev,t('beanPicked').replace('{n}',(b.name||'')+(bag?' \u00b7 '+batchLabel(bag):''))
         +(ctx.grinderSetting!=null?' \u00b7 '+t('grindAt').replace('{s}',ctx.grinderSetting):''),
@@ -17353,7 +18071,7 @@ function deleteGrinder(){ var o=bgSel.obj; if(!o.id) return; if(!confirm(t('conf
   api('DELETE','/api/v1/grinders/'+o.id).then(function(){
     toast(t('deleted'),'ok'); delete grinderBrands[o.id]; saveGrinderBrands();
     if(context.grinderId===o.id){ context.grinderId=null;
-      api('PUT','/api/v1/workflow',{context:{grinderId:null}}).catch(function(){}); updateGrindRow(); }
+      api('PUT','/api/v1/workflow',{context:{grinderId:null}}).catch(function(){}); syncGrinder(); }
     bgSel=null; loadBeansGrinders(); bgShowGuide(); })
     .catch(function(){ toast(t('deleteFailed'),'err'); }); }
 // The same mark wherever a grinder is listed: a plugin's grinder, lit while
@@ -18898,9 +19616,11 @@ function drawTempChart(){
   // one has to as well or the two disagree about where a second is
   var guide=(!isSteam&&!isWater)?currentGuide():null;
   var T0=chart.t.length?chart.t[0]:0;
-  var ELAPSED=(chart.t.length===N&&N>1)?(chart.t[N-1]-T0)/1000:0;
-  var timed=ELAPSED>0.05;
+  var DISP=chartDispTime();
+  var ELAPSED=(chart.t.length===N&&N>1)?(Math.min(chart.t[N-1],DISP)-T0)/1000:0;
+  var timed=ELAPSED>0.05||(chart.t.length===N&&N>1&&chart.t[N-1]-T0>50);
   var SPAN=axisSpan(guide?Math.max(guide.total,timed?ELAPSED:N/10):(timed?ELAPSED:0),!chartReviewing);
+  function pxAt(ms){ return X0+Math.max(0,Math.min(((ms-T0)/1000)/SPAN,1))*PW; }
   function px(i){ if(timed) return X0+Math.max(0,Math.min(((chart.t[i]-T0)/1000)/SPAN,1))*PW;
     if(guide) return X0+Math.min((i/10)/SPAN,1)*PW;
     return X0+(N<2?0:(i/(N-1))*PW); }
@@ -18922,30 +19642,44 @@ function drawTempChart(){
   function tline(d,c,dash){ if(!d||d.length<2) return;
     if(dash){ var any=false; for(var g=0;g<d.length;g++){ if(d[g]>0){ any=true; break; } } if(!any) return; }
     ctx.save(); if(dash) ctx.setLineDash(dash);
-    ctx.beginPath(); for(var i=0;i<d.length;i++){ var x=px(i),y=py(d[i]); if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); }
+    var p=livePts(d,chart.t,DISP,px,pxAt,py);
+    if(dash){ ctx.beginPath(); for(var i=0;i<p.xs.length;i++){ if(i===0)ctx.moveTo(p.xs[i],p.ys[i]); else ctx.lineTo(p.xs[i],p.ys[i]); } }
+    else { ctx.beginPath(); smoothPath(ctx,p.xs,p.ys); }
     ctx.strokeStyle=c; ctx.lineWidth=dash?1.5:2.5; ctx.lineJoin='round'; ctx.lineCap='round'; ctx.stroke(); ctx.restore(); }
   if(guide&&guide.hasTemp&&vis('basket')){ ctx.save(); ctx.globalAlpha=.22; ctx.lineWidth=2; ctx.lineJoin='round';
     ctx.beginPath(); guide.pts.forEach(function(pt,i){ var x=X0+Math.min(pt.t/SPAN,1)*PW, y=py(pt.temp);
       if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); });
     ctx.strokeStyle=SERIES.basket; ctx.stroke(); ctx.globalAlpha=1; ctx.restore(); }
-  if(isSteam){ if(vis('steam')) tline(chart.steamTemp,SERIES.steam); }
+  if(isSteam){ if(vis('steam')) tline(chart.steamTemp,SERIES.steam);
+    if(vis('milk')) milkLine(); }
   else if(isWater){ if(vis('mixGoal')) tline(chart.targetMix,SERIES.mixGoal,GOAL_DASH);
     if(vis('water')) tline(chart.waterTemp,SERIES.water); }
   else { if(vis('basketGoal')) tline(chart.targetGroup,SERIES.basketGoal,GOAL_DASH);
          if(vis('mixGoal')) tline(chart.targetMix,SERIES.mixGoal,GOAL_DASH);
          if(vis('basket')) tline(chart.groupTemp,SERIES.basket);
          if(vis('mix')) tline(chart.mixTemp,SERIES.mix); }
+  function milkLine(){
+    var d=chart.milkTemp, k=0; while(k<d.length&&d[k]==null) k++;
+    var goal=milkStopTarget();
+    if(goal>0&&(k<d.length||thermoOn())){ ctx.save(); ctx.setLineDash(GOAL_DASH); ctx.globalAlpha=.7;
+      ctx.beginPath(); ctx.moveTo(X0,py(goal)); ctx.lineTo(X0+PW,py(goal));
+      ctx.strokeStyle=SERIES.milk; ctx.lineWidth=1.5; ctx.stroke(); ctx.restore(); }
+    if(d.length-k<2||chart.t.length!==d.length) return;
+    var p=livePts(d.slice(k),chart.t.slice(k),DISP,function(i){ return px(i+k); },pxAt,py);
+    if(p.xs.length<2) return;
+    ctx.beginPath(); smoothPath(ctx,p.xs,p.ys);
+    ctx.strokeStyle=SERIES.milk; ctx.lineWidth=2.5; ctx.lineJoin='round'; ctx.lineCap='round'; ctx.stroke(); }
   // the same readouts the extraction chart carries, for the lines that live here
   var running=state.shotRunning||state.steamRunning||state.waterRunning;
   if(N>=1 && running){
-    var last=function(d){ return (d&&d.length)?d[d.length-1]:null; };
+    var last=function(d){ return liveVal(d,chart.t,DISP); };
     // a line that is not drawn has no reading to place against it
-    var rows=(isSteam?[{k:'steam',v:last(chart.steamTemp),c:SERIES.steam}]
+    var rows=(isSteam?[{k:'steam',v:last(chart.steamTemp),c:SERIES.steam},{k:'milk',v:milkLiveVal(DISP),c:SERIES.milk}]
       :isWater?[{k:'water',v:last(chart.waterTemp),c:SERIES.water},{k:'mixGoal',v:last(chart.targetMix),c:SERIES.mixGoal}]
       :[{k:'basket',v:last(chart.groupTemp),c:SERIES.basket},{k:'mix',v:last(chart.mixTemp),c:SERIES.mix}])
       .filter(function(r){ return vis(r.k); });
     drawReadouts(ctx, rows.map(function(r){
-      return (r.v==null||isNaN(r.v))?null:{v:r.v,c:r.c,u:U_TEMP,y:py(r.v)}; }), px(N-1), Y0, Y0+PH); }
+      return (r.v==null||isNaN(r.v))?null:{v:r.v,c:r.c,u:U_TEMP,y:py(r.v)}; }), DISP<Infinity?pxAt(Math.min(DISP,chart.t[N-1])):px(N-1), Y0, Y0+PH); }
 }
 // The machine brackets a shot with preparingForShot before it and pouringDone
 // after; neither is extraction. The live timer has always counted only the
@@ -19588,10 +20322,9 @@ var _agKind='pin';
 function agObj(){ return _agKind==='read'?shotReadGet():aiPinGet(); }
 function agSave(o){ if(_agKind==='read') shotReadSet(o); else aiPinSet(o); }
 function shotReadMode(){
-  var m=prefs.shotRead;
-  return (m==='icon'||m==='off')?m:'modal'; }
+  return prefs.shotRead==='off'?'off':'icon'; }
 function setHeadroomOn(v){ prefs.yieldHeadroom=!!v; savePrefs(); syncProfileCut(); }
-function setShotRead(v){ prefs.shotRead=(v==='icon'||v==='off')?v:'modal'; savePrefs(); renderSpContent(); }
+function setShotRead(v){ prefs.shotRead=(v==='off')?'off':'icon'; savePrefs(); renderSpContent(); }
 function shotReadFits(){
   var r=shotReadGet();
   return !!(r&&lastShotSummary&&r.shotId===lastShotSummary.id); }
@@ -19703,15 +20436,9 @@ function applyAiSug(i){
   if(!aiApplyOne(x.apply)) return;
   x.done=true; agSave(pin); renderAiGuide(); toast(t('aiApplied'),'ok'); }
 // ── reading the shot that just finished ───────────────────────────────
-// One modal at a time. The tasting log opens as the shot ends, ahead of the
-// reading, so the reading waits for it to close and then opens: tasted first,
-// read second, which is also the order a barista would take them in.
-var _rsWaiting=false;
-function showShotRead(){
-  _rsWaiting=false;
-  if(shotReadMode()!=='modal'||!shotReadGet()) return;
-  if(document.querySelector('.overlay.show')){ _rsWaiting=true; return; }
-  openAiGuide('read'); }
+// The reading never opens by itself. A dialog arriving the moment a shot is
+// stored landed while the tablet was busiest and stuttered in, and the mark
+// on the shot card already says there is something to read.
 function runShotRead(id){
   if(!id||shotReadMode()==='off') return Promise.resolve(null);
   return withFullShots([{id:id}]).then(function(full){
@@ -19726,7 +20453,6 @@ function runShotRead(id){
       suggestions:r.suggestions.map(function(x){
         return { change:x.change, why:x.why, apply:aiApplyOf(x), done:false }; }) });
     loadLastShot();
-    showShotRead();
   }).catch(function(){}); }
 // ── Reading a shot without asking anyone ────────────────────────────
 // Everything below is read off the curve the machine recorded. A rule that
@@ -20578,7 +21304,7 @@ function wfHistApply(i){
   if(Object.keys(ctx).length){
     for(var k in ctx) context[k]=ctx[k];
     api('PUT','/api/v1/workflow',{context:ctx}).catch(function(){});
-    updateBeanInfo(); updateGrindRow(); }
+    updateBeanInfo(); syncGrinder(); }
   var p=(allProfiles||[]).filter(function(x){
     return x.id===(h.profile&&h.profile.id)
       ||(x.profile&&h.profile&&x.profile.title===h.profile.title); })[0];
@@ -20645,7 +21371,7 @@ function wfSetGrinder(i){
   var ctx={grinderId:g.id||null,grinderModel:g.model};
   if(g.grinderSetting){ context.grinderSetting=String(g.grinderSetting); ctx.grinderSetting=String(g.grinderSetting); }
   api('PUT','/api/v1/workflow',{context:ctx}).catch(function(){});
-  updateGrindRow(); renderWf(); }
+  syncGrinder(); renderWf(); }
 function wfRecipeHtml(){
   return '<div class="wf-rows">'
     +wfStepper(t('doseG'),'g',settings.doseIn.toFixed(1),
@@ -20811,7 +21537,7 @@ function loadWorkflow(){
       else carShowLoaded(); }
     guideProfileChanged();
     restoreBrewTemp(w.profile); }
-  syncRecipe(); syncAux(); updateBeanInfo(); }).catch(function(){}).then(function(){ loadFree('workflow');
+  syncRecipe(); syncAux(); updateBeanInfo(); syncGrinder(); }).catch(function(){}).then(function(){ loadFree('workflow');
     _wfSeen=true; carFirstBuild(); });
 }
 // The saved temperature is only real once the machine has it. A workflow that

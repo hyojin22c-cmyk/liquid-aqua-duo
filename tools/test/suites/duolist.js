@@ -100,6 +100,8 @@ test('cover curves are drawn a list height ahead of the scroll', function (T) {
 // iOS WebKit gave a swipe over the list to the closed modals above it, which
 // were only transparent and pointer-events:none. Chrome does not, so what is
 // asserted is the cause: nothing closed is left visible over the open page.
+// Upstream hides them itself since v1.229 (duo.3 had its own rule for it);
+// this keeps a merge from bringing the swipe-stealing layers back.
 test('closed modals and pages are hidden, not only transparent', function (T) {
   duoOpen();
   var ov = T.all('.overlay:not(.show)'), pg = T.all('.editpage:not(.show)');
