@@ -2774,12 +2774,25 @@ body.portrait .mon-body.cam{grid-template-columns:minmax(0,1fr);grid-template-ro
    step editor will not go under 460 -- so on end the curve sits beside the
    list of steps and the step being edited takes the width beneath them. The
    shot log does the same with the record and the tasting notes. */
-body.portrait #epEditor{grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-  grid-template-rows:auto auto minmax(0,1fr) minmax(0,1.7fr) auto}
-body.portrait #epEditor .ep-visual{grid-column:1;grid-row:2/4}
-body.portrait #epEditor .ep-steps-title{grid-column:2;grid-row:2}
-body.portrait #epEditor .ep-grid-wrap{grid-column:2;grid-row:3}
-body.portrait #epEditor .ep-step-editor{grid-column:1/-1;grid-row:4}
+/* ...but beside the curve the step table had 340px of the 480 it needs: it ran
+   off the right edge with its last column cut and the move/copy/delete buttons
+   past the screen, and its heading broke into single words ("추출 단 / 계").
+   The editor scrolls as a whole on the reshaped stage, so on end it is one
+   column: the curve, the heading and the table each take the width, and the
+   step being edited follows them. */
+body.portrait #epEditor{grid-template-columns:minmax(0,1fr);grid-template-rows:none;grid-auto-rows:auto;
+  height:auto;min-height:100%}
+body.portrait #epEditor .ep-visual{grid-column:1;grid-row:2}
+body.portrait #epEditor .ep-steps-title{grid-column:1;grid-row:3}
+body.portrait #epEditor .ep-grid-wrap{grid-column:1;grid-row:4;overflow-y:visible;min-height:auto}
+body.portrait #epEditor .ep-step-editor{grid-column:1;grid-row:5;overflow-y:visible}
+/* The name shared its row with seven colour swatches and three roast chips
+   and was left 90px ("A-Flow / def"). It takes the row; they go under it. */
+body.portrait #epEditor .ep-meta{grid-template-columns:auto minmax(0,1fr) auto}
+body.portrait #epEditor .ep-meta .ep-name-input{grid-column:1/-1;grid-row:1}
+body.portrait #epEditor .ep-meta .ep-colorrow{grid-column:1;grid-row:2}
+body.portrait #epEditor .ep-meta .ep-roastrow{grid-column:3;grid-row:2}
+body.portrait #epEditor .ep-meta .ep-notes{grid-column:1/-1;grid-row:3}
 body.portrait #slDetail{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1.25fr) minmax(0,1fr) auto}
 body.portrait #slDetail .sl-view{grid-column:1;grid-row:1}
 body.portrait #slDetail .sl-edit{grid-column:1;grid-row:2}
@@ -2825,6 +2838,20 @@ body.compact:not(.portrait) #slDetail .sl-temp-wrap{height:92px}
 body.compact #slDetail .chart-legend{gap:3px 9px;font-size:10px}
 body.compact #slDetail .sl-detail-head{margin-bottom:8px}
 body.compact #slDetail .sl-metric{padding:8px 6px}
+/* The pressure and flow dials are drawn to the width of their tile, and the
+   reading over them was not: at 139px a tile instead of the tablet's 178 the
+   dial came out at 78% and the 38px number stayed, covering the 3 and the 9
+   and sitting on the arc -- half the dial's width against two fifths on the
+   tablet. The monitor's on end were wider still, 0.59. Every reading here is
+   now the tablet's share of its tile's content width (174px a dial, 162 a
+   temperature, 209 on the monitor), and never more than the size it had. */
+body.compact .gauge{container-type:inline-size}
+body.compact .gauges .gauge.dial .gauge-val{font-size:min(38px,21.8cqw)}
+body.compact .gauges .gauge.dial .gauge-val .u{font-size:max(11px,min(13px,7.5cqw))}
+body.compact .gauges .gauge:not(.dial) .gauge-val{font-size:min(60px,37cqw)}
+body.compact .gauges .gauge:not(.dial) .gauge-val .u{font-size:max(12px,min(20px,12.3cqw))}
+body.compact .mon-top .mon-gauge .gauge-val{font-size:min(clamp(24px,5.9vh,44px),21cqw)}
+body.compact .mon-top .mon-gauge .gauge-val .u{font-size:max(11px,min(clamp(11px,2.2vh,16px),7.7cqw))}
 /* On end the record and the notes were two scrolling boxes stacked, each
    showing a slice (418 of 670, 334 of 1089). They are one page now that scrolls
    as a whole, with the bar held at the foot of the screen. */
@@ -2867,6 +2894,15 @@ body.portrait.ep-list #editPage .ep-body{grid-template-columns:minmax(0,1fr);gri
    does it scroll, as one. */
 body.portrait.ep-list #editPage .ep-toolbar{max-height:340px}
 body.portrait.ep-list #epTools>*{flex-shrink:0}
+/* The pencil and the star on a cover are 30px, 23 on the Duo's screen, and a
+   tap that misses them lands on the cover, which loads that profile onto the
+   machine. Each takes a wider reach than it draws: 7px out from the cover's
+   edge and above and below, 3px towards its neighbour so that the six between
+   them stay split down the middle. */
+body.compact .ep-card .cfoot>button{position:relative}
+body.compact .ep-card .cfoot>button::after{content:'';position:absolute;inset:-7px -3px}
+body.compact .ep-card .cfoot>button:first-of-type::after{left:-7px}
+body.compact .ep-card .cfoot>button:last-child::after{right:-7px}
 /* A box scrolled to its end stops there, rather than handing the rest of the
    swipe to the panel or the page around it. */
 body.compact #editPage .ep-list,body.compact #epTools,body.compact #epTools .ep-tags{overscroll-behavior:contain}

@@ -112,6 +112,67 @@ test('closed modals and pages are hidden, not only transparent', function (T) {
   duoClose();
 });
 
+// The stage on end is 800 wide, which is what shrank the dials; the reading
+// over each has to shrink with it, to the share of the dial it has on the
+// tablet (two fifths), where before it took half and covered the 3 and the 9.
+test('on end a gauge reading keeps the tablet share of its dial', function (T) {
+  var app = document.querySelector('.app'), was = [app.style.width, app.style.height];
+  var st = { p: state.pressure, f: state.flow };
+  duoOnEnd(true);
+  app.style.width = '800px'; app.style.height = '1137px';
+  state.pressure = 8.6; state.flow = 2.3; applyGauges('pressure', 'flow');
+  T.all('.gauges .gauge.dial').forEach(function (g) {
+    var v = g.querySelector('.gauge-val'), body = g.querySelector('.gs-body');
+    var r = document.createRange(); r.selectNodeContents(v); r.setEnd(v.firstChild, v.firstChild.length);
+    var share = r.getBoundingClientRect().width / body.getBoundingClientRect().width;
+    T.atMost(Math.round(share * 100), 42, 'the number, as a share of the dial (%)');
+  });
+  state.pressure = st.p; state.flow = st.f; applyGauges('pressure', 'flow');
+  app.style.width = was[0]; app.style.height = was[1];
+  duoOnEnd(false);
+});
+
+// Beside the curve the step table had 340px of the 480 it needs and ran off
+// the screen; on end the editor is one column and the table has the width.
+test('on end the profile editor shows the whole step table and the name', function (T) {
+  duoOnEnd(true);
+  openEditPage();
+  var p = allProfiles.filter(function (x) { return ((x.profile || {}).steps || []).length >= 6; })[0] || allProfiles[0];
+  epOpenEditor(p);
+  var ed = T.el('#epEditor'), wrap = T.el('#epEditor .ep-grid-wrap'), grid = T.el('#epStepGrid');
+  var meta = T.el('#epEditor .ep-meta'), name = T.el('#epEditor .ep-name-input');
+  T.ok(grid.querySelectorAll('tr.gr').length >= 6, 'a profile with steps to show');
+  T.atMost(wrap.scrollWidth - wrap.clientWidth, 1, 'the table does not run past its box');
+  T.atMost(grid.getBoundingClientRect().right - ed.getBoundingClientRect().right, 1, 'nor past the editor');
+  T.ok(wrap.clientHeight > 150, 'and is given height: ' + wrap.clientHeight);
+  T.ok(name.offsetWidth > meta.offsetWidth * 0.8, 'the name takes the row: ' + name.offsetWidth + ' of ' + meta.offsetWidth);
+  closeEditPage();
+  duoOnEnd(false);
+});
+
+// A tap that just misses the star lands on the cover and loads the profile,
+// so on the reshaped stage the buttons reach further than they are drawn.
+test('the pencil and star on a cover answer a near miss on the Duo only', function (T) {
+  function probe() {
+    openEditPage(); epSetView('list'); renderEpList();
+    var card = T.el('#epList .ep-card:not(.bg-card)'), fav = card.querySelector('.cfoot .fav-btn');
+    var ed = card.querySelector('.cfoot .ep-editbtn'), r = fav.getBoundingClientRect(), e = ed.getBoundingClientRect();
+    function at(x, y) { var h = document.elementFromPoint(x, y); return fav.contains(h) ? 'fav' : ed.contains(h) ? 'edit' : 'card'; }
+    var out = { above: at(r.left + r.width / 2, r.top - 3), right: at(r.right + 3, r.top + r.height / 2),
+      gapL: at(e.right + 1, e.top + e.height / 2), gapR: at(r.left - 1, r.top + r.height / 2), far: at(r.left + r.width / 2, r.top - 16) };
+    closeEditPage(); return out;
+  }
+  duoOnEnd(true);
+  var duo = probe();
+  duoOnEnd(false);
+  var tab = probe();
+  T.eq(duo.above, 'fav', 'on the Duo a tap just above the star is the star');
+  T.eq(duo.right, 'fav', 'and just right of it');
+  T.eq(duo.gapL + '/' + duo.gapR, 'edit/fav', 'the gap between pencil and star is split');
+  T.eq(duo.far, 'card', 'a tap well above is still the cover');
+  T.eq(tab.above, 'card', 'the tablet keeps its exact buttons');
+});
+
 test('a list scrolled to its end keeps the rest of the swipe', function (T) {
   duoOpen();
   T.eq(T.css(T.el('#epList'), 'overscrollBehaviorY'), 'contain', 'the covers');
