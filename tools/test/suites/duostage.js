@@ -224,3 +224,27 @@ test('a step picked on the curve is brought all the way into the table', functio
   });
   duoShape(null);
 });
+
+// Upstream 1.230.0 added a four-stars-and-up switch above the shots. On end the
+// list is a 200px strip, and a row of its own for the switch left no whole shot
+// in it.
+test('on end the liked switch shares the heading\'s row and a whole pair of shots shows', function (T) {
+  var wasList = shotList, wasSel = slSel;
+  shotList = [0, 1, 2, 3, 4, 5].map(function (i) {
+    return { id: 'duo-liked-' + i, timestamp: '2026-11-1' + i + 'T08:00:00Z', annotations: { enjoyment: 8 },
+      workflow: { profile: { title: 'Shot ' + i, steps: [] }, context: {} } }; });
+  duoShape('end');
+  document.getElementById('shotLogPage').classList.add('show');
+  renderShotList();
+  var list = T.el('#slList'), lk = T.el('#slLiked'), head = list.querySelector('.ep-group-head'), items = list.querySelectorAll('.ep-item');
+  var lb = list.getBoundingClientRect(), kb = lk.getBoundingClientRect(), hb = head.getBoundingClientRect();
+  T.ok(kb.top < hb.bottom && kb.bottom > hb.top, 'the switch is on the heading\'s row');
+  T.ok(kb.left >= hb.right - 1, 'to the right of the heading, not over it');
+  T.atMost(Math.round(kb.right - lb.right), 0, 'inside the list');
+  T.ok(kb.height / 0.869 >= 38, 'tall enough for a finger: ' + Math.round(kb.height / 0.869));
+  T.ok(items.length >= 2, 'shots to show');
+  T.atMost(Math.round(items[1].getBoundingClientRect().bottom - lb.bottom), 0, 'the first pair of shots ends inside the strip');
+  document.getElementById('shotLogPage').classList.remove('show');
+  shotList = wasList; slSel = wasSel;
+  duoShape(null);
+});
