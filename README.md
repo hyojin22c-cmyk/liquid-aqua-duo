@@ -212,7 +212,9 @@ Tap an action in the top bar to run it, or hold it for its options. Each has up 
 | Flush | temperature, seconds, flow |
 | Hot water | temperature, volume, seconds, flow |
 
-Hot water stops on its weight when a scale is connected, or on its volume, never on a short clock. **Stop timing** in Settings › Machine sets how early it stops so that the cup lands on the target.
+The machine is given the volume as set, the way Streamline gives it. With a scale connected, the gateway stops hot water when the cup reaches that weight; without one the machine stops on its own estimate of the volume. The **Hot water** tab in Settings › Machine has, as in Streamline, the flow, the switch for the scale stop and how early it stops so that the cup lands on the target. Streamline's time limit is not offered: the machine ignores it whenever a volume is set ([decaid #1128](https://github.com/decentespresso/decaid/issues/1128)).
+
+Some machines stop hot water on their own pump count well before the cup reaches the amount, so the gateway's scale stop never gets the chance ([decaid #1119](https://github.com/decentespresso/decaid/issues/1119)). So **Stop on the scale in this skin** is on by default (a switch in the same tab turns it off): with a scale the machine is asked for half again (up to 250 ml) and the skin stops the pour when the cup reaches the amount, as de1app does. A pour started at the group head while the skin is not running can then give up to half again.
 
 ### Milk thermometer
 
@@ -396,7 +398,7 @@ Settings is a list of categories, each with its own tabs.
 | Category | Tabs and what is in them |
 |---|---|
 | **General** | **General**: language, °C/°F, g/oz, night mode and auto night mode, auto-open the shot log, a way back to the Decaid dashboard. **Display**: brightness, keep the screen awake, low-battery dimming, the extraction guideline, which actions open and close the monitor, the shot feedback, screen effects, the frame meter, and the sleep screen's photos, motion and dimming. **Camera**: the camera in the album, and how to turn, fill, enlarge and mirror it |
-| **Machine** | **Tank** (refill warning, refill kit), **Machine flow calibration**, **Stop timing** (with the learned shot stop), **Machine settings** (USB charger, fan, tank heater, steam purge), **Presence** (sleep after inactivity), **Sensor calibration** (read only), **Maintenance** (clean, descale, air purge), **Machine info** |
+| **Machine** | Four tabs. **Tank** (refill warning, refill kit); **Flow & stop** (stop timing with the learned shot stop, hot water: flow, scale stop, stopping in the skin, and the machine flow calibration); **Machine settings** (USB charger, fan, tank heater, steam purge, sleep after inactivity); **Care & info** (clean, descale, air purge, machine info, sensor calibration read only) |
 | **Scale** | refuse to start without a scale, room to reach the target, and what to do with the scale when the machine sleeps |
 | **Phone** | the address and QR code for the [phone app](#phone) |
 | **Updates** | **Firmware** (update, or upload a file), **App update** for Decaid, **Skin** release history |
@@ -407,7 +409,7 @@ Settings is a list of categories, each with its own tabs.
 
 - **Language** offers English and Korean built in, plus thirteen more languages that are translated once with your AI key and kept.
 - **Room to reach the target**: when a profile would end on its clock before the target weight, its last step is held up to 20 seconds longer. The shot still stops at the target. The stored profile is not changed.
-- **Machine flow calibration**: the DE1 estimates flow from its pump. Pour hot water onto a connected scale and the skin offers the corrected multiplier, which is written to the machine.
+- **Machine flow calibration**: the DE1 estimates flow from its pump, and this multiplier scales that estimate for espresso as well as hot water. The value is typed on the skin's keypad or stepped by 0.01, written to the machine and read back. It is not worked out from a hot water pour: the machine's hot water error changes with flow, so one pour does not give a calibration ([decaid #1128](https://github.com/decentespresso/decaid/issues/1128)). The last value read is shown at once and refreshed behind it.
 - **Screen effects** turns off the moving water, the curved graph's motion, the cover ripple, the touch ripple and the glass blur, for a tablet that stutters. The **frame meter** shows frames per second; tap it for a log of slow frames and what ran around them.
 
 ---
@@ -463,7 +465,6 @@ Open the address from Settings › Phone on a phone and the skin shows its phone
 | `shotread`, `ranout` | the last shot feedback, and profiles that ran out before the target |
 | `grindmem`, `gspeed`, `gfeed`, `gburr`, `gbrands` | grind settings per bean, grinder speeds, burrs and brands |
 | `baskets`, `rmachines`, `beanfav`, `wfhist` | your basket list, the roasting-machine list, favourite beans, recent workflow choices |
-| `hwmeasure` | the last hot water's estimated and weighed amounts, for flow calibration |
 | `i18n` | languages translated with AI |
 
 In the browser the same keys are kept with an `aurora_` prefix.

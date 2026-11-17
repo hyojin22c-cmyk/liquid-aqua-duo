@@ -178,14 +178,21 @@ test('the ripple starts under the finger on a scaled stage', function (T) {
   var host = T.el('#btnWorkflow'), r = host.getBoundingClientRect();
   T.near(duoScaleOf(host), 0.869, 0.01, 'the stage really is scaled here');
   var x = r.left + r.width * 0.85, y = r.top + r.height * 0.8;
+  // upstream draws the swell on the next frame; the draw is what is measured
   rippleIn(host, x, y);
+  T.eq(host.querySelector('.rip'), null, 'drawn on the next frame, not in the press');
+  var lx = (x - r.left) / 0.869, ly = (y - r.top) / 0.869;
+  rippleDraw(host, r.left + lx, r.top + ly);
   var rip = host.querySelector('.rip'), k = r.width / host.offsetWidth;
   T.ok(!!rip, 'a ripple');
   if (rip) {
     T.near(parseFloat(rip.style.left) * k, x - r.left, 1.5, 'across, in the screen\'s pixels');
     T.near(parseFloat(rip.style.top) * k, y - r.top, 1.5, 'and down');
-    rip.remove();
+    var w = host.offsetWidth, h = host.offsetHeight;
+    var far = Math.max(Math.hypot(lx, ly), Math.hypot(w - lx, ly), Math.hypot(lx, h - ly), Math.hypot(w - lx, h - ly));
+    T.near(parseFloat(rip.style.getPropertyValue('--rip-to')) * 96 / 2, far, 1, 'and it reaches the furthest corner, in the stage\'s pixels');
   }
+  Array.prototype.forEach.call(host.querySelectorAll('.rip'), function (e) { e.remove(); });
   prefs.fx = fx;
   duoShape(null);
   var m = document.createElement('div'); m.style.cssText = 'position:fixed;left:0;top:0;width:100px;height:20px';
