@@ -85,7 +85,7 @@ Leave out `tag` to take the latest release.
 2. Open the menu at the top right.
 3. Tap **Check for updates**.
 
-Settings › Updates › Skin lists the release history and says when a newer version is out. From Decaid 0.9.3, on the tablet itself and with automatic updates turned on in the app, the same page also offers **Check for updates**. If a new version is installed but the page is still running the old one, the same page offers **Reload**.
+Settings › Updates › Skin lists the release history and says when a newer version is out. From Decaid 0.9.3, on the tablet itself and with automatic updates turned on in the app, the same page also offers **Check for updates**. The same page always has **Reload**, which puts a newly installed version on screen without restarting the app; it stands out when the page can tell it is behind, and waits while the machine is running.
 
 **For development.** Serve the folder and open it in a browser. The skin finds the gateway on its own:
 
@@ -117,7 +117,7 @@ On the right are **Sleep** and **⚙** [Settings](#settings). Hold **Sleep** to 
 
 ### Tank, scale and dials
 
-The **tank** tile fills from the bottom with moving water. Its colour follows the **mix temperature**, which is the water that will actually reach the coffee: blue up to 80 °C, then one shade per degree through teal, green, yellow and orange, and red from 95 °C. Over it are the group, mix and steam temperatures and the tank level. While water is moving, the waves and bubbles speed up with the machine's flow, up to about two and a half times at 8 ml/s. A tank that is genuinely low turns red whatever the temperature. If a refill kit gives up, the tank says **Refill stopped** instead, so check the water supply rather than the tank. On a plumbed machine with the refill kit, the tank always reads full.
+The **tank** tile fills from the bottom with gently moving water. Its colour follows the **mix temperature**, which is the water that will actually reach the coffee: blue up to 80 °C, then one shade per degree through teal, green, yellow and orange, and red from 95 °C. Over it are the group, mix and steam temperatures and the tank level. While water is moving, bubbles rise and the waves speed up with the machine's flow, up to about two and a half times at 8 ml/s. A tank that is genuinely low turns red whatever the temperature. If a refill kit gives up, the tank says **Refill stopped** instead, so check the water supply rather than the tank. On a plumbed machine with the refill kit, the tank always reads full.
 
 Next to it are the live **weight** and the **timer**. Tap the weight to tare.
 
@@ -161,13 +161,13 @@ Below the carousel is the recipe:
 | **Grind** | Steps by your grinder's own step size. With a grinder plugin, the number is sent to the grinder |
 | **Brew temperature** | The thermometer. Changing it moves the whole profile up or down. **↺** puts the profile's own temperature back |
 
-An amber **!** on the yield means the profile will probably stop before reaching it: it ends on its clock, its own volume or its own weight first. Tap it to see why and to match the yield in one tap.
+When the loaded profile ends the shot on its own before or about at the yield (on its clock, its own volume without a scale, or a last step that ends on weight), a small line under the yield says where: amber when that is short of the yield. If the profile ran out on an earlier shot, the yield it actually poured is shown instead of the estimate. The yield is also sent as the profile's target weight, as other skins do.
 
 ### Coffee and last shot
 
 The bean card shows the coffee in use, its days off roast and its details. **Edit** opens [Beans and grinders](#beans-and-grinders). With a [bean doser](#bean-doser) connected, the card gains an **XDOSING** tab.
 
-The last-shot card shows that shot's profile, dose, yield, ratio and time. **Shot Log** opens the [shot log](#shot-log). When there is something to read about the shot, the card is marked with **!**, and tapping it opens the [shot feedback](#shot-feedback).
+The last-shot card shows that shot's profile, dose, yield, ratio and time. **Shot Log** opens the [shot log](#shot-log). When the [shot feedback](#shot-feedback) finds a yield or time that is off, that number turns amber with a small arrow (short or long). Channelling, a grind that reads coarse or fine, and a temperature that was off are named in a small tag beside the profile; tapping it opens the shot log.
 
 ---
 
@@ -185,7 +185,7 @@ The rail across the top shows the steps: bean, profile, grind, recipe, and then 
 
 ![Devices](docs/devices.png)
 
-Tap the device button in the top bar. Each kind of device has its own cell, with what is **connected now** above and what else is **in reach** below:
+Tap the device button in the top bar. Each kind of device has its own cell, side by side, with what is connected now at the top and what else is **in reach** below it. An empty cell says so in its head and takes no more room. The brewing scale is not offered as the dosing scale, nor the other way round:
 
 | Cell | |
 |---|---|
@@ -196,7 +196,9 @@ Tap the device button in the top bar. Each kind of device has its own cell, with
 | Thermometer | appears when a thermometer plugin is on |
 | Bean doser | appears when the RedxKey doser plugin is on |
 
-**Find** looks again without connecting anything. The gateway stops looking once it has a scale, so a scale switched on later is only noticed this way.
+**Find** (next to the close button) looks again without connecting anything. The gateway stops looking once it has a scale, so a scale switched on later is only noticed this way. Devices in reach stay listed while it looks.
+
+The skin never scans by itself, as other skins do not: a scan shares the Bluetooth radio with everything already connected. A dosing scale that is away is looked for when you tap it on the recipe card. What the skin connects by itself waits its turn: the machine first, then the brewing scale, each left to settle, and only then the dosing scale.
 
 ---
 
@@ -212,9 +214,9 @@ Tap an action in the top bar to run it, or hold it for its options. Each has up 
 | Flush | temperature, seconds, flow |
 | Hot water | temperature, volume, seconds, flow |
 
-The machine is given the volume as set, the way Streamline gives it. With a scale connected, the gateway stops hot water when the cup reaches that weight; without one the machine stops on its own estimate of the volume. The **Hot water** tab in Settings › Machine has, as in Streamline, the flow, the switch for the scale stop and how early it stops so that the cup lands on the target. Streamline's time limit is not offered: the machine ignores it whenever a volume is set ([decaid #1128](https://github.com/decentespresso/decaid/issues/1128)).
+The **Hot water** tab in Settings › Machine has, as in Streamline, the flow, one switch to stop on the scale and how early it stops so that the cup lands on the target. Below them, **Hot water log** lists the last pours: the target, what reached the cup (at the stop and after the drips), what the machine counted against the limit it was sent, how long it ran, and what stopped it: this skin on the scale, the button in this skin, the gateway on the scale, the machine's own count, its time limit, a low tank, or something else such as the group head. **Copy** puts the full record, with a flow and weight trace, on the clipboard. Streamline's time limit is not offered: the machine ignores it whenever a volume is set ([decaid #1128](https://github.com/decentespresso/decaid/issues/1128)).
 
-Some machines stop hot water on their own pump count well before the cup reaches the amount, so the gateway's scale stop never gets the chance ([decaid #1119](https://github.com/decentespresso/decaid/issues/1119)). So **Stop on the scale in this skin** is on by default (a switch in the same tab turns it off): with a scale the machine is asked for half again (up to 250 ml) and the skin stops the pour when the cup reaches the amount, as de1app does. A pour started at the group head while the skin is not running can then give up to half again.
+Some machines stop hot water on their own pump count well before the cup reaches the amount, so the gateway's scale stop never gets the chance ([decaid #1119](https://github.com/decentespresso/decaid/issues/1119)). So with a scale and **Stop hot water on the scale** on (the default), the machine is asked for 250 ml, whatever the amount, and the skin stops the pour when the cup reaches the amount, as de1app does; the gateway's own scale stop is left on behind it. A cup put down or lifted mid-pour, or a tare that lands late, is not taken for water. Off, both stops are off and the machine is given the amount and stops on its own estimate; the gateway's switch is shared with other skins, so it changes there too. Without a scale the machine always stops on its own estimate. **Leave the machine's water count out** (off by default, only with the scale stop on and a scale connected) goes further for a machine that counts more water than it gives: the machine is given no volume, only a time limit (the amount at half the set flow, plus 5 s), so its count cannot end the pour before the cup reaches the amount ([decaid #1128](https://github.com/decentespresso/decaid/issues/1128)). If the skin or the scale drops out, water keeps coming until that limit. The amount goes up to 250 ml, the most the machine takes. A pour started at the group head while the skin is not running can give up to 250 ml.
 
 ### Milk thermometer
 
@@ -370,13 +372,13 @@ With two or more picked, the detail becomes an overlay: one measurement across e
 
 ![Shot feedback](docs/shot-feedback.png)
 
-When a shot ends, its pressure, flow and weight are checked right here, with no AI and no network. The shot card is marked with **!** when there is something to read. Tap it to open:
+When a shot ends, its pressure, flow and weight are checked right here, with no AI and no network. The last-shot card marks what is off on its numbers, and the shot log shows the full reading for any shot with a recorded curve:
 
 - a verdict: ran normally, ran fast (grind coarse), choked (grind fine), channelled, or mixed signs;
 - the shot time, yield and ratio against their targets, puck resistance and extraction yield;
 - if the profile ran out before the target weight, how many seconds the last step needs, or the yield to set instead.
 
-**Use next time** keeps the suggestion and shows it on the card the next time that profile is loaded. Settings › General › Display turns the feedback on or off.
+**Use next time** in the shot log keeps the suggestion and shows it on the card the next time that profile is loaded. Settings › General › Display turns the feedback on or off.
 
 With a scale, the skin also learns **when to stop**. After each shot it compares the settled weight with the target and moves the stop a little earlier or later. A toast says what it changed, and **Undo** puts it back. Settings › Machine › Stop timing turns this off.
 
@@ -410,7 +412,7 @@ Settings is a list of categories, each with its own tabs.
 - **Language** offers English and Korean built in, plus thirteen more languages that are translated once with your AI key and kept.
 - **Room to reach the target**: when a profile would end on its clock before the target weight, its last step is held up to 20 seconds longer. The shot still stops at the target. The stored profile is not changed.
 - **Machine flow calibration**: the DE1 estimates flow from its pump, and this multiplier scales that estimate for espresso as well as hot water. The value is typed on the skin's keypad or stepped by 0.01, written to the machine and read back. It is not worked out from a hot water pour: the machine's hot water error changes with flow, so one pour does not give a calibration ([decaid #1128](https://github.com/decentespresso/decaid/issues/1128)). The last value read is shown at once and refreshed behind it.
-- **Screen effects** turns off the moving water, the curved graph's motion, the cover ripple, the touch ripple and the glass blur, for a tablet that stutters. The **frame meter** shows frames per second; tap it for a log of slow frames and what ran around them.
+- **Screen effects** turns off the moving water, the curved graph's motion, the sheen across a cover, the touch ripple and the glass blur on the other pages, for a tablet that stutters. The **frame meter** shows frames per second; tap it for a log of slow frames and what ran around them.
 
 ---
 
