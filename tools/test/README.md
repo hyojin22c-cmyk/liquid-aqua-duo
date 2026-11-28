@@ -68,7 +68,8 @@ style.
 
 | Suite | Covers |
 |---|---|
-| `card` | the recipe card: caption on the number between the buttons, the two groups behind a rule, rows lining up across groups, device names shown whole |
+| `card` | the recipe card: one device row over three settings by two, caption and number on a line with the buttons under them, rows level, the stop condition in its own cell, the last shot's readings |
+| `mainscreen` | the header's machine state, the device icons, the recipe locked mid shot but for the yield, the scale reading offered as a button on the card and in the dose keypad, unset scales not named, the bean card's rest badge and pick button, 15px type on the stage |
 | `devices` | the connection sheet: four roles two by two, what holds each, which call each button makes, nothing actionable mid-shot |
 | `duostage` | the stage on the unfolded Duo: 720 on its short side (87%) with the tablet and iPad left alone, the weight clear of the dials, steam's controls apart, covers three across, the shot log as one page, settings and tags stacked on end, small controls answering further than they are drawn, and the three places that mixed screen pixels with stage pixels (ripple, camera, step scroll) |
 | `duolist` | the profile list on the unfolded Duo: closed modals and pages hidden rather than only transparent (iOS gave them the swipe meant for the list), on end every tag chip shown and the profile editor's whole step table, gauge readings at the tablet's share of their dial, cover buttons that answer a near miss, a finger moving over a chip scrolls instead of choosing it, a tap and a hold still do what they did, curves drawn a list height ahead, scroll boxes that stop at their ends |
