@@ -166,7 +166,10 @@ test('on end the profile editor shows the whole step table and the name', functi
   T.atMost(wrap.clientHeight, 240, 'but not so much that the step editor is pushed away');
   var se = T.el('#epEditor .ep-step-editor');
   T.atMost(se.offsetTop - (wrap.offsetTop + wrap.offsetHeight), 16, 'which starts right under the rows');
-  T.ok(name.offsetWidth > meta.offsetWidth * 0.8, 'the name takes the row: ' + name.offsetWidth + ' of ' + meta.offsetWidth);
+  // upstream 1.249 moved the swatches and roast chips into Details; the name
+  // shares one line with two chips and that button, and keeps most of it
+  T.ok(name.offsetWidth >= 240, 'the name has room: ' + name.offsetWidth + ' of ' + meta.offsetWidth);
+  T.atMost(meta.scrollWidth - meta.clientWidth, 1, 'and the head does not run past the editor');
   closeEditPage();
   duoOnEnd(false);
 });

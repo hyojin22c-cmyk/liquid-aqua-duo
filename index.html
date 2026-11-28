@@ -3523,11 +3523,14 @@ body.night .app .ls-stat.lo .v,body.night .app .ls-stat.hi .v,body.night .ls-sta
 body.compact header{gap:10px;padding:0 14px}
 body.compact .brand,body.compact .hdr-group{flex:0 0 auto}
 body.compact .hdr-aux{flex:1 1 auto;min-width:0}
-body.compact .hdr-aux .act-btn{flex:1 1 0;min-width:0;padding:7px 6px}
+body.compact .hdr-aux .act-btn{flex:1 1 auto;min-width:0;padding:7px 6px}
 body.compact .hdr-aux .act-btn .ab-txt,body.compact .hdr-aux .act-btn .ab-head,
 body.compact .hdr-aux .act-btn .ab-sum{max-width:100%;overflow:hidden;text-overflow:ellipsis}
 body.compact:not(.portrait) .act-btn.sleep{padding:0 14px}
 body.compact:not(.portrait) .act-btn.sleep [data-i18n]{display:none}
+/* Upstream's header drops the sleep key's moon and keeps its word, so with the
+   word gone too the key was an empty pill. On its side the moon comes back. */
+body.compact:not(.portrait) .act-btn.sleep .ico{display:inline}
 body.compact:not(.portrait) .app{grid-template-columns:minmax(0,1fr) 410px}
 body.compact .live-row{grid-template-columns:160px minmax(0,1fr)}
 body.compact .live{grid-template-columns:minmax(0,1fr) 300px;padding:11px 14px;gap:12px}
@@ -3547,13 +3550,20 @@ body.dense:not(.portrait) .live{grid-template-columns:minmax(0,1fr) 284px}
 body.dense:not(.portrait) .carousel-card,body.dense:not(.portrait) .bean-info,
 body.dense:not(.portrait) .lastshot-card{padding-top:8px;padding-bottom:8px}
 body.dense:not(.portrait) .cc-head{margin-bottom:6px}
-/* The five actions shared the header evenly, 134px each, and the shot's line
-   under its name is the long one: "90.0° · 18.0 → 36.0g · 1:2.0" is 131 and
-   lost its ratio to an ellipsis while the workflow's 46 sat in the same room.
-   The shot takes a share and a third. */
-body.dense #btnShot{flex:1.35 1 0}
+/* The five actions start from what they say and share what is left, since the
+   shot's line under its name is the long one: at 15px "90.0° · 18.0 → 36.0g ·
+   1:2.0" is 191, the flush's 63. On its side the actions were still 32 short
+   in English, so the device button's word goes, as the sleep key's does: it
+   is 58 wide, and the drawings beside it say what the button is. */
+body.dense:not(.portrait) .conn-lbl{display:none}
 /* The tank's four labels are the smallest type on the stage, 9px. */
 body.dense .ht-l{font-size:10px}
+/* Upstream 1.249 sets a graph's title at 15px and keeps it whole on the
+   monitor only. Beside six legend entries in a narrower column it broke inside
+   the word ("추출 그래 / 프"); here too the legend gives way instead. */
+body.compact .app .chart-head{flex-wrap:wrap;gap:2px 12px}
+body.compact .app .chart-head .chart-title{flex:none;white-space:nowrap}
+body.compact .app .chart-head .chart-legend{flex:0 1 auto;min-width:0;justify-content:flex-start;margin-left:auto}
 /* Stood on end -- the iPhone Duo opened, 626x890. The two columns come apart
    into one stack: the readings across the top, the profile beside the recipe,
    the bean beside the last shot, and the graphs given the rest of the height,
@@ -3576,6 +3586,19 @@ body.dense.portrait .app{grid-template-columns:minmax(0,17fr) minmax(0,3fr) minm
   grid-template-areas:'hd hd hd' 'lv lv lv' 'car rec rec' 'bean bean last' 'ch ch ch' 'tc tc tc'}
 body.dense.portrait .app:has(#camCard:not([hidden])){
   grid-template-areas:'hd hd hd' 'lv lv lv' 'cam cam cam' 'car rec rec' 'bean bean last' 'ch ch ch' 'tc tc tc'}
+/* The grinder card (upstream 1.249) has no place in the stack and fell to the
+   bottom, half wide, under the graphs. It goes under the recipe, beside the
+   covers, whose height the two share. */
+body.portrait .app:has(#grinderCard:not([hidden]):not(.off-mode)){
+  grid-template-rows:auto auto auto auto auto minmax(0,2fr) minmax(0,1fr);
+  grid-template-areas:'hd hd' 'lv lv' 'car rec' 'car grd' 'bean last' 'ch ch' 'tc tc'}
+body.portrait .app:has(#camCard:not([hidden])):has(#grinderCard:not([hidden]):not(.off-mode)){
+  grid-template-rows:auto auto minmax(0,1.2fr) auto auto auto minmax(0,2fr) minmax(0,1fr);
+  grid-template-areas:'hd hd' 'lv lv' 'cam cam' 'car rec' 'car grd' 'bean last' 'ch ch' 'tc tc'}
+body.dense.portrait .app:has(#grinderCard:not([hidden]):not(.off-mode)){
+  grid-template-areas:'hd hd hd' 'lv lv lv' 'car rec rec' 'car grd grd' 'bean bean last' 'ch ch ch' 'tc tc tc'}
+body.dense.portrait .app:has(#camCard:not([hidden])):has(#grinderCard:not([hidden]):not(.off-mode)){
+  grid-template-areas:'hd hd hd' 'lv lv lv' 'cam cam cam' 'car rec rec' 'car grd grd' 'bean bean last' 'ch ch ch' 'tc tc tc'}
 body.portrait .app>.center,body.portrait .app>.right{display:contents}
 body.portrait header{grid-area:hd;flex-wrap:wrap;row-gap:8px;padding:10px 14px 20px}
 body.portrait .brand{flex:1 1 auto}
@@ -3584,6 +3607,7 @@ body.portrait .live-row{grid-area:lv}
 body.portrait .cam-card{grid-area:cam;min-width:0;min-height:0}
 body.portrait .carousel-card{grid-area:car;min-width:0}
 body.portrait .right .recipe{grid-area:rec;min-width:0}
+body.portrait .grinder-card{grid-area:grd;min-width:0}
 body.portrait .bean-info{grid-area:bean;min-width:0}
 body.portrait .lastshot-card{grid-area:last;min-width:0}
 body.portrait .chart-card{grid-area:ch}
@@ -3623,13 +3647,6 @@ body.portrait #epEditor .ep-visual{grid-column:1;grid-row:2}
 body.portrait #epEditor .ep-steps-title{grid-column:1;grid-row:3}
 body.portrait #epEditor .ep-grid-wrap{grid-column:1;grid-row:4;min-height:auto;max-height:236px}
 body.portrait #epEditor .ep-step-editor{grid-column:1;grid-row:5;overflow-y:visible}
-/* The name shared its row with seven colour swatches and three roast chips
-   and was left 90px ("A-Flow / def"). It takes the row; they go under it. */
-body.portrait #epEditor .ep-meta{grid-template-columns:auto minmax(0,1fr) auto}
-body.portrait #epEditor .ep-meta .ep-name-input{grid-column:1/-1;grid-row:1}
-body.portrait #epEditor .ep-meta .ep-colorrow{grid-column:1;grid-row:2}
-body.portrait #epEditor .ep-meta .ep-roastrow{grid-column:3;grid-row:2}
-body.portrait #epEditor .ep-meta .ep-notes{grid-column:1/-1;grid-row:3}
 body.portrait #slDetail{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1.25fr) minmax(0,1fr) auto}
 body.portrait #slDetail .sl-view{grid-column:1;grid-row:1}
 body.portrait #slDetail .sl-edit{grid-column:1;grid-row:2}
@@ -3637,14 +3654,15 @@ body.portrait #slDetail .ep-save-bar{grid-column:1;grid-row:3}
 /* ── Unfolded Duo: what the reshaped stage squeezed ────────────────────
    Each rule below answers something measured on 890x626 and 626x890, in
    stage pixels. */
-/* The ratio is 61 wide in a 51 column on its side (54 in 39 on end) and spilled
-   over its own - and + buttons. The buttons and the gap between them give up
-   what the number needs before the number gives up size. */
-body.compact .recipe .rg-cols .ms-btn{width:26px}
-body.compact .recipe .rg-cols .dose-adj{gap:3px}
-body.compact .recipe .dose-stack .rv,body.compact .recipe .dose-stack .dose-num,
-body.compact .recipe .dose-three #doseIn.dose-num.tap{font-size:20px}
-body.portrait .recipe .dose-stack .rv{font-size:18px;letter-spacing:-.05em}
+/* At 720 a recipe cell is 123 wide on its side and 125 on end, not 133, and
+   between its two 36px buttons "18.0g" (51) had 49 and lost its unit, "100ml"
+   (52) and a yield of 100 (57 at 18px) too. The buttons give up what the
+   number needs before the number gives up size: they are drawn 30 wide and
+   answer 34, reaching out into the gap beside the cell, not over the number. */
+body.dense :is(#recipeNormal,#grinderCard,.rc-mode) .dose-adj{grid-template-columns:30px minmax(0,1fr) 30px}
+body.dense :is(#recipeNormal,#grinderCard,.rc-mode) .ms-btn{position:relative}
+body.dense :is(#recipeNormal,#grinderCard,.rc-mode) .dose-adj>.ms-btn:first-child::after{content:'';position:absolute;inset:0 0 0 -4px}
+body.dense :is(#recipeNormal,#grinderCard,.rc-mode) .dose-adj>.ms-btn:last-child::after{content:'';position:absolute;inset:0 -4px 0 0}
 /* The long-press hint hangs below the five actions, and on its side the header
    has no bottom padding to hang it in, so it sat on the header's edge. The
    actions take 3px less above and below and the hint comes up into the room. */
@@ -3746,11 +3764,6 @@ body.compact .ep-card .cfoot>button:last-child::after{right:-7px}
    are drawn as they were, except the two that had room to be drawn larger;
    the rest answer a wider reach through an unseen ::after (::before where the
    ::after was taken). */
-/* A step's move, copy and delete were 19px in a row of four with 2px between
-   them, delete last. The table has 90px to spare beside the step editor and
-   140 on end, so they are 30 with 4 between, and reach the row's full height. */
-body.compact .ep-grid td.ops button{position:relative;width:30px;height:30px;margin-left:4px;font-size:13px}
-body.compact .ep-grid td.ops button::after{content:'';position:absolute;inset:-4px -2px}
 /* The nine rows of the taste card were pips 26x24, in a dialog that opens
    after every shot with 200px lying empty to their right. */
 body.compact .tc-row{min-height:42px}
@@ -3768,11 +3781,6 @@ body.compact .preset-chip .pc-save:last-child::after{right:-12px}
 /* The pencil on the loaded cover, 22px in the cover's corner; a miss is a tap
    on the cover. The cover's own edge is where its reach ends. */
 body.compact .al-edit::after{content:'';position:absolute;inset:-8px}
-/* - and + beside the dose, the ratio and the yield were narrowed to 26px to
-   leave the number its room (23 on the screen). They reach 5px further out
-   each way, which takes 2 from the number between them. */
-body.compact .recipe .rg-cols .ms-btn{position:relative}
-body.compact .recipe .rg-cols .ms-btn::after{content:'';position:absolute;inset:-4px -5px}
 /* The legend over a graph switches its lines on and off, 19px tall. */
 body.compact .legend-item.tog{position:relative}
 body.compact .legend-item.tog::after{content:'';position:absolute;inset:-7px 0}
@@ -3825,12 +3833,14 @@ body.dense:not(.portrait) #slDetail .sl-temp-wrap{height:96px}
 body.portrait #shotLogPage .ep-body{grid-template-rows:minmax(0,200px) minmax(0,1fr)}
 body.portrait #slList{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-auto-rows:min-content;align-content:start;gap:7px 10px}
 body.portrait #slList>:not(.ep-item){grid-column:1/-1}
-/* Upstream 1.230.0 put a four-stars-and-up switch on a row of its own under the
-   search box. In a 200px strip that row cost the shots theirs: 38px were left,
-   half of the first pair. It shares the heading's row instead, at its right. */
+/* Upstream puts its All / four-stars-and-up choice (1.249: a two-way switch) on
+   a row of its own under the search box. In a 200px strip that row cost the
+   shots theirs: half of the first pair was left. It shares the heading's row
+   instead, at its right, a finger tall. */
 body.portrait #slList>.ep-search{grid-row:1}
-body.portrait #slList>.ep-group-head{grid-column:1;grid-row:2}
-body.portrait #slList>.sl-liked{grid-column:2;grid-row:2;justify-self:end;align-self:center;min-width:92px;margin:0;position:sticky;top:0;z-index:3}
+body.portrait #slList>.sl-head{grid-column:1;grid-row:2}
+body.portrait #slList>.sl-filter{grid-column:2;grid-row:2;justify-self:end;align-self:center;margin:0}
+body.portrait #slList>.sl-filter button{flex:none;height:40px}
 /* Settings on end. Seven names down a 300px rail left the settings 348px (428
    at 800), and a sentence beside its control folded into six lines. The names
    go across the top, each under its icon, and the settings take the width. */
@@ -17548,6 +17558,20 @@ epScrollRowIntoView=function(i){
   var k=duoScaleOf(w), wb=w.getBoundingClientRect(), rb=tr.getBoundingClientRect();
   if(rb.top<wb.top) w.scrollTop-=(wb.top-rb.top)/k+4;
   else if(rb.bottom>wb.bottom) w.scrollTop+=(rb.bottom-wb.bottom)/k+4; };
+// Upstream 1.249 puts a toast under the stage's left column by the numbers of
+// the 1280-wide stage: its middle 420 in, at most 800 wide. A reshaped stage's
+// left column is narrower (614 of 1024 on the Duo's side, so the toast stood
+// over the right column's edge), and on end there is one column, where its
+// middle came 108px left of the screen's. It goes under the column that is there.
+var _duoToastPlace=toastPlace;
+toastPlace=function(el){
+  _duoToastPlace(el);
+  var b=document.body, end=b.classList.contains('portrait');
+  if(!end&&!b.classList.contains('compact')) return;
+  var a=document.querySelector('.app'), col=end?a:document.querySelector('.app>.center');
+  var r=col&&col.getBoundingClientRect(); if(!r||r.width<100) return;
+  el.style.left=Math.round(r.left+r.width/2)+'px';
+  el.style.maxWidth=Math.round(r.width-32*duoScaleOf(a))+'px'; };
 var DUO_CURVE_AHEAD='100% 0px';
 ensureCurveObserver=function(){ if(epCurveObserver||!('IntersectionObserver' in window)) return;
   epCurveObserver=new IntersectionObserver(function(entries){ entries.forEach(function(en){

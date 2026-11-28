@@ -79,12 +79,90 @@ test('on end steam\'s controls each keep their own room', function (T) {
 });
 
 test('the shot\'s line in the header is whole', function (T) {
+  var wasLang = prefs.lang;
+  ['en', 'ko'].forEach(function (lang) {
+    prefs.lang = lang; applyI18n();
+    ['side', 'end'].forEach(function (kind) {
+      duoShape(kind);
+      var s = T.el('#shotSum'), was = s.textContent;
+      s.textContent = '90.0° · 18.0 → 36.0g · 1:2.0';
+      T.atMost(s.scrollWidth - s.clientWidth, 1, lang + ' ' + kind + ': not cut to an ellipsis');
+      T.all('.hdr-aux .act-btn').forEach(function (b) {
+        if (!b.offsetWidth || b === s.closest('.act-btn')) return;
+        ['.ab-head', '.ab-sum'].forEach(function (q) {
+          var e = b.querySelector(q);
+          T.atMost(e.scrollWidth - e.clientWidth, 1, lang + ' ' + kind + ': ' + b.id + ' ' + q + ' whole beside it');
+        });
+      });
+      s.textContent = was;
+    });
+  });
+  prefs.lang = wasLang; applyI18n();
+  duoShape(null);
+});
+
+test('the recipe\'s numbers are whole, the sleep key says something, and the grinder sits under the recipe', function (T) {
+  var gc = T.el('#grinderCard'), wasHidden = gc.hidden, wasOff = gc.classList.contains('off-mode');
+  gc.hidden = false; gc.classList.remove('off-mode');
+  var dO = T.el('#doseOutVal'), was = dO.textContent;
   ['side', 'end'].forEach(function (kind) {
     duoShape(kind);
-    var s = T.el('#shotSum'), was = s.textContent;
-    s.textContent = '90.0° · 18.0 → 36.0g · 1:2.0';
-    T.atMost(s.scrollWidth - s.clientWidth, 1, kind + ': not cut to an ellipsis');
-    s.textContent = was;
+    [['18.0', false], ['100.0', true]].forEach(function (v) {
+      dO.textContent = v[0]; T.el('#doseOut').classList.toggle('long', v[1]);
+      T.all('#recipeNormal .dose-block').forEach(function (c) {
+        if (!c.offsetWidth) return;
+        var e = c.querySelector('.dose-num,.rv,.th-wrap');
+        T.atMost(e.scrollWidth - e.clientWidth, 1, kind + ' ' + c.id + ' "' + e.textContent.trim() + '" whole');
+      });
+    });
+    var sl = T.el('#btnSleep'), seen = Array.prototype.some.call(sl.children, function (k) { return k.offsetWidth > 0; });
+    T.ok(seen, kind + ': the sleep key shows its moon or its word');
+    var g = gc.getBoundingClientRect(), r = T.el('.recipe').getBoundingClientRect(), car = T.el('#carouselCard').getBoundingClientRect();
+    if (kind === 'end') {
+      T.atMost(Math.abs(g.left - r.left), 1, 'end: the grinder lines up under the recipe');
+      T.atMost(Math.abs(g.top - r.bottom), 12, 'end: right under it');
+      T.atMost(Math.round(g.bottom - car.bottom), 1, 'end: no lower than the covers beside it');
+    }
+    var gv = T.el('#grindVal');
+    T.atMost(gv.scrollWidth - gv.clientWidth, 1, kind + ': the grind setting is whole');
+  });
+  dO.textContent = was; T.el('#doseOut').classList.remove('long');
+  gc.hidden = wasHidden; gc.classList.toggle('off-mode', wasOff);
+  duoShape(null);
+});
+
+test('a graph\'s title on the main screen is one line', function (T) {
+  var wasLang = prefs.lang;
+  function lines(e) {
+    var r = document.createRange(); r.selectNodeContents(e);
+    var tops = {}; Array.prototype.forEach.call(r.getClientRects(), function (b) { if (b.width > 0) tops[Math.round(b.top)] = 1; });
+    return Object.keys(tops).length;
+  }
+  ['ko', 'en'].forEach(function (lang) {
+    prefs.lang = lang; applyI18n();
+    ['side', 'end'].forEach(function (kind) {
+      duoShape(kind);
+      T.all('.app .chart-card .chart-title').forEach(function (e) {
+        if (e.offsetWidth) T.eq(lines(e), 1, lang + ' ' + kind + ': "' + e.textContent.trim() + '" on one line');
+      });
+    });
+  });
+  prefs.lang = wasLang; applyI18n();
+  duoShape(null);
+});
+
+test('a toast stands under the column that is there', function (T) {
+  ['side', 'end'].forEach(function (kind) {
+    duoShape(kind);
+    toast('Saved');
+    var e = T.el('#toast').getBoundingClientRect();
+    var col = (kind === 'end' ? T.el('.app') : T.el('.app>.center')).getBoundingClientRect();
+    T.atMost(Math.abs((e.left + e.right) / 2 - (col.left + col.right) / 2), 2, kind + ': its middle is the column\'s');
+    T.el('#toast').textContent = 'A long message about something that went wrong while the shot was being saved to the gateway';
+    toastPlace(T.el('#toast'));
+    e = T.el('#toast').getBoundingClientRect();
+    T.ok(e.left >= col.left - 1 && e.right <= col.right + 1, kind + ': a long one stays inside it: ' + Math.round(e.left) + '-' + Math.round(e.right) + ' in ' + Math.round(col.left) + '-' + Math.round(col.right));
+    T.el('#toast').classList.remove('show');
   });
   duoShape(null);
 });
@@ -142,8 +220,10 @@ test('on end settings and tags give their content the width', function (T) {
 
 test('small controls answer further than they are drawn', function (T) {
   duoShape('side');
-  var ms = duoReach(T.el('.recipe .rg-cols .ms-btn'));
-  T.ok(ms.w >= ms.dw + 6, '- and + beside the dose: ' + ms.dw + ' drawn, ' + ms.w + ' answering');
+  ['#cellDose .ms-btn:first-child', '#cellDose .ms-btn:last-child'].forEach(function (q) {
+    var ms = duoReach(T.el(q));
+    T.ok(ms.w >= ms.dw + 3, q + ': ' + ms.dw + ' drawn, ' + ms.w + ' answering');
+  });
   var lg = duoReach(T.el('.legend-item.tog'));
   T.ok(lg.h >= lg.dh + 8, 'a legend switch: ' + lg.dh + ' tall, ' + lg.h + ' answering');
   setRecipeMode('steam', true);
@@ -158,10 +238,9 @@ test('small controls answer further than they are drawn', function (T) {
   setRecipeMode('espresso', true);
   openEditPage();
   epOpenEditor(allProfiles.filter(function (x) { return ((x.profile || {}).steps || []).length >= 6; })[0] || allProfiles[0]);
-  var op = T.el('#epStepGrid td.ops button'), wrap = T.el('#epEditor .ep-grid-wrap');
-  var o = duoReach(op);
-  T.ok(o.dw >= 25 && o.w >= 28 && o.h >= 30, 'a step\'s buttons: ' + o.dw + ' drawn, ' + o.w + 'x' + o.h + ' answering');
-  T.atMost(wrap.scrollWidth - wrap.clientWidth, 1, 'and the table still fits beside the step editor');
+  // upstream 1.249 moved a step by its grip and dropped the row's buttons
+  var wrap = T.el('#epEditor .ep-grid-wrap');
+  T.atMost(wrap.scrollWidth - wrap.clientWidth, 1, 'the step table fits beside the step editor');
   closeEditPage();
   var pip = document.querySelector('.tc-pip') || (function () { var p = document.createElement('button'); p.className = 'tc-pip'; p.id = '__pip'; document.body.appendChild(p); return p; })();
   T.ok(parseFloat(T.css(pip, 'width')) >= 36 && parseFloat(T.css(pip, 'height')) >= 32, 'a taste pip is ' + T.css(pip, 'width') + ' by ' + T.css(pip, 'height'));
